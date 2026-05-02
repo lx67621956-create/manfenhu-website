@@ -1,0 +1,52 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="课程体系 - 青少年体能培训机构">
+  <section class="page-hero" style="background:linear-gradient(135deg, var(--c-primary), #FF8C42);">
+    <div class="container">
+      <h1>课程体系</h1>
+      <p>科学分龄，因材施教</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid-3">
+        <div class="card course-card">
+          <div class="placeholder" style="min-height:160px;">中考体育封面</div>
+          <div class="card-body">
+            <h3>中考体育特训</h3>
+            <p class="text-muted">针对中考体育测试项目，专项提分训练。</p>
+            <a href="/courses/zhongkao/" class="btn btn-outline btn-sm">查看详情</a>
+          </div>
+        </div>
+        <div class="card course-card">
+          <div class="placeholder" style="min-height:160px;">少儿体能封面</div>
+          <div class="card-body">
+            <h3>少儿体能训练</h3>
+            <p class="text-muted">4-12岁少儿基础体能，培养运动兴趣。</p>
+            <a href="/courses/ertong/" class="btn btn-outline btn-sm">查看详情</a>
+          </div>
+        </div>
+        <div class="card course-card">
+          <div class="placeholder" style="min-height:160px;">手球特训封面</div>
+          <div class="card-body">
+            <h3>手球专项特训</h3>
+            <p class="text-muted">专业手球技战术训练，培养团队协作。</p>
+            <a href="/courses/shouqiu/" class="btn btn-outline btn-sm">查看详情</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero { color: #fff; padding: 64px 0; text-align: center; }
+  .page-hero h1 { font-size: 2.5rem; margin-bottom: 8px; }
+  .course-card .card-body { padding: 20px; }
+  .course-card h3 { margin-bottom: 8px; }
+  .text-muted { color: var(--c-text-muted); font-size: .9rem; margin-bottom: 16px; }
+  .btn-sm { padding: 10px 20px; font-size: .9rem; }
+</style>

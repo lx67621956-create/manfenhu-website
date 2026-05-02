@@ -1,0 +1,69 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="首页 - 青少年体能培训机构">
+  <!-- 轮播图占位 -->
+  <section class="hero-banner">
+    <div class="placeholder hero-placeholder">
+      🖼️ 轮播图位置（建议尺寸：1920×600）<br/>可上传 3-5 张宣传图
+    </div>
+  </section>
+
+  <!-- 课程展示占位 -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">课程体系</h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="placeholder" style="min-height:180px;">中考体育课程图</div>
+          <div class="card-body">
+            <h3>中考体育特训</h3>
+            <p class="text-muted">课程简介待填写</p>
+            <a href="/courses/zhongkao/" class="btn btn-outline">了解详情</a>
+          </div>
+        </div>
+        <div class="card">
+          <div class="placeholder" style="min-height:180px;">少儿体能课程图</div>
+          <div class="card-body">
+            <h3>少儿体能训练</h3>
+            <p class="text-muted">课程简介待填写</p>
+            <a href="/courses/ertong/" class="btn btn-outline">了解详情</a>
+          </div>
+        </div>
+        <div class="card">
+          <div class="placeholder" style="min-height:180px;">手球特训课程图</div>
+          <div class="card-body">
+            <h3>手球专项特训</h3>
+            <p class="text-muted">课程简介待填写</p>
+            <a href="/courses/shouqiu/" class="btn btn-outline">了解详情</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 机构简介占位 -->
+  <section class="section" style="background:var(--c-surface);">
+    <div class="container">
+      <h2 class="section-title">关于我们</h2>
+      <div class="grid-2" style="align-items:center;">
+        <div class="placeholder" style="min-height:280px;">📷 机构照片/视频</div>
+        <div>
+          <h3 style="margin-bottom:16px;">机构名称待填写</h3>
+          <p class="text-muted" style="margin-bottom:24px;">机构简介待填写...</p>
+          <a href="/contact/" class="btn btn-primary">预约体验</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero-banner { position: relative; }
+  .hero-placeholder { min-height: 400px; font-size: 1.1rem; }
+  .card-body { padding: 24px; }
+  .card-body h3 { margin-bottom: 8px; }
+  .text-muted { color: var(--c-text-muted); }
+  @media (max-width: 768px) { .hero-placeholder { min-height: 240px; } }
+</style>

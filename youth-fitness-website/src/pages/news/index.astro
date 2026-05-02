@@ -1,0 +1,27 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="资讯动态 - 青少年体能培训机构">
+  <section class="page-hero" style="background:linear-gradient(135deg, var(--c-secondary), #00B8D4);">
+    <div class="container"><h1>资讯动态</h1></div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="news-placeholder">
+        <div class="placeholder" style="min-height:320px;">
+          📝 资讯动态栏目<br/><br/>
+          此页面为模板，后续定时发文时自动填充内容<br/>
+          格式：标题 + 封面图 + 摘要 + 发布时间
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero { color: #fff; padding: 48px 0; text-align: center; }
+  .page-hero h1 { font-size: 2rem; }
+  .news-placeholder { max-width: 800px; margin: 0 auto; }
+</style>

@@ -1,0 +1,66 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="学员风采 - 青少年体能培训机构">
+  <section class="page-hero" style="background:linear-gradient(135deg, var(--c-accent), #00E676);">
+    <div class="container"><h1>学员风采</h1></div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">训练瞬间</h2>
+      <div class="grid-4">
+        <div class="placeholder" style="min-height:160px;">📷 学员照片1</div>
+        <div class="placeholder" style="min-height:160px;">📷 学员照片2</div>
+        <div class="placeholder" style="min-height:160px;">📷 学员照片3</div>
+        <div class="placeholder" style="min-height:160px;">📷 学员照片4</div>
+        <div class="placeholder" style="min-height:160px;">📷 学员照片5</div>
+        <div class="placeholder" style="min-height:160px;">📷 学员照片6</div>
+        <div class="placeholder" style="min-height:160px;">📷 学员照片7</div>
+        <div class="placeholder" style="min-height:160px;">📷 学员照片8</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--c-surface);">
+    <div class="container">
+      <h2 class="section-title">学员故事</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="placeholder" style="min-height:180px;">📷 故事配图</div>
+          <div class="card-body">
+            <h3>学员姓名</h3>
+            <p class="text-muted">成长故事待填写...</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="placeholder" style="min-height:180px;">📷 故事配图</div>
+          <div class="card-body">
+            <h3>学员姓名</h3>
+            <p class="text-muted">成长故事待填写...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">荣誉墙</h2>
+      <div class="grid-3">
+        <div class="placeholder" style="min-height:180px;">🏆 荣誉证书/奖杯1</div>
+        <div class="placeholder" style="min-height:180px;">🏆 荣誉证书/奖杯2</div>
+        <div class="placeholder" style="min-height:180px;">🏆 荣誉证书/奖杯3</div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero { color: #fff; padding: 48px 0; text-align: center; }
+  .page-hero h1 { font-size: 2rem; }
+  .card-body { padding: 16px; }
+  .card-body h3 { margin-bottom: 8px; }
+  .text-muted { color: var(--c-text-muted); }
+</style>

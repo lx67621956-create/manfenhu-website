@@ -1,0 +1,176 @@
+---
+export interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  article?: boolean;
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  tags?: string[];
+}
+
+const {
+  title,
+  description = "满分虎体育 — 中考体育 / 少儿体能 / 手球特训",
+  image = "/images/og-default.png",
+  article = false,
+  publishedTime,
+  modifiedTime,
+  tags = [],
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const imageURL = new URL(image, Astro.site);
+
+const navItems = [
+  { href: "/", label: "首页" },
+  { href: "/courses/", label: "课程体系" },
+  { href: "/venue/", label: "训练环境" },
+  { href: "/team/", label: "师资团队" },
+  { href: "/students/", label: "学员风采" },
+  { href: "/news/", label: "资讯动态" },
+  { href: "/contact/", label: "联系我们" },
+];
+---
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="generator" content={Astro.generator} />
+
+  <!-- SEO 基础 -->
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content={article ? "article" : "website"} />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={imageURL} />
+  <meta property="og:locale" content="zh_CN" />
+  {article && publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
+  {article && tags.map(t => <meta property="article:tag" content={t} />)}
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={imageURL} />
+
+  <!-- 结构化数据 -->
+  {article ? (
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": title,
+      "description": description,
+      "image": imageURL.href,
+      "datePublished": publishedTime?.toISOString(),
+      "author": { "@type": "Organization", "name": "青少年体能培训机构" },
+      "publisher": { "@type": "Organization", "name": "青少年体能培训机构" }
+    })} />
+  ) : (
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SportsActivityLocation",
+      "name": "青少年体能培训机构",
+      "description": description,
+      "url": Astro.site?.href
+    })} />
+  )}
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/styles/global.css" />
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo">
+        <img src="/images/logo.png" alt="满分虎体育" width="36" height="36" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'" />
+        <span style="display:none;">🐯</span>
+        <span>满分虎体育</span>
+      </a>
+      <nav class="main-nav">
+        {navItems.map(item => (
+          <a href={item.href} class:list={["nav-link", { active: Astro.url.pathname === item.href || (item.href !== "/" && Astro.url.pathname.startsWith(item.href)) }]}>{item.label}</a>
+        ))}
+      </nav>
+      <!-- 移动端汉堡菜单 -->
+      <button class="menu-toggle" aria-label="菜单">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-col footer-brand">
+        <a href="/" class="footer-logo">
+          <img src="/images/logo.png" alt="满分虎体育" width="40" height="40" onerror="this.style.display='none'" />
+          <div>
+            <strong>满分虎体育</strong>
+            <p>专业 · 科学 · 有趣</p>
+          </div>
+        </a>
+      </div>
+      <div class="footer-col">
+        <p>联系电话：待填写</p>
+        <p>营业时间：待填写</p>
+      </div>
+      <div class="footer-col">
+        <p>&copy; {new Date().getFullYear()} 满分虎体育 保留所有权利</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // 移动端菜单切换
+    const toggle = document.querySelector('.menu-toggle');
+    const nav = document.querySelector('.main-nav');
+    toggle?.addEventListener('click', () => nav?.classList.toggle('open'));
+  </script>
+
+  <style>
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--c-bg);
+      border-bottom: 1px solid var(--c-border);
+    }
+    .header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 12px; padding-bottom: 12px;
+    }
+    .logo { font-size: 1.25rem; font-weight: 700; color: var(--c-primary); }
+    .main-nav { display: flex; gap: 28px; }
+    .nav-link { font-weight: 500; font-size: .95rem; color: var(--c-text); transition: color .2s; }
+    .nav-link:hover, .nav-link.active { color: var(--c-primary); }
+    .menu-toggle { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--c-text); }
+
+    .site-footer { background: var(--c-surface); padding: 48px 0 32px; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
+    .footer-col { color: var(--c-text-muted); font-size: .9rem; }
+    .footer-col strong { color: var(--c-text); font-size: 1rem; display: block; margin-bottom: 4px; }
+    .footer-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .footer-logo img { border-radius: 6px; }
+    .footer-logo strong { color: var(--c-primary); font-size: 1.1rem; }
+    .footer-logo p { margin: 0; font-size: .85rem; }
+    .logo img { vertical-align: middle; border-radius: 4px; }
+    .logo span { margin-left: 8px; font-weight: 700; color: var(--c-primary); }
+
+    @media (max-width: 768px) {
+      .main-nav { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--c-bg); border-bottom: 1px solid var(--c-border); padding: 16px 24px; gap: 16px; }
+      .main-nav.open { display: flex; }
+      .menu-toggle { display: block; }
+      .footer-inner { flex-direction: column; }
+    }
+  </style>
+</body>
+</html>

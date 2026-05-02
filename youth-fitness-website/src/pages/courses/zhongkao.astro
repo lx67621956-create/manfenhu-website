@@ -1,0 +1,49 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="中考体育特训 - 青少年体能培训机构">
+  <section class="page-hero" style="background:linear-gradient(135deg, var(--c-primary), #FF8C42);">
+    <div class="container"><h1>中考体育特训</h1></div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid-2" style="align-items:start;">
+        <div class="placeholder" style="min-height:300px;">📷 课程封面图</div>
+        <div>
+          <h2 style="margin-bottom:16px;">课程介绍</h2>
+          <p class="text-muted" style="margin-bottom:24px;">课程详细介绍待填写...</p>
+          <h3 style="margin-bottom:12px;">训练项目</h3>
+          <ul class="feature-list">
+            <li>🏃 项目一待填写</li>
+            <li>🏃 项目二待填写</li>
+            <li>🏃 项目三待填写</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--c-surface);">
+    <div class="container">
+      <h2 class="section-title">课程安排</h2>
+      <div class="placeholder" style="min-height:200px;">📅 课时安排表格待填写</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="text-align:center;">
+      <h2 style="margin-bottom:24px;">预约免费体验课</h2>
+      <a href="/contact/" class="btn btn-primary">立即预约</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero { color: #fff; padding: 48px 0; text-align: center; }
+  .page-hero h1 { font-size: 2rem; }
+  .text-muted { color: var(--c-text-muted); }
+  .feature-list { padding-left: 20px; }
+  .feature-list li { margin-bottom: 8px; color: var(--c-text-muted); }
+</style>
