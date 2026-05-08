@@ -1,23 +1,13 @@
 ---
-layout: '@layouts/BaseLayout.astro'
-title: '抓住运动敏感期：让孩子赢在体育起跑线上'
-description: '在孩子成长过程中，存在若干个运动发展的敏感期。科学把握这些黄金时期，将对孩子的身体发育和运动能力产生深远影响。满分虎今天和大家聊聊儿童运动发展敏感期的那些事儿。'
-pubDate: '2026-05-08'
-author: '满分虎中考体育'
+import ArticleLayout from '@layouts/ArticleLayout.astro';
 ---
 
-import BaseLayout from '@layouts/BaseLayout.astro';
-
+<ArticleLayout title="抓住运动敏感期：让孩子赢在体育起跑线上" description="在孩子成长过程中，存在若干个运动发展的敏感期。科学把握这些黄金时期，将对孩子的身体发育和运动能力产生深远影响。满分虎今天和大家聊聊儿童运动发展敏感期的那些事儿。" pubDate="2026-05-08">
 <BaseLayout title="抓住运动敏感期 - 满分虎中考体育">
-  <section class="page-hero" style="background:linear-gradient(135deg, var(--c-secondary), #00B8D4);">
-    <div class="container">
-      <h1>抓住运动敏感期：让孩子赢在体育起跑线上</h1>
-      <p class="meta">2026年5月8日 · 满分虎青少年体能</p>
-    </div>
-  </section>
+  
 
-  <article class="article-content">
-    <div class="container">
+  
+    
       <p>在孩子的成长过程中，存在若干个运动发展的敏感期。这些时期是孩子运动能力飞速发展的黄金阶段，如果能够科学把握，将对孩子的身体发育和运动能力产生深远影响。作为北京专业的青少年体能培训机构，满分虎今天就和大家聊聊儿童运动发展敏感期的那些事儿。</p>
 
       <h2 id="what">一、什么是运动敏感期</h2>
@@ -57,26 +47,4 @@ import BaseLayout from '@layouts/BaseLayout.astro';
       <p class="conclusion">抓住运动敏感期，就是抓住孩子体育发展的黄金时期。满分虎愿与各位家长携手，在孩子成长的关键阶段给予科学的引导和专业的支持，让孩子赢在体育的起跑线上！</p>
 
       <div class="article-footer">
-        <a href="/news" class="back-link">← 返回资讯列表</a>
-      </div>
-    </div>
-  </article>
-</BaseLayout>
-
-<style>
-  .page-hero { color: #fff; padding: 64px 0; text-align: center; }
-  .page-hero h1 { font-size: 2rem; margin-bottom: 16px; }
-  .page-hero .meta { opacity: 0.9; font-size: 0.95rem; }
-  
-  .article-content { padding: 48px 0 64px; }
-  .article-content .container { max-width: 800px; margin: 0 auto; }
-  .article-content p { line-height: 1.8; margin-bottom: 20px; }
-  .article-content h2 { margin: 48px 0 24px; color: var(--c-primary); }
-  .article-content h3 { margin: 32px 0 16px; color: var(--c-text); }
-  .article-content ul { margin: 24px 0; padding-left: 24px; }
-  .article-content li { line-height: 1.8; margin-bottom: 12px; }
-  .article-content .conclusion { font-weight: 500; background: var(--c-bg-alt); padding: 24px; border-radius: 12px; border-left: 4px solid var(--c-primary); }
-  .article-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--c-border); }
-  .back-link { color: var(--c-primary); text-decoration: none; }
-  .back-link:hover { text-decoration: underline; }
-</style>
+</ArticleLayout>

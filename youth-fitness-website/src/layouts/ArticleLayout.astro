@@ -1,0 +1,49 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  pubDate?: string;
+  image?: string;
+}
+
+const { title, description, pubDate, image } = Astro.props;
+---
+
+<BaseLayout title={title + ' - 满分虎体育'}>
+  <section class="page-hero" style="background:linear-gradient(135deg, var(--c-secondary), #00B8D4);">
+    <div class="container">
+      <h1>{title}</h1>
+      {pubDate && <p class="meta">{pubDate}</p>}
+    </div>
+  </section>
+
+  <section class="article-content">
+    <div class="container">
+      <article class="article-body">
+        <slot />
+      </article>
+      <div class="article-footer">
+        <a href="/news" class="back-link">← 返回资讯列表</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero { color: #fff; padding: 64px 0; text-align: center; }
+  .page-hero h1 { font-size: 2rem; margin-bottom: 16px; }
+  .page-hero .meta { opacity: 0.9; font-size: 0.95rem; }
+  
+  .article-content { padding: 48px 0 64px; }
+  .article-content .container { max-width: 800px; margin: 0 auto; }
+  .article-body { line-height: 1.8; }
+  .article-body :global(p) { margin-bottom: 20px; }
+  .article-body :global(h2) { margin: 48px 0 24px; color: var(--c-primary); font-size: 1.5rem; }
+  .article-body :global(h3) { margin: 32px 0 16px; color: var(--c-text); font-size: 1.25rem; }
+  .article-body :global(ul), .article-body :global(ol) { margin: 16px 0; padding-left: 24px; }
+  .article-body :global(li) { margin-bottom: 8px; }
+  .article-body :global(img) { max-width: 100%; border-radius: 8px; margin: 24px 0; }
+  .article-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--c-border); }
+  .back-link { color: var(--c-primary); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+</style>

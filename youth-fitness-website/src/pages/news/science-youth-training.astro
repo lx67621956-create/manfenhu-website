@@ -1,23 +1,13 @@
 ---
-layout: '@layouts/BaseLayout.astro'
-title: '青少年体能训练的科学方法：让孩子赢在起跑线上'
-description: '科学的青少年体能训练需要围绕四个核心要素展开：力量、耐力、柔韧性和协调性。本文详细解析如何在专业指导下让孩子科学锻炼、高效提升。'
-pubDate: '2026-05-08'
-author: '满分虎中考体育'
+import ArticleLayout from '@layouts/ArticleLayout.astro';
 ---
 
-import BaseLayout from '@layouts/BaseLayout.astro';
-
+<ArticleLayout title="青少年体能训练的科学方法：让孩子赢在起跑线上" description="科学的青少年体能训练需要围绕四个核心要素展开：力量、耐力、柔韧性和协调性。本文详细解析如何在专业指导下让孩子科学锻炼、高效提升。" pubDate="2026-05-08">
 <BaseLayout title="青少年体能训练的科学方法 - 满分虎中考体育">
-  <section class="page-hero" style="background:linear-gradient(135deg, var(--c-secondary), #00B8D4);">
-    <div class="container">
-      <h1>青少年体能训练的科学方法：让孩子赢在起跑线上</h1>
-      <p class="meta">2026年5月8日 · 满分虎青少年体能</p>
-    </div>
-  </section>
+  
 
-  <article class="article-content">
-    <div class="container">
+  
+    
       <p>随着中考体育改革的深入推进，越来越多的北京家长开始重视孩子的体能训练。然而，面对市场上琳琅满目的训练课程，许多家长往往感到无所适从。今天，我们就来聊聊青少年体能训练的科学方法，帮助您在专业机构的指导下，让孩子科学锻炼、高效提升。</p>
 
       <h2 id="core">一、体能训练的核心要素</h2>
@@ -49,24 +39,4 @@ import BaseLayout from '@layouts/BaseLayout.astro';
       <p class="conclusion">青少年体能训练是一项系统工程，需要科学的方法、专业的指导和持续的坚持。在这个过程中，专业机构的引导至关重要。满分虎致力于帮助每一位青少年科学锻炼、高效提升，让运动成为孩子健康成长的得力助手。</p>
 
       <div class="article-footer">
-        <a href="/news" class="back-link">← 返回资讯列表</a>
-      </div>
-    </div>
-  </article>
-</BaseLayout>
-
-<style>
-  .page-hero { color: #fff; padding: 64px 0; text-align: center; }
-  .page-hero h1 { font-size: 2rem; margin-bottom: 16px; }
-  .page-hero .meta { opacity: 0.9; font-size: 0.95rem; }
-  
-  .article-content { padding: 48px 0 64px; }
-  .article-content .container { max-width: 800px; margin: 0 auto; }
-  .article-content p { line-height: 1.8; margin-bottom: 20px; }
-  .article-content h2 { margin: 48px 0 24px; color: var(--c-primary); }
-  .article-content h3 { margin: 32px 0 16px; color: var(--c-text); }
-  .article-content .conclusion { font-weight: 500; background: var(--c-bg-alt); padding: 24px; border-radius: 12px; border-left: 4px solid var(--c-primary); }
-  .article-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--c-border); }
-  .back-link { color: var(--c-primary); text-decoration: none; }
-  .back-link:hover { text-decoration: underline; }
-</style>
+</ArticleLayout>
