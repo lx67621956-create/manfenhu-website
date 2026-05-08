@@ -19,6 +19,14 @@ const { title, description, pubDate, image } = Astro.props;
     </div>
   </section>
 
+  {image && (
+    <section class="article-hero-image">
+      <div class="container">
+        <img src={image} alt={title} loading="lazy" />
+      </div>
+    </section>
+  )}
+
   <section class="article-content">
     <div class="container">
       <article class="article-body">
@@ -35,6 +43,16 @@ const { title, description, pubDate, image } = Astro.props;
   .page-hero { color: #fff; padding: 64px 0; text-align: center; }
   .page-hero h1 { font-size: 2rem; margin-bottom: 16px; }
   .page-hero .meta { opacity: 0.9; font-size: 0.95rem; }
+  
+  .article-hero-image { padding: 0 0 32px; }
+  .article-hero-image .container { max-width: 800px; margin: 0 auto; }
+  .article-hero-image img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
   
   .article-content { padding: 48px 0 64px; }
   .article-content .container { max-width: 800px; margin: 0 auto; }
