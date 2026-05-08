@@ -70,14 +70,14 @@ const navItems = [
       "description": description,
       "image": imageURL.href,
       "datePublished": publishedTime?.toISOString(),
-      "author": { "@type": "Organization", "name": "青少年体能培训机构" },
-      "publisher": { "@type": "Organization", "name": "青少年体能培训机构" }
+      "author": { "@type": "Organization", "name": "满分虎体育" },
+      "publisher": { "@type": "Organization", "name": "满分虎体育" }
     })} />
   ) : (
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "SportsActivityLocation",
-      "name": "青少年体能培训机构",
+      "name": "满分虎体育",
       "description": description,
       "url": Astro.site?.href
     })} />
@@ -117,13 +117,12 @@ const navItems = [
           <img src="/images/logo.png" alt="满分虎体育" width="40" height="40" onerror="this.style.display='none'" />
           <div>
             <strong>满分虎体育</strong>
-            <p>专业 · 科学 · 有趣</p>
+            <p>专注青少年体质提升</p>
           </div>
         </a>
       </div>
       <div class="footer-col">
-        <p>联系电话：待填写</p>
-        <p>营业时间：待填写</p>
+        <p>联系电话：18600216289</p>
       </div>
       <div class="footer-col">
         <p>&copy; {new Date().getFullYear()} 满分虎体育 保留所有权利</p>
