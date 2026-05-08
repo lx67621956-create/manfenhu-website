@@ -9,12 +9,42 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 
   <section class="section">
     <div class="container">
-      <div class="news-placeholder">
-        <div class="placeholder" style="min-height:320px;">
-          📝 资讯动态栏目<br/><br/>
-          此页面为模板，后续定时发文时自动填充内容<br/>
-          格式：标题 + 封面图 + 摘要 + 发布时间
-        </div>
+      <div class="news-grid">
+        <article class="news-card">
+          <div class="news-image">
+            <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50a?w=800&h=400&fit=crop" alt="青少年体能训练" />
+          </div>
+          <div class="news-content">
+            <time datetime="2026-05-08">2026年5月8日</time>
+            <h2><a href="/news/science-youth-training">青少年体能训练的科学方法：让孩子赢在起跑线上</a></h2>
+            <p>科学的青少年体能训练需要围绕四个核心要素展开：力量、耐力、柔韧性和协调性。本文详细解析如何在专业指导下让孩子科学锻炼、高效提升...</p>
+            <a href="/news/science-youth-training" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <div class="news-image">
+            <img src="https://images.unsplash.com/photo-1461896836934- voices-of-youth?w=800&h=400&fit=crop" alt="美国青少年体育" />
+          </div>
+          <div class="news-content">
+            <time datetime="2026-05-08">2026年5月8日</time>
+            <h2><a href="/news/us-sports-education">美国青少年体育教育体系给我们的启示</a></h2>
+            <p>了解美国青少年体育教育的发展经验，对于提升我国青少年体育教育水平具有重要的借鉴意义。让我们一起走进美国的青少年体育教育体系...</p>
+            <a href="/news/us-sports-education" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <div class="news-image">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&h=400&fit=crop" alt="儿童运动发展" />
+          </div>
+          <div class="news-content">
+            <time datetime="2026-05-08">2026年5月8日</time>
+            <h2><a href="/news/sports-sensitive-period">抓住运动敏感期：让孩子赢在体育起跑线上</a></h2>
+            <p>在孩子成长过程中，存在若干个运动发展的敏感期。科学把握这些黄金时期，将对孩子的身体发育和运动能力产生深远影响...</p>
+            <a href="/news/sports-sensitive-period" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
       </div>
     </div>
   </section>
@@ -23,5 +53,70 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 <style>
   .page-hero { color: #fff; padding: 48px 0; text-align: center; }
   .page-hero h1 { font-size: 2rem; }
-  .news-placeholder { max-width: 800px; margin: 0 auto; }
+  
+  .section { padding: 64px 0; }
+  .news-grid { display: grid; gap: 32px; max-width: 900px; margin: 0 auto; }
+  
+  .news-card {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .news-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+  
+  .news-image {
+    height: 200px;
+    overflow: hidden;
+  }
+  
+  .news-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .news-content {
+    padding: 24px;
+  }
+  
+  .news-content time {
+    color: #888;
+    font-size: 0.875rem;
+  }
+  
+  .news-content h2 {
+    margin: 12px 0;
+    font-size: 1.25rem;
+  }
+  
+  .news-content h2 a {
+    color: var(--c-text);
+    text-decoration: none;
+  }
+  
+  .news-content h2 a:hover {
+    color: var(--c-primary);
+  }
+  
+  .news-content p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  
+  .read-more {
+    color: var(--c-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .read-more:hover {
+    text-decoration: underline;
+  }
 </style>
