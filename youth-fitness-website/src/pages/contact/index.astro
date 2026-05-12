@@ -31,24 +31,14 @@ import BaseLayout from '@layouts/BaseLayout.astro';
             <span class="icon">📞</span>
             <div>
               <strong>联系电话</strong>
-              <p class="text-muted">待填写</p>
+              <p class="text-muted">18600216289</p>
             </div>
           </div>
-          <div class="info-item">
-            <span class="icon">⏰</span>
-            <div>
-              <strong>营业时间</strong>
-              <p class="text-muted">待填写</p>
-            </div>
-          </div>
-
-          <!-- 微信二维码 -->
           <div class="info-item" style="margin-top:32px;">
-            <div class="qrcode-placeholder">
-              <div class="placeholder" style="min-height:160px;">
-                💚 微信二维码<br/>
-                <small style="font-size:0.8rem;">放入文件：public/images/wechat-qr.png</small>
-              </div>
+            <span class="icon">💚</span>
+            <div>
+              <strong>微信二维码</strong>
+              <img src="/images/wechat-qr.png" alt="微信二维码" class="contact-qr" />
             </div>
           </div>
         </div>
@@ -78,6 +68,13 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   .info-item .icon { font-size: 1.5rem; }
   .info-item strong { display: block; margin-bottom: 4px; }
   .text-muted { color: var(--c-text-muted); }
+  
+  .contact-qr {
+    width: 160px;
+    height: 160px;
+    margin-top: 12px;
+    border-radius: 8px;
+  }
 
   @media (max-width: 768px) {
     .grid-2 { grid-template-columns: 1fr !important; }

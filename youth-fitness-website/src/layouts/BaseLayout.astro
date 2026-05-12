@@ -91,9 +91,9 @@ const navItems = [
   <header class="site-header">
     <div class="container header-inner">
       <a href="/" class="logo">
-        <img src="/images/logo.png" alt="满分虎体育" width="36" height="36" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'" />
+        <img src="/images/logo.png" alt="满分虎体育" width="48" height="48" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'" />
         <span style="display:none;">🐯</span>
-        <span>满分虎体育</span>
+        <span class="logo-text">满分虎体育</span>
       </a>
       <nav class="main-nav">
         {navItems.map(item => (
@@ -114,15 +114,16 @@ const navItems = [
     <div class="container footer-inner">
       <div class="footer-col footer-brand">
         <a href="/" class="footer-logo">
-          <img src="/images/logo.png" alt="满分虎体育" width="40" height="40" onerror="this.style.display='none'" />
+          <img src="/images/logo.png" alt="满分虎体育" width="48" height="48" onerror="this.style.display='none'" />
           <div>
             <strong>满分虎体育</strong>
             <p>专注青少年体质提升</p>
           </div>
         </a>
       </div>
-      <div class="footer-col">
-        <p>联系电话：18600216289</p>
+      <div class="footer-col footer-contact">
+        <p><strong>联系电话：</strong>18600216289</p>
+        <img src="/images/wechat-qr.png" alt="微信二维码" class="footer-qr" />
       </div>
       <div class="footer-col">
         <p>&copy; {new Date().getFullYear()} 满分虎体育 保留所有权利</p>
@@ -162,6 +163,9 @@ const navItems = [
     .footer-logo strong { color: var(--c-primary); font-size: 1.1rem; }
     .footer-logo p { margin: 0; font-size: .85rem; }
     .logo img { vertical-align: middle; border-radius: 4px; }
+    .logo .logo-text { margin-left: 8px; font-weight: 700; color: var(--c-primary); }
+    .footer-qr { width: 100px; height: 100px; margin-top: 12px; border-radius: 8px; }
+    .footer-contact strong { color: var(--c-text); }
     .logo span { margin-left: 8px; font-weight: 700; color: var(--c-primary); }
 
     @media (max-width: 768px) {
