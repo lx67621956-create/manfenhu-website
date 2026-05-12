@@ -14,7 +14,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
     <div class="container">
       <div class="grid-3">
         <div class="card course-card">
-          <div class="placeholder" style="min-height:160px;">中考体育封面</div>
+          <img src="/images/courses/zhongkao.jpg.png" alt="中考体育特训" class="course-img" />
           <div class="card-body">
             <h3>中考体育特训</h3>
             <p class="text-muted">针对中考体育测试项目，专项提分训练。</p>
@@ -22,7 +22,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
           </div>
         </div>
         <div class="card course-card">
-          <div class="placeholder" style="min-height:160px;">少儿体能封面</div>
+          <img src="/images/courses/ertong.jpg.png" alt="少儿体能训练" class="course-img" />
           <div class="card-body">
             <h3>少儿体能训练</h3>
             <p class="text-muted">4-12岁少儿基础体能，培养运动兴趣。</p>
@@ -30,7 +30,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
           </div>
         </div>
         <div class="card course-card">
-          <div class="placeholder" style="min-height:160px;">手球特训封面</div>
+          <img src="/images/courses/shouqiu.jpg.png" alt="手球专项特训" class="course-img" />
           <div class="card-body">
             <h3>手球专项特训</h3>
             <p class="text-muted">专业手球技战术训练，培养团队协作。</p>
@@ -45,6 +45,13 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 <style>
   .page-hero { color: #fff; padding: 64px 0; text-align: center; }
   .page-hero h1 { font-size: 2.5rem; margin-bottom: 8px; }
+  .course-card { overflow: hidden; }
+  .course-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+  }
   .course-card .card-body { padding: 20px; }
   .course-card h3 { margin-bottom: 8px; }
   .text-muted { color: var(--c-text-muted); font-size: .9rem; margin-bottom: 16px; }
