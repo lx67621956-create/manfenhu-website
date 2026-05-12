@@ -11,24 +11,13 @@ import BaseLayout from '@layouts/BaseLayout.astro';
     <div class="container">
       <div class="grid-2" style="align-items:start;">
         <img src="/images/courses/zhongkao.jpg.png" alt="中考体育特训" class="course-hero-img" />
-        <div>
-          <h2 style="margin-bottom:16px;">课程介绍</h2>
-          <p class="text-muted" style="margin-bottom:24px;">课程详细介绍待填写...</p>
-          <h3 style="margin-bottom:12px;">训练项目</h3>
-          <ul class="feature-list">
-            <li>🏃 项目一待填写</li>
-            <li>🏃 项目二待填写</li>
-            <li>🏃 项目三待填写</li>
-          </ul>
+        <div class="course-content">
+          <h2 style="margin-bottom:16px;">精准提分，决胜中考</h2>
+          <p class="course-intro">
+            我们深知中考体育的一分一毫都至关重要。为此，我们开设了超小班特训课程，严格控制在 2-4 人，确保每位学员都能得到教练的全程关注。课程完全针对中考体育测试项目设计，每节课 120 分钟，我们将根据您孩子的具体情况和薄弱环节，量身定制训练计划，进行高效、精准的专项提分训练，助力孩子在中考体育中取得优异成绩。
+          </p>
         </div>
       </div>
-    </div>
-  </section>
-
-  <section class="section" style="background:var(--c-surface);">
-    <div class="container">
-      <h2 class="section-title">课程安排</h2>
-      <div class="placeholder" style="min-height:200px;">📅 课时安排表格待填写</div>
     </div>
   </section>
 
@@ -43,14 +32,16 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 <style>
   .page-hero { color: #fff; padding: 48px 0; text-align: center; }
   .page-hero h1 { font-size: 2rem; }
-  .text-muted { color: var(--c-text-muted); }
-  .feature-list { padding-left: 20px; }
-  .feature-list li { margin-bottom: 8px; color: var(--c-text-muted); }
   .course-hero-img {
     width: 100%;
     max-width: 500px;
     height: auto;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+  .course-intro {
+    color: var(--c-text-muted);
+    font-size: 1.1rem;
+    line-height: 1.8;
   }
 </style>

@@ -11,24 +11,13 @@ import BaseLayout from '@layouts/BaseLayout.astro';
     <div class="container">
       <div class="grid-2" style="align-items:start;">
         <img src="/images/courses/ertong.jpg.png" alt="少儿体能训练" class="course-hero-img" />
-        <div>
-          <h2 style="margin-bottom:16px;">课程介绍</h2>
-          <p class="text-muted" style="margin-bottom:24px;">课程详细介绍待填写...</p>
-          <h3 style="margin-bottom:12px;">适龄阶段</h3>
-          <ul class="feature-list">
-            <li>👶 4-6岁 启蒙阶段</li>
-            <li>🧒 7-9岁 基础阶段</li>
-            <li>👦 10-12岁 进阶阶段</li>
-          </ul>
+        <div class="course-content">
+          <h2 style="margin-bottom:16px;">快乐运动，健康成长</h2>
+          <p class="course-intro">
+            针对 4-12 岁儿童的身心发展特点，我们推出了充满趣味的少儿体能训练课程。采用小班教学模式，注重个体化指导，让每个孩子都能在轻松愉快的氛围中运动。每节课 90 分钟，我们通过丰富多彩的游戏和活动，进行基础体能训练，不仅能增强孩子的体质，更能有效培养他们的运动兴趣和良好习惯，引导青少年爱上体育，为健康人生打下坚实基础。
+          </p>
         </div>
       </div>
-    </div>
-  </section>
-
-  <section class="section" style="background:var(--c-surface);">
-    <div class="container">
-      <h2 class="section-title">课程安排</h2>
-      <div class="placeholder" style="min-height:200px;">📅 课时安排表格待填写</div>
     </div>
   </section>
 
@@ -43,14 +32,16 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 <style>
   .page-hero { color: #fff; padding: 48px 0; text-align: center; }
   .page-hero h1 { font-size: 2rem; }
-  .text-muted { color: var(--c-text-muted); }
-  .feature-list { padding-left: 20px; }
-  .feature-list li { margin-bottom: 8px; color: var(--c-text-muted); }
   .course-hero-img {
     width: 100%;
     max-width: 500px;
     height: auto;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+  .course-intro {
+    color: var(--c-text-muted);
+    font-size: 1.1rem;
+    line-height: 1.8;
   }
 </style>

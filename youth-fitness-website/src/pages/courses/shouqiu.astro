@@ -11,24 +11,13 @@ import BaseLayout from '@layouts/BaseLayout.astro';
     <div class="container">
       <div class="grid-2" style="align-items:start;">
         <img src="/images/courses/shouqiu.jpg.png" alt="手球专项特训" class="course-hero-img" />
-        <div>
-          <h2 style="margin-bottom:16px;">课程介绍</h2>
-          <p class="text-muted" style="margin-bottom:24px;">课程详细介绍待填写...</p>
-          <h3 style="margin-bottom:12px;">训练内容</h3>
-          <ul class="feature-list">
-            <li>🤾 基础技术训练</li>
-            <li>🤝 战术配合训练</li>
-            <li>🏆 比赛实战演练</li>
-          </ul>
+        <div class="course-content">
+          <h2 style="margin-bottom:16px;">专业启航，成就未来</h2>
+          <p class="course-intro">
+            渴望让孩子接受专业的体育训练，并拥有更广阔的发展空间？我们的手球专项特训是您的不二之选。由国家队教练亲自执教，提供最高水平的专业技战术培训。课程不仅注重个人技术提升，更强调团队协作精神的培养。每节课 90 分钟，学员将有机会参与北京市乃至全国性的专业比赛，更有机会被选送成为专业运动员，为未来的升学和职业发展开辟一条全新的道路。
+          </p>
         </div>
       </div>
-    </div>
-  </section>
-
-  <section class="section" style="background:var(--c-surface);">
-    <div class="container">
-      <h2 class="section-title">课程安排</h2>
-      <div class="placeholder" style="min-height:200px;">📅 课时安排表格待填写</div>
     </div>
   </section>
 
@@ -43,14 +32,16 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 <style>
   .page-hero { color: #fff; padding: 48px 0; text-align: center; }
   .page-hero h1 { font-size: 2rem; }
-  .text-muted { color: var(--c-text-muted); }
-  .feature-list { padding-left: 20px; }
-  .feature-list li { margin-bottom: 8px; color: var(--c-text-muted); }
   .course-hero-img {
     width: 100%;
     max-width: 500px;
     height: auto;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+  .course-intro {
+    color: var(--c-text-muted);
+    font-size: 1.1rem;
+    line-height: 1.8;
   }
 </style>
