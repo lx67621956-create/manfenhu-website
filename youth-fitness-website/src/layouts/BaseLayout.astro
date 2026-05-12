@@ -122,8 +122,11 @@ const navItems = [
         </a>
       </div>
       <div class="footer-col footer-contact">
-        <p><strong>联系电话：</strong>18600216289</p>
-        <img src="/images/wechat-qr.png" alt="微信二维码" class="footer-qr" />
+        <div class="contact-row">
+          <p><strong>联系电话：</strong>18600216289</p>
+          <img src="/images/wechat-qr.png" alt="微信二维码" class="footer-qr" />
+        </div>
+      </div>
       </div>
       <div class="footer-col">
         <p>&copy; {new Date().getFullYear()} 满分虎体育 保留所有权利</p>
@@ -148,7 +151,7 @@ const navItems = [
       display: flex; align-items: center; justify-content: space-between;
       padding-top: 12px; padding-bottom: 12px;
     }
-    .logo { font-size: 1.25rem; font-weight: 700; color: var(--c-primary); }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 1.25rem; font-weight: 700; color: var(--c-primary); }
     .main-nav { display: flex; gap: 28px; }
     .nav-link { font-weight: 500; font-size: .95rem; color: var(--c-text); transition: color .2s; }
     .nav-link:hover, .nav-link.active { color: var(--c-primary); }
@@ -164,7 +167,9 @@ const navItems = [
     .footer-logo p { margin: 0; font-size: .85rem; }
     .logo img { vertical-align: middle; border-radius: 4px; }
     .logo .logo-text { margin-left: 8px; font-weight: 700; color: var(--c-primary); }
-    .footer-qr { width: 100px; height: 100px; margin-top: 12px; border-radius: 8px; }
+    .footer-qr { width: 80px; height: 80px; border-radius: 8px; }
+    .contact-row { display: flex; align-items: center; gap: 24px; }
+    .contact-row p { margin: 0; }
     .footer-contact strong { color: var(--c-text); }
     .logo span { margin-left: 8px; font-weight: 700; color: var(--c-primary); }
 
