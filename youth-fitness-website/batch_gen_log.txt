@@ -1,0 +1,1 @@
+python: can't open file 'C:\\Users\\lx676\\.qclaw\\workspace-agent-c6cfa962\\manfenhu-website\\youth-fitness-website\\batch_gen_images_v2.py': [Errno 2] No such file or directory
