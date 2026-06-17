@@ -389,6 +389,9 @@ init();
 rLoginPets();
 
 setInterval(rfsh,30000);
+
+// 跨标签页数据同步
+window.addEventListener('storage',function(e){if(e.key==='checkin_pets'){rfsh()}});
 </script>
 </body>
 </html>
