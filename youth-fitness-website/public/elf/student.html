@@ -232,9 +232,9 @@ body{background:#F5F0EB;font-family:var(--font);color:var(--pkdark);display:flex
         <div class="bhs"><div class="bn" id="bhN2">—</div><div class="bp" id="bhP2">—</div><div class="bhp"><div class="bhf" id="bhH2"></div></div><div class="bht" id="bhT2">HP</div></div>
       </div>
       <div class="bf" id="bfWrap" style="display:none">
-        <div class="bfp"><img class="be" id="bfE1" src="" style="width:64px;height:64px;object-fit:contain;display:none"><div class="bfn" id="bfN1"></div></div>
+        <div class="bfp"><img class="be" id="bfE1" src="" style="width:64px;height:64px;object-fit:contain;display:none" onerror="this.outerHTML='🐣'"><div class="bfn" id="bfN1"></div></div>
         <div id="bfVS" style="display:none;font-size:20px;font-weight:700;color:#FFD700">VS</div>
-        <div class="bfp"><img class="be" id="bfE2" src="" style="width:64px;height:64px;object-fit:contain;display:none"><div class="bfn" id="bfN2"></div></div>
+        <div class="bfp"><img class="be" id="bfE2" src="" style="width:64px;height:64px;object-fit:contain;display:none" onerror="this.outerHTML='🐣'"><div class="bfn" id="bfN2"></div></div>
       </div>
       <div class="blog" id="battleLog" style="display:none"></div>
       <div class="brs" id="battleResult"><div class="bri" id="brT">🏆</div><div class="brt2" id="brTx"></div><div class="brd2" id="brD"></div></div>
@@ -344,7 +344,7 @@ function buy(id){var n=st.tn,p=st.people[n];if(!p)return;var item=SI.find(functi
 
 var br=false;
 function gBD(pn,si){var p=st.people[pn];if(!p)return null;var sl=typeof si==="number"?si:p.currentPetIdx,pid=p.petSlots[sl],lv=p.petLevels[sl];var ss=gs(pid,lv),sk=cs(p),hp2=1-(100-sk.hunger)*0.002;return{personName:pn,petSlot:sl,petId:pid,level:lv,stats:ss,hunger:sk.hunger,hungerPenalty:hp2,emoji:PE[pid]||"🐣",iconHtml:pi(pid)}}
-function gifUrl(pid,anim){return 'images/pets/pet_'+String(pid+1).padStart(2,'0')+'_'+anim+'.gif'}
+function gifUrl(pid,anim){return '/images/pets/pet_'+String(pid+1).padStart(2,'0')+'_'+anim+'.gif'}
 function gTD(pn,md){var p=st.people[pn];if(!p)return[];var picks=window._battlePicks||[];if(md==="1v1"){var bi=picks.length?picks[0]:p.currentPetIdx;var d=gBD(pn,bi);return d?[d]:[]}return picks.slice(0,3).map(function(i){return gBD(pn,i)}).filter(function(d){return d!==null})}
 function cBW(ta,tb){var pa=ta.reduce(function(s,pet){return s+pwr(pet,pet.level)*pet.hungerPenalty},0);var pb=tb.reduce(function(s,pet){return s+pwr(pet,pet.level)*pet.hungerPenalty},0);var wk=Math.min(pa,pb),st2=Math.max(pa,pb),ra=wk/st2,up=0.35*(0.3+0.7*ra),ro=Math.random();var iu=(pa>pb&&ro<up)||(pb>pa&&ro>=up);return{winnerIsA:iu?pa<pb:pa>=pb,isUpset:iu,powerA:Math.round(pa),powerB:Math.round(pb)}}
 function gBS(ta,tb){var rd=ta.length,steps=[];for(var r=0;r<rd;r++){var a=ta[r],b=tb[r];if(!a||!b)break;var pa=pwr(a,a.level)*a.hungerPenalty,pb=pwr(b,b.level)*b.hungerPenalty;var wk=Math.min(pa,pb),st2=Math.max(pa,pb),rU=0.35*(0.3+0.7*(wk/st2)),rR=Math.random();var aW=(pa>pb&&rR>=rU)||(pb>pa&&rR<rU);var mHA=a.stats.hp*5,mHB=b.stats.hp*5,hpA=mHA,hpB=mHB;var att=aW?a:b,def2=aW?b:a,rs=[],tl=0;while(hpA>0&&hpB>0&&tl<12){tl++;var atkP=att.stats.atk*1.5+att.stats.int*0.5+att.level;var defP=def2.stats.def*0.6+def2.stats.spd*0.1;var base=Math.max(2,Math.round((atkP-defP)*(0.8+Math.random()*0.4)));var cR=Math.random()<def2.stats.luk/100,dR=Math.random()<def2.stats.spd/150;var dmg=base,sp="";if(dR){dmg=0;sp="dodge"}else if(cR){dmg=Math.round(dmg*1.8);sp="critical"}if(def2===a)hpA=Math.max(0,hpA-dmg);else hpB=Math.max(0,hpB-dmg);rs.push({attackerName:att.personName,defenderName:def2.personName,attackerEmoji:att.emoji,defenderEmoji:def2.emoji,dmg,special:sp,hpA:Math.max(0,hpA),hpB:Math.max(0,hpB),maxHPA:mHA,maxHPB:mHB,ko:(hpA<=0||hpB<=0)});if(hpA<=0||hpB<=0)break;var tmp=att;att=def2;def2=tmp}steps.push({round:r+1,steps:rs,aWins:aW})}return steps}
