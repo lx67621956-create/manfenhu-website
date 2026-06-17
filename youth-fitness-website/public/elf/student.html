@@ -269,11 +269,11 @@ var TP=30,CP=10,UE=20,MB=3,BP=1;
 
 function pg(id,an,cl){
   var p=(id<9?"0":"")+(id+1),c=cl||"pet-gif",e=PE[id]||"🐣";
-  return '<img class="'+c+'" src="/images/pets/pet_'+p+'_'+an+'.gif" alt="" onerror="this.outerHTML='+"'"+e+"'"+'">';
+  return '<img class="'+c+'" src="/images/pets/pet_'+p+'_'+an+'.gif" alt="" >';
 }
 function pi(id){
   var p=(id<9?"0":"")+(id+1),e=PE[id]||"🐣";
-  return '<img class="pet-icon" src="/images/pets/pet_'+p+'_idle.gif" alt="" onerror="this.outerHTML='+"'"+e+"'"+'">';
+  return '<img class="pet-icon" src="/images/pets/pet_'+p+'_idle.gif" alt="" >';
 }
 
 var BS=(()=>{var s=[];for(var i=0;i<TP;i++){var sd=(i*7+13)%17;s.push({hp:8+sd*3%13,atk:5+sd*5%12,def:4+sd*2%11,spd:5+sd*7%13,int:4+sd*11%13,luk:3+sd*13%9})}return s})();
