@@ -232,9 +232,9 @@ body{background:#F5F0EB;font-family:var(--font);color:var(--pkdark);display:flex
         <div class="bhs"><div class="bn" id="bhN2">—</div><div class="bp" id="bhP2">—</div><div class="bhp"><div class="bhf" id="bhH2"></div></div><div class="bht" id="bhT2">HP</div></div>
       </div>
       <div class="bf" id="bfWrap" style="display:none">
-        <div class="bfp"><img class="be" id="bfE1" src="" style="width:64px;height:64px;object-fit:contain;display:none" onerror='this.style.display="none"'><div class="bfn" id="bfN1"></div></div>
+        <div class="bfp"><img class="be" id="bfE1" src="" style="width:64px;height:64px;object-fit:contain;display:none" ><div class="bfn" id="bfN1"></div></div>
         <div id="bfVS" style="display:none;font-size:20px;font-weight:700;color:#FFD700">VS</div>
-        <div class="bfp"><img class="be" id="bfE2" src="" style="width:64px;height:64px;object-fit:contain;display:none" onerror='this.style.display="none"'><div class="bfn" id="bfN2"></div></div>
+        <div class="bfp"><img class="be" id="bfE2" src="" style="width:64px;height:64px;object-fit:contain;display:none" ><div class="bfn" id="bfN2"></div></div>
       </div>
       <div class="blog" id="battleLog" style="display:none"></div>
       <div class="brs" id="battleResult"><div class="bri" id="brT">🏆</div><div class="brt2" id="brTx"></div><div class="brd2" id="brD"></div></div>
@@ -269,11 +269,11 @@ var TP=30,CP=10,UE=20,MB=3,BP=1;
 
 function pg(id,an,cl){
   var p=String(id+1).padStart(2,"0"),c=cl||"pet-gif",e=PE[id]||"🐣";
-  return '<img class="'+c+'" src="/images/pets/pet_'+p+'_'+an+'.gif" alt="" onerror='this.style.display="none"'>';
+  return '<img class="'+c+'" src="/images/pets/pet_'+p+'_'+an+'.gif" alt="" >';
 }
 function pi(id){
   var p=String(id+1).padStart(2,"0"),e=PE[id]||"🐣";
-  return '<img class="pet-icon" src="/images/pets/pet_'+p+'_idle.gif" alt="" onerror='this.style.display="none"'>';
+  return '<img class="pet-icon" src="/images/pets/pet_'+p+'_idle.gif" alt="" >';
 }
 
 var BS=(()=>{var s=[];for(var i=0;i<TP;i++){var sd=(i*7+13)%17;s.push({hp:8+sd*3%13,atk:5+sd*5%12,def:4+sd*2%11,spd:5+sd*7%13,int:4+sd*11%13,luk:3+sd*13%9})}return s})();
@@ -307,7 +307,7 @@ function cs(p){var hrs=(Date.now()-(p.lastTimestamp||Date.now()))/3600000;var h=
 function login(){var n=document.getElementById("loginName").value.trim(),pw=document.getElementById("loginPwd").value.trim(),err=document.getElementById("loginError");if(!n){err.textContent="请输入姓名";err.style.display="block";return}if(!st.people[n]){err.textContent="❌ "+n+" 不存在";err.style.display="block";return}if(st.people[n].password&&st.people[n].password!==pw){err.textContent="❌ 密码错误";err.style.display="block";return}st.tn=n;sv();err.style.display="none";document.getElementById("loginPwd").value="";document.getElementById("nav").classList.add("show");showPg("pageHome");rHome()}
 
 function rHome(){var n=st.tn,p=st.people[n];if(!p)return;var idx=p.currentPetIdx,sid=p.petSlots[idx],lv=p.petLevels[idx],xp=p.petXP[idx],nd=xfl(lv),pct=Math.min(100,xp/nd*100),mx=lv>=100;var sk=cs(p);var bx=p.pendingBoxes?.length||0,bh=p.battleHistory||[];document.getElementById("homeContent").innerHTML='<div class=hh><div class=tn>🎮 '+n+' <span style=font-size:11px;cursor:pointer;color:#EE1515;font-weight:600 onclick="logout()">[退出]</span></div><div class=tp>⭐ '+p.points+' 金币</div><div class=ts><span>🐾 '+p.petSlots.length+'/'+TP+'</span><span>🔥 打卡 '+p.totalCheckins+' 次</span></div></div>'+
-'<div class=ps><div class=pw2 id=pwInner2><img id=homePetGif class=pg src="/images/pets/pet_'+String(sid+1).padStart(2,"0")+'_"+(window._pf||"walk")+".gif" onerror='this.style.display="none"'></div><div class=pn>精灵 #'+(sid+1)+'</div><span class="pt badge '+(mx?"bg-gold":"bg-blue")+'">Lv.'+lv+(mx?" 🏆":"")+'</span></div>'+
+'<div class=ps><div class=pw2 id=pwInner2><img id=homePetGif class=pg src="/images/pets/pet_'+String(sid+1).padStart(2,"0")+'_"+(window._pf||"walk")+".gif" ></div><div class=pn>精灵 #'+(sid+1)+'</div><span class="pt badge '+(mx?"bg-gold":"bg-blue")+'">Lv.'+lv+(mx?" 🏆":"")+'</span></div>'+
 '<div class=eb style=max-width:200px;margin:4px auto><div class=pt><div class=pf style="width:'+pct+'%"></div></div><div class=et>'+(mx?"🏆 已满级！":"EXP "+(nd-xp)+" 到下一级")+'</div></div>'+
 '<div class=bg><div class=bi><div class=lb>🍖 饱食度</div><div class=bpt><div class=bpf style="width:'+sk.hunger+'%;background:'+(sk.hunger>60?"#32CD32":sk.hunger>30?"#FFA500":"#FF4500")+'"></div></div><div class=bv>'+(sk.hunger)+'%</div></div><div class=bi><div class=lb>😊 心情</div><div class=bpt><div class=bpf style="width:'+sk.happiness+'%;background:'+(sk.happiness>60?"#32CD32":sk.happiness>30?"#FFA500":"#FF4500")+'"></div></div><div class=bv>'+(sk.happiness)+'%</div></div></div>'+
 '<div class=ga style="grid-template-columns:repeat(2,1fr)"><button class="gb fd" onclick="fdAct()"><span class=gi>🍖</span><span class=gl>喂食</span><span class=gc>-5 金币</span></button><button class="gb tr" onclick="trAct()"><span class=gi>🧪</span><span class=gl>训练</span><span class=gc>-5 金币</span></button></div>'+
