@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400">
+  <rect width="800" height="400" fill="#fff0e8"/>
+  <text x="400" y="180" font-family="Arial" font-size="32" fill="#333" text-anchor="middle">暑期训练指南</text>
+  <text x="400" y="220" font-family="Arial" font-size="20" fill="#666" text-anchor="middle">保持体能 · 不倒退</text>
+</svg>
