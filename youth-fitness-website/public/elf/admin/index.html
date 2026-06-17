@@ -602,7 +602,7 @@ function det(){
   h.push('<div class=active-pet-area>'+pg(sid,"happy","pet-gif-lg")+'<div class=active-pet-info>#'+(sid+1)+'</div><div class=active-pet-level>Lv.'+lv+(mx?' 🏆':'')+'</div></div>');
   h.push('<div class=bar-pair><div class=bar-item>🍖 '+sk.h+'%</div><div class=bar-item>😊 '+sk.ha+'%</div></div>');
   h.push('<div class=pwd-section>🔐 '+pwDisplay+'<div style=margin-top:6px><button class=btn-gold id=pwdSet style="padding:4px 12px;font-size:12px">设置</button>'+(p.password?' <button class=btn-danger id=pwdClear style="padding:4px 12px;font-size:12px">清除</button>':'')+'</div></div>');
-  h.push('<div class=pet-list-title><span>🐾 精灵列表</span></div><div class=scroll-list>'+p.petSlots.map(function(sl,i){var e2=PE[sl]||"🐣",lv2=p.petLevels[i],act=i===p.currentPetIdx;return '<div class="pet-list-item'+(act?" current":"")+'" data-sl="'+i+'">'+(act?'<span class=pl-badge>✔</span>':'')+'<img class=pet-icon src="/images/pets/pet_'+String(sl+1).padStart(2,"0")+'_icon.png" onerror="this.outerHTML='+"'"+e2+"'"+'"><div>Lv.'+lv2+'</div></div>';}).join('')+'</div>');
+  h.push('<div class=pet-list-title><span>🐾 精灵列表</span></div><div class=scroll-list>'+p.petSlots.map(function(sl,i){var e2=PE[sl]||"🐣",lv2=p.petLevels[i],act=i===p.currentPetIdx;return '<div class="pet-list-item'+(act?" current":"")+'" data-sl="'+i+'">'+(act?'<span class=pl-badge>✔</span>':'')+'<img class=pet-icon src="/images/pets/pet_'+String(sl+1).padStart(2,"0")+'_idle.gif" onerror="this.outerHTML='+"'"+e2+"'"+'"><div>Lv.'+lv2+'</div></div>';}).join('')+'</div>');
   if(bx>0)h.push('<button class=btn-gold id=boxBtn style=margin-top:10px>🎁 打开盲盒</button>');
   document.getElementById("personContent").innerHTML=h.join('');
   var bl=document.getElementById("boxLink");if(bl)bl.onclick=openBox;
