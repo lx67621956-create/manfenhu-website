@@ -399,10 +399,10 @@ setInterval(rfsh,30000);
 // 跨标签页数据同步
 window.addEventListener('storage',function(e){if(e.key==='checkin_pets'){rfsh()}});
 
-// 全局图片错误监听 - 帮助调试404
+// 全局图片错误监听
 document.addEventListener('error', function(e) {
   if(e.target && e.target.tagName === 'IMG') {
-    console.log('IMG_ERROR:', e.target.src);
+    console.log('IMG_404:', e.target.src, '|outer:', e.target.outerHTML.substring(0,200));
   }
 }, true);
 </script>
