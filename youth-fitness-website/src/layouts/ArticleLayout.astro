@@ -44,11 +44,20 @@ const { title, description, pubDate, image } = Astro.props;
   .page-hero h1 { font-size: 2rem; margin-bottom: 16px; }
   .page-hero .meta { opacity: 0.9; font-size: 0.95rem; }
   
-  .article-hero-image { padding: 0 0 32px; }
-  .article-hero-image .container { max-width: 800px; margin: 0 auto; }
+  .article-hero-image {
+    padding: 0 0 32px;
+    aspect-ratio: 2 / 1;
+    overflow: hidden;
+    background: #f0f0f0;
+  }
+  .article-hero-image .container {
+    max-width: 800px;
+    margin: 0 auto;
+    height: 100%;
+  }
   .article-hero-image img {
     width: 100%;
-    max-height: 400px;
+    height: 100%;
     object-fit: cover;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);

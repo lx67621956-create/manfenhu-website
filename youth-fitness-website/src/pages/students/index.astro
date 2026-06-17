@@ -2,7 +2,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="学员风采 - 青少年体能培训机构">
+<BaseLayout title="学员风采 - 满分虎体育">
   <section class="page-hero" style="background:linear-gradient(135deg, var(--c-accent), #00E676);">
     <div class="container"><h1>学员风采</h1></div>
   </section>
@@ -10,15 +10,39 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   <section class="section">
     <div class="container">
       <h2 class="section-title">训练瞬间</h2>
-      <div class="grid-4">
-        <div class="placeholder" style="min-height:160px;">📷 学员照片1</div>
-        <div class="placeholder" style="min-height:160px;">📷 学员照片2</div>
-        <div class="placeholder" style="min-height:160px;">📷 学员照片3</div>
-        <div class="placeholder" style="min-height:160px;">📷 学员照片4</div>
-        <div class="placeholder" style="min-height:160px;">📷 学员照片5</div>
-        <div class="placeholder" style="min-height:160px;">📷 学员照片6</div>
-        <div class="placeholder" style="min-height:160px;">📷 学员照片7</div>
-        <div class="placeholder" style="min-height:160px;">📷 学员照片8</div>
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="/images/students/students-running.jpg" alt="学员操场跑步训练" loading="lazy" />
+          <span class="gallery-caption">1000米/800米耐力跑训练</span>
+        </div>
+        <div class="gallery-item">
+          <img src="/images/students/students-jump-rope.jpg" alt="小区内跳绳训练" loading="lazy" />
+          <span class="gallery-caption">社区跳绳训练</span>
+        </div>
+        <div class="gallery-item">
+          <img src="/images/students/students-standing-jump.jpg" alt="立定跳远训练" loading="lazy" />
+          <span class="gallery-caption">立定跳远动作训练</span>
+        </div>
+        <div class="gallery-item">
+          <img src="/images/students/students-situps.jpg" alt="仰卧起坐训练" loading="lazy" />
+          <span class="gallery-caption">仰卧起坐核心训练</span>
+        </div>
+        <div class="gallery-item">
+          <img src="/images/students/students-volleyball.jpg" alt="排球垫球训练" loading="lazy" />
+          <span class="gallery-caption">排球垫球选考训练</span>
+        </div>
+        <div class="gallery-item">
+          <img src="/images/students/students-football.jpg" alt="足球射门训练" loading="lazy" />
+          <span class="gallery-caption">足球射门选考训练</span>
+        </div>
+        <div class="gallery-item">
+          <img src="/images/students/students-stretching.jpg" alt="热身拉伸训练" loading="lazy" />
+          <span class="gallery-caption">课前热身拉伸</span>
+        </div>
+        <div class="gallery-item">
+          <img src="/images/students/students-coaching.jpg" alt="教练指导训练" loading="lazy" />
+          <span class="gallery-caption">教练一对一动作纠正</span>
+        </div>
       </div>
     </div>
   </section>
@@ -26,19 +50,25 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   <section class="section" style="background:var(--c-surface);">
     <div class="container">
       <h2 class="section-title">学员故事</h2>
-      <div class="grid-2">
-        <div class="card">
-          <div class="placeholder" style="min-height:180px;">📷 故事配图</div>
-          <div class="card-body">
-            <h3>学员姓名</h3>
-            <p class="text-muted">成长故事待填写...</p>
+      <div class="stories-grid">
+        <div class="story-card">
+          <img src="/images/students/student-growth.jpg" alt="学员小雅成长故事" class="story-image" loading="lazy" />
+          <div class="story-body">
+            <h3>从体育勉强及格到中考满分，我长高了8厘米</h3>
+            <p class="story-tag">小雅 · 初三学员 · 训练18个月</p>
+            <p>刚来满分虎的时候，我800米跑5分10秒，立定跳远只有1.55米，体育成绩一直在及格线附近晃。更让我爸妈担心的是，我比班里女生矮半个头，体质弱，换季就感冒。</p>
+            <p>一年半的系统训练，变化远不止体育成绩——我的800米跑进了3分30秒，立定跳远达到1.90米，中考体育拿了满分。更让我惊喜的是，训练期间我长高了8厘米，感冒少了，上课注意力也比以前集中了。</p>
+            <p>现在想想，当初只是想别让体育拖后腿，没想到身体素质全面提升了。整个人自信多了，走路都挺着腰板。</p>
           </div>
         </div>
-        <div class="card">
-          <div class="placeholder" style="min-height:180px;">📷 故事配图</div>
-          <div class="card-body">
-            <h3>学员姓名</h3>
-            <p class="text-muted">成长故事待填写...</p>
+        <div class="story-card">
+          <img src="/images/students/student-handball.jpg" alt="手球专业学员故事" class="story-image" loading="lazy" />
+          <div class="story-body">
+            <h3>手球少年：体育特长让他走得更远</h3>
+            <p class="story-tag">小李 · 初三学员 · 手球专项训练2年</p>
+            <p>小李从初一开始跟着满分虎训练，本来只是为了中考体育拿个好成绩。教练发现他上肢力量和爆发力突出，协调性好，建议他尝试手球专项训练。</p>
+            <p>两年下来，小李不仅中考体育轻松满分，手球水平也达到了专业队选拔标准。更重要的是，长期的专业训练让他的身体素质远超同龄人——身高从入学时的1.62米长到了1.78米，作息规律了，学习效率也提高了，文化课成绩反而比训练前还好。</p>
+            <p>现在小李已经凭借手球特长考上了理想的重点大学，体育不只是分数，更成了他人生的一张牌。满分虎的手球教练是前国家队运动员，在专业指导和升学规划方面经验丰富。对于有体育特长的孩子来说，坚持训练带来的不仅是体考分数，更是一条与众不同的发展路径。</p>
           </div>
         </div>
       </div>
@@ -60,7 +90,99 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 <style>
   .page-hero { color: #fff; padding: 48px 0; text-align: center; }
   .page-hero h1 { font-size: 2rem; }
-  .card-body { padding: 16px; }
-  .card-body h3 { margin-bottom: 8px; }
-  .text-muted { color: var(--c-text-muted); }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .gallery-item {
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s;
+  }
+
+  .gallery-item:hover {
+    transform: translateY(-4px);
+  }
+
+  .gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .gallery-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color: #fff;
+    padding: 24px 12px 10px;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  .stories-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+
+  .story-card {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  .story-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+  }
+
+  .story-body {
+    padding: 24px;
+  }
+
+  .story-body h3 {
+    font-size: 1.15rem;
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+
+  .story-tag {
+    color: var(--c-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+
+  .story-body p {
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 10px;
+  }
+
+  .story-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 768px) {
+    .gallery-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .stories-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
