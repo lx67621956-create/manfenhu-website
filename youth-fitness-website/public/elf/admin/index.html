@@ -540,16 +540,14 @@ var DEF=["张三","李四","王五","赵六"];
 var PZ=["pageHome"];
 
 function pg(id,an,cl){
-  var p=String(id+1).padStart(2,"0"),c=cl||"pet-gif",e=PE[id]||"🐣";
-  var out='<img class="'+c+'" src="/images/pets/pet_'+p+'_'+an+'.gif"';
-  out+=' alt="" onerror="this.outerHTML='+"'"+e+"'"+'">';
-  return out;
+  var p=String(id+1).padStart(2,"0"),c=cl||"pet-gif";
+  return '<img class="'+c+'" src="/images/pets/pet_'+p+'_'+an+'.gif" alt="">';
 }
 
 function dedup(n){var p=st.people[n];if(!p||!p.petSlots)return;var seen={},news=[],newlv=[],newxp=[],newsb=[];p.petSlots.forEach(function(sl,i){if(!seen[sl]){seen[sl]=true;news.push(sl);newlv.push(p.petLevels[i]);newxp.push(p.petXP[i]);newsb.push(p.statBonus&&p.statBonus[i]?p.statBonus[i]:{hp:0,atk:0,def:0,spd:0,int:0,luk:0})}});if(news.length<p.petSlots.length){p.petSlots=news;p.petLevels=newlv;p.petXP=newxp;p.statBonus=newsb;sv()}}
 function init(){
   var r=localStorage.getItem("checkin_pets");
-  if(r){try{st=JSON.parse(r);st.personOrder.forEach(function(n){},function(n){var p=st.people[n];if(!p)return;if(!p.petSlots)p.petSlots=[0];if(!p.petLevels)p.petLevels=[1];if(!p.petXP)p.petXP=[0];if(typeof p.currentPetIdx!="number")p.currentPetIdx=0;if(typeof p.hunger!="number")p.hunger=80;if(typeof p.happiness!="number")p.happiness=80;if(!p.lastTimestamp)p.lastTimestamp=Date.now();if(typeof p.totalCheckins!="number")p.totalCheckins=0;if(typeof p.password!="string")p.password="";if(!p.pendingBoxes)p.pendingBoxes=[];if(!p.battleHistory)p.battleHistory=[];var ex=Math.min(TP,1+Math.floor(p.totalCheckins/UE));while(p.petSlots.length<ex){var ri=rb(n);if(ri!==null)p.pendingBoxes.push(ri);else break}if(p.currentPetIdx>=p.petSlots.length)p.currentPetIdx=0});sv();}catch(e){}}
+  if(r){try{st=JSON.parse(r);st.personOrder.forEach(function(n){var p=st.people[n];if(!p)return;if(!p.petSlots)p.petSlots=[0];if(!p.petLevels)p.petLevels=[1];if(!p.petXP)p.petXP=[0];if(typeof p.currentPetIdx!="number")p.currentPetIdx=0;if(typeof p.hunger!="number")p.hunger=80;if(typeof p.happiness!="number")p.happiness=80;if(!p.lastTimestamp)p.lastTimestamp=Date.now();if(typeof p.totalCheckins!="number")p.totalCheckins=0;if(typeof p.password!="string")p.password="";if(!p.pendingBoxes)p.pendingBoxes=[];if(!p.battleHistory)p.battleHistory=[];var ex=Math.min(TP,1+Math.floor(p.totalCheckins/UE));while(p.petSlots.length<ex){var ri=rb(n);if(ri!==null)p.pendingBoxes.push(ri);else break}if(p.currentPetIdx>=p.petSlots.length)p.currentPetIdx=0});sv();}catch(e){}}
   if(!st.personOrder.length)DEF.forEach(function(n){st.people[n]={points:0,totalCheckins:0,currentPetIdx:0,petSlots:[Math.floor(Math.random()*TP)],petLevels:[1],petXP:[0],hunger:80,happiness:80,lastTimestamp:Date.now(),password:"",pendingBoxes:[],battleHistory:[]};st.personOrder.push(n)});
   sv();bind();grid();show("pageHome");
 }
@@ -585,7 +583,7 @@ function bind(){
 function grid(){
   var g=document.getElementById("personGrid"),t=td();
   if(!st.personOrder.length){g.innerHTML="<div class=empty-state>还没有人员</div>";return;}
-  g.innerHTML=st.personOrder.map(function(n){var p=st.people[n],sk=sts(p),idx=p.currentPetIdx,sid=p.petSlots[idx],e=PE[sid]||"🐣",lv=p.petLevels[idx],bx=p.pendingBoxes?.length||0,ck=p.lastCheckinDate===t;return '<div class=person-card data-n="'+n+'"><div class=pc-status><span class="badge '+(sk.h<20||sk.ha<20?"bg-red":"bg-green")+'">'+(sk.h<20?"🤤":sk.ha<20?"😞":"😊")+'</span></div><div class=pc-name>'+n+(bx?' <span style=color:#FF69B4;font-size:12px>🎁x'+bx+'</span>':'')+'</div><div class=pc-points>⭐ '+p.points+' 金币</div><div class=pc-pet>'+e+' #'+(sid+1)+' Lv.'+lv+(p.password?" 🔑":" 🔓")+'</div><div class=pc-actions><button class="btn-checkin'+(ck?" done":"")+'" data-ci="'+n+'">'+(ck?"✅":"📅")+'</button><button class=btn-pwd data-pw="'+n+'">🔑</button><button class=btn-gold-sm data-chg='+n+'>💰</button></div></div>';}).join('');
+  g.innerHTML=st.personOrder.map(function(n){var p=st.people[n],sk=sts(p),idx=p.currentPetIdx,sid=p.petSlots[idx],e=PE[sid]||"🐣",lv=p.petLevels[idx],bx=p.pendingBoxes?.length||0,ck=p.lastCheckinDate===t;return '<div class=person-card data-n="'+n+'"><div class=pc-status><span class="badge '+(sk.h<20||sk.ha<20?"bg-red":"bg-green")+'">'+(sk.h<20?"🤤":sk.ha<20?"😞":"😊")+'</span></div><div class=pc-name>'+n+(bx?' <span style=color:#FF69B4;font-size:12px>🎁x'+bx+'</span>':'')+'</div><div class=pc-points>⭐ '+p.points+' 积分</div><div class=pc-pet>'+e+' #'+(sid+1)+' Lv.'+lv+(p.password?" 🔑":" 🔓")+'</div><div class=pc-actions><button class="btn-checkin'+(ck?" done":"")+'" data-ci="'+n+'">'+(ck?"✅":"📅")+'</button><button class=btn-pwd data-pw="'+n+'">🔑</button></div></div>';}).join('');
   g.querySelectorAll("[data-ci]").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();var nm=this.getAttribute("data-ci"),p2=st.people[nm],t2=td();if(p2.lastCheckinDate===t2){toast("已打卡");return}p2.points+=CP;p2.totalCheckins++;p2.happiness=Math.min(100,p2.happiness+3);p2.lastTimestamp=Date.now();p2.lastCheckinDate=t2;var ex=Math.min(TP,1+Math.floor(p2.totalCheckins/UE));while(p2.petSlots.length+p2.pendingBoxes.length<ex){var ri=rb(nm);if(ri!==null)p2.pendingBoxes.push(ri);else break}sv();rf();toast("打卡 +"+CP);});});
   g.querySelectorAll("[data-chg]").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();var nm=this.getAttribute("data-chg"),p3=st.people[nm];if(!p3)return;var v=prompt("修改 "+nm+" 金币：",p3.points);if(v!==null){var nv=parseInt(v);if(isNaN(nv)||nv<0){toast("❌ 无效");return}p3.points=nv;sv();grid()}})});
   g.querySelectorAll("[data-pw]").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();var nm=this.getAttribute("data-pw");document.getElementById("modalPwdName").textContent="为 "+nm+" 设置密码";document.getElementById("pwdInput").value="";document.getElementById("modalPwd").setAttribute("data-n",nm);document.getElementById("modalPwd").classList.add("show");});});
@@ -602,7 +600,7 @@ function det(){
   h.push('<div class=active-pet-area>'+pg(sid,"happy","pet-gif-lg")+'<div class=active-pet-info>#'+(sid+1)+'</div><div class=active-pet-level>Lv.'+lv+(mx?' 🏆':'')+'</div></div>');
   h.push('<div class=bar-pair><div class=bar-item>🍖 '+sk.h+'%</div><div class=bar-item>😊 '+sk.ha+'%</div></div>');
   h.push('<div class=pwd-section>🔐 '+pwDisplay+'<div style=margin-top:6px><button class=btn-gold id=pwdSet style="padding:4px 12px;font-size:12px">设置</button>'+(p.password?' <button class=btn-danger id=pwdClear style="padding:4px 12px;font-size:12px">清除</button>':'')+'</div></div>');
-  h.push('<div class=pet-list-title><span>🐾 精灵列表</span></div><div class=scroll-list>'+p.petSlots.map(function(sl,i){var e2=PE[sl]||"🐣",lv2=p.petLevels[i],act=i===p.currentPetIdx;return '<div class="pet-list-item'+(act?" current":"")+'" data-sl="'+i+'">'+(act?'<span class=pl-badge>✔</span>':'')+'<img class=pet-icon src="/images/pets/pet_'+String(sl+1).padStart(2,"0")+'_idle.gif" onerror="this.outerHTML='+"'"+e2+"'"+'"><div>Lv.'+lv2+'</div></div>';}).join('')+'</div>');
+  h.push('<div class=pet-list-title><span>🐾 精灵列表</span></div><div class=scroll-list>'+p.petSlots.map(function(sl,i){var e2=PE[sl]||"🐣",lv2=p.petLevels[i],act=i===p.currentPetIdx;return '<div class="pet-list-item'+(act?" current":"")+'" data-sl="'+i+'">'+(act?'<span class=pl-badge>✔</span>':'')+'<img class=pet-icon src="/images/pets/pet_'+String(sl+1).padStart(2,"0")+'_icon.png" ><div>Lv.'+lv2+'</div></div>';}).join('')+'</div>');
   if(bx>0)h.push('<button class=btn-gold id=boxBtn style=margin-top:10px>🎁 打开盲盒</button>');
   document.getElementById("personContent").innerHTML=h.join('');
   var bl=document.getElementById("boxLink");if(bl)bl.onclick=openBox;
@@ -628,9 +626,6 @@ function stats(){
 
 function rf(){var a=document.querySelector(".page.active");if(!a)return;var id=a.id;if(id==="pageHome")grid();else if(id==="pagePerson")det();else if(id==="pageStats")stats();}
 document.addEventListener("DOMContentLoaded",init);
-
-// 跨标签页数据同步
-window.addEventListener('storage',function(e){if(e.key==='checkin_pets'){location.reload()}});
 </script>
 </body>
 </html>
