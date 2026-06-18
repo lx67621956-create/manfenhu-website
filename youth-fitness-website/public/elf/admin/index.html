@@ -538,6 +538,7 @@ var TP=30,CP=10,UE=20;
 var st={people:{},personOrder:[],curPerson:null,curSlot:null};
 var DEF=["张三","李四","王五","赵六"];
 var PZ=["pageHome"];
+var _apiTimer=null;
 
 function pg(id,an,cl){
   var p=String(id+1).padStart(2,"0"),c=cl||"pet-gif";
@@ -549,12 +550,12 @@ function init(){
   var r=localStorage.getItem("checkin_pets");
   if(r){try{st=JSON.parse(r);st.personOrder.forEach(function(n){var p=st.people[n];if(!p)return;if(!p.petSlots)p.petSlots=[0];if(!p.petLevels)p.petLevels=[1];if(!p.petXP)p.petXP=[0];if(typeof p.currentPetIdx!="number")p.currentPetIdx=0;if(typeof p.hunger!="number")p.hunger=80;if(typeof p.happiness!="number")p.happiness=80;if(!p.lastTimestamp)p.lastTimestamp=Date.now();if(typeof p.totalCheckins!="number")p.totalCheckins=0;if(typeof p.password!="string")p.password="";if(!p.pendingBoxes)p.pendingBoxes=[];if(!p.battleHistory)p.battleHistory=[];var ex=Math.min(TP,1+Math.floor(p.totalCheckins/UE));while(p.petSlots.length<ex){var ri=rb(n);if(ri!==null)p.pendingBoxes.push(ri);else break}if(p.currentPetIdx>=p.petSlots.length)p.currentPetIdx=0});sv();}catch(e){}}
   if(!st.personOrder.length)DEF.forEach(function(n){st.people[n]={points:0,totalCheckins:0,currentPetIdx:0,petSlots:[Math.floor(Math.random()*TP)],petLevels:[1],petXP:[0],hunger:80,happiness:80,lastTimestamp:Date.now(),password:"",pendingBoxes:[],battleHistory:[]};st.personOrder.push(n)});
-  sv();bind();grid();show("pageHome");
+  sv();bind();grid();show("pageHome");syncAPI();
 }
 
 function rb(n){var p=st.people[n];if(!p)return null;var s=new Set(p.petSlots);(p.pendingBoxes||[]).forEach(function(i){s.add(i)});if(s.size>=TP)return null;var a=[];for(var i=0;i<TP;i++)if(!s.has(i))a.push(i);return a.length?a[Math.floor(Math.random()*a.length)]:null;}
 function td(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
-function sv(){localStorage.setItem("checkin_pets",JSON.stringify(st));}
+function sv(){localStorage.setItem("checkin_pets",JSON.stringify(st));apiSv();}
 function xfl(l){return 30+l*7;}
 function sts(p){var hrs=(Date.now()-(p.lastTimestamp||Date.now()))/3600000,hu=Math.max(0,Math.min(100,Math.round(p.hunger-hrs*8))),ha=Math.max(0,Math.min(100,Math.round(p.happiness-(hu<40?hrs*6:hrs*2))));return{h:hu,ha:ha};}
 function toast(m){var e=document.getElementById("toast");e.textContent=m;e.classList.add("show");clearTimeout(window.tm);window.tm=setTimeout(function(){e.classList.remove("show")},3000);}
@@ -625,6 +626,8 @@ function stats(){
 }
 
 function rf(){var a=document.querySelector(".page.active");if(!a)return;var id=a.id;if(id==="pageHome")grid();else if(id==="pagePerson")det();else if(id==="pageStats")stats();}
+function syncAPI(){if(!navigator.onLine)return;var x=new XMLHttpRequest();x.open("GET","https://jsonblob.com/api/jsonBlob/019eda5e-98b9-7536-a32b-e7a25ed5d6f8",true);x.onload=function(){if(x.status===200){try{var d=JSON.parse(x.responseText);if(d&&d.people&&Object.keys(d.people).length){var kl=Object.keys(d.people).length,kk=Object.keys(st.people).length;if(kl>kk){st=d;sv();bind();grid()}else{apiSv()}}}catch(e){}}};x.send()}
+function apiSv(){clearTimeout(_apiTimer);_apiTimer=setTimeout(function(){try{var d=JSON.stringify(st);localStorage.setItem("checkin_pets",d);var x=new XMLHttpRequest();x.open("PUT","https://jsonblob.com/api/jsonBlob/019eda5e-98b9-7536-a32b-e7a25ed5d6f8",true);x.setRequestHeader("Content-Type","application/json");x.send(d)}catch(e){}},2000);}
 document.addEventListener("DOMContentLoaded",init);
 </script>
 </body>
