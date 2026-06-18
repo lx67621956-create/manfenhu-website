@@ -8,8 +8,8 @@ export default defineConfig({
     sitemap(),
     mdx(),
   ],
-  build: {
+  output: 'static',
+    build: {
     inlineStylesheets: 'auto',
   },
-  output: 'static',
 });

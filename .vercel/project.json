@@ -1,1 +1,16 @@
-{"orgId":"team_zWxSgetEY9HQgxezhVmHfCQw","projectId":"prj_zVkz4sHksbR6BwYJZGXHenkyXkJR","projectName":"youth-fitness-website"}
+{
+  "projectId": "prj_zVkz4sHksbR6BwYJZGXHenkyXkJR",
+  "orgId": "team_zWxSgetEY9HQgxezhVmHfCQw",
+  "projectName": "youth-fitness-website",
+  "settings": {
+    "createdAt": 1777707330684,
+    "framework": "astro",
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": "youth-fitness-website",
+    "directoryListing": false,
+    "nodeVersion": "24.x"
+  }
+}
