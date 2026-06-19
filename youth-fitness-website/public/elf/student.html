@@ -200,7 +200,9 @@ body{background:#F5F0EB;font-family:var(--font);color:var(--pkdark);margin:0;pad
 .btn-gold:hover{transform:translateY(-2px);box-shadow:4px 4px 0 #B8860B}
 .confetti-overlay{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:3000;overflow:hidden}
 .confetti-piece{position:absolute;top:-10px;width:8px;height:8px;border-radius:2px;animation:cF 3s ease-out forwards}
-@keyframes cF{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@keyframes cF{0%{transform:translateY(0) rotate(0deg);opacity:1}
+@keyframes hitShake{0%,100%{transform:translate(0)}25%{transform:translate(-3px,2px)}50%{transform:translate(3px,-1px)}75%{transform:translate(-2px,-2px)}}
+@keyframes dmgFlash{0%,100%{opacity:1}50%{opacity:0.4}}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 .bpk-row{display:flex;gap:6px;justify-content:center;margin:6px 0;flex-wrap:wrap}
 .bpk{width:52px;height:58px;border:2px solid #E0E0E0;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:white;cursor:pointer;position:relative;transition:all .2s}
 .bpk:hover{border-color:var(--pkred)}
@@ -386,7 +388,7 @@ function gB(){if(PZ.length>1){PZ.pop();var p=PZ[PZ.length-1];if(p==="pagePet")rP
 function rColl(){var n=st.tn,p=st.people[n],un=new Set(),cur=-1;if(p){p.petSlots.forEach(function(s){un.add(s)});if(p.petSlots[p.currentPetIdx]!==undefined)cur=p.petSlots[p.currentPetIdx]}document.getElementById("collC").textContent=un.size+"/"+TP;document.getElementById("collGrid").innerHTML=Array.from({length:TP},function(_,i){var u=un.has(i),c=i===cur;return '<div class="ccell '+(c?"cur":u?"unlocked":"lock")+'"'+(u?' onclick="showPetDetail('+i+')"':'')+'><span class=ce>'+(u?pi(i):"❓")+'</span><span class=cn>#'+(i+1)+'</span></div>'}).join("")}
 
 function rShop(){var n=st.tn,p=st.people[n];document.getElementById("shopPts").textContent="💰 "+p.points+" 金币";document.getElementById("shopGrid").innerHTML=SI.map(function(s){return '<div class=sc onclick="buy('+"'"+s.id+"'"+')"><div class=sc-top><span class=si>'+s.i+'</span></div><span class=sn>'+s.n+'</span><span class=sd>'+s.d+'</span><div class=sc-bot><span class=sc-price>💰 '+s.c+'</span><span class=sc-btn>兑换</span></div></div>'}).join("")}
-function buy(id){var n=st.tn,p=st.people[n];if(!p)return;var item=SI.find(function(s){return s.id===id});if(!item)return;if(p.points<item.c){return}p.points-=item.c;if(item.e.h){p.hunger=Math.min(100,p.hunger+item.e.h);p.happiness=Math.min(100,p.happiness+3);p.lastTimestamp=Date.now();cL(n)}if(item.e.x){var idx=p.currentPetIdx;p.petXP[idx]+=item.e.x;cL(n)}if(item.e.r){var sb=p.statBonus[p.currentPetIdx];if(!sb)sb={hp:0,atk:0,def:0,spd:0,int:0,luk:0};var sts=["hp","atk","def","spd","int","luk"];sb[sts[Math.floor(Math.random()*6)]]+=2}if(item.e.u){var ri=rb(n);if(ri!==null){p.pendingBoxes.push(ri)}}sv();rShop();rHome()}
+function buy(id){var n=st.tn,p=st.people[n];if(!p)return;var item=SI.find(function(s){return s.id===id});if(!item)return;if(p.points<item.c){toast("积分不足，加油训练打卡！");return}p.points-=item.c;if(item.e.h){p.hunger=Math.min(100,p.hunger+item.e.h);p.happiness=Math.min(100,p.happiness+3);p.lastTimestamp=Date.now();cL(n)}if(item.e.x){var idx=p.currentPetIdx;p.petXP[idx]+=item.e.x;cL(n)}if(item.e.r){var sb=p.statBonus[p.currentPetIdx];if(!sb)sb={hp:0,atk:0,def:0,spd:0,int:0,luk:0};var sts=["hp","atk","def","spd","int","luk"];sb[sts[Math.floor(Math.random()*6)]]+=2}if(item.e.u){var ri=rb(n);if(ri!==null){p.pendingBoxes.push(ri)}}sv();rShop();rHome()}
 
 var br=false;
 function gBD(pn,si){var p=st.people[pn];if(!p)return null;var sl=typeof si==="number"?si:p.currentPetIdx,pid=p.petSlots[sl],lv=p.petLevels[sl];var ss=gs(pid,lv),sk=cs(p),hp2=1-(100-sk.hunger)*0.002;return{personName:pn,petSlot:sl,petId:pid,level:lv,stats:ss,hunger:sk.hunger,hungerPenalty:hp2,emoji:PE[pid]||"🐣",iconHtml:pi(pid)}}
@@ -404,12 +406,22 @@ uH(1,ta[0].stats.hp*5,tb[0].stats.hp*5,ta[0].stats.hp*5,tb[0].stats.hp*5);var cA
                     else if(s.special==="critical"){lgTxt="<div class='bli cr'>💥 "+s.attackerName+" 暴击！对 "+s.defenderName+" 造成 "+s.dmg+" 点伤害！</div>"}
                     else{lgTxt="<div class='bli'>⚔️ "+s.attackerName+" 对 "+s.defenderName+" 造成 "+s.dmg+" 点伤害</div>"}
                     lgEl.innerHTML+=lgTxt;lgEl.scrollTop=lgEl.scrollHeight;
+                    // ==== 战斗特效 ====
+                    document.querySelector('.ba').style.animation='hitShake 0.3s';
+                    var hpFill=document.querySelector('.ba .bhf');
+                    if(hpFill)hpFill.style.animation='dmgFlash 0.3s';
+                    setTimeout(function(){document.querySelector('.ba').style.animation='';if(hpFill)hpFill.style.animation=''},300);
+
                     if(s.ko){lgEl.innerHTML+="<div class='bli info'>💀 "+(s.hpA<=0?s.attackerName:s.defenderName)+" 倒下了！</div>";lgEl.scrollTop=lgEl.scrollHeight}
 await sl(500)}}var wn=oc.winnerIsA?p1:p2;document.getElementById("brT").textContent=oc.isUpset?"🎉":"🏆";document.getElementById("brTx").textContent="🥇 "+wn+" 获胜！";document.getElementById("brD").textContent="战力 "+oc.powerA+" VS "+oc.powerB;document.getElementById("battleResult").classList.add("show");var wp=st.people[wn];if(wp){var sp2=st.people[p1];sp2.battlesToday=(sp2.battlesToday||0)+1;sp2.battleDate=fd();if(wn===p1||wn===p2){wp.points+=BP;
                     var lgEl2=document.getElementById("battleLog");
                     lgEl2.innerHTML+="<div class='bli info'>🏅 "+wn+" 获得胜利！+1 金币 +1 随机属性！</div>";
                     lgEl2.scrollTop=lgEl2.scrollHeight;
-var bpIdx=window._battlePetIdx||wp.currentPetIdx;if(!wp.statBonus)wp.statBonus=[];while(wp.statBonus.length<=bpIdx)wp.statBonus.push({hp:0,atk:0,def:0,spd:0,int:0,luk:0});var sb=wp.statBonus[bpIdx];if(!sb)sb={hp:0,atk:0,def:0,spd:0,int:0,luk:0};var sts=["hp","atk","def","spd","int","luk"];var rs=sts[Math.floor(Math.random()*6)];sb[rs]+=1}sv();rBatUI()}br=false;if(btn)btn.disabled=false})()}
+var bpIdx=window._battlePetIdx||wp.currentPetIdx;if(!wp.statBonus)wp.statBonus=[];while(wp.statBonus.length<=bpIdx)wp.statBonus.push({hp:0,atk:0,def:0,spd:0,int:0,luk:0});var sb=wp.statBonus[bpIdx];if(!sb)sb={hp:0,atk:0,def:0,spd:0,int:0,luk:0};var sts=["hp","atk","def","spd","int","luk"];var rs=sts[Math.floor(Math.random()*6)];sb[rs]+=1}
+  // 保存战斗记录
+  var he={result:(wn===p1?"win":"lose"),opponent:(wn===p1?p2:p1),myPower:oc.powerA,date:fd()};
+  sp.battleHistory.push(he);
+  sv();rBatUI()}br=false;if(btn)btn.disabled=false})()}
 
 function rBatUI(){document.getElementById("bfE1").src="";document.getElementById("bfE2").src="";document.getElementById("bhP1").textContent="—";document.getElementById("bhP2").textContent="—";document.getElementById("bhN1").textContent="—";document.getElementById("bhN2").textContent="—";document.getElementById("bhH1").style.width="0%";document.getElementById("bhH2").style.width="0%";document.getElementById("bhT1").textContent="HP";document.getElementById("bhT2").textContent="HP";document.getElementById("battleResult").classList.remove("show");if(!st.tn||!st.people[st.tn]){document.getElementById("battleSetup").innerHTML='<div style=text-align:center><div style=font-size:36px>🎮</div><div style=font-size:14px;font-weight:700>请先登录</div></div>';document.getElementById("battleStart").disabled=true;return}var p=st.people[st.tn],td2=fd();if(p.battleDate!==td2){p.battlesToday=0;p.battleDate=td2}var rm=MB-(p.battlesToday||0),md=document.querySelector(".bmb.active")?.getAttribute("data-md")||"1v1",sel=st.people[st.tn];window._battlePicks=window._battlePicks||[];if(!window._battlePicks.length){window._battlePicks=[sel?sel.currentPetIdx:0]}var need=md==="3v3"?3:1;buildBpk();document.getElementById("battleCount").innerHTML='<span>🎮 '+st.tn+'</span><span>⚔️ 今日 '+Math.max(0,rm)+'/'+MB+' 场</span>';document.getElementById("battleStart").textContent=rm>0?"🎲 随机匹配战斗":"⏰ 今日已打满";document.getElementById("battleStart").disabled=rm<=0||window._battlePicks.length<need}
 
