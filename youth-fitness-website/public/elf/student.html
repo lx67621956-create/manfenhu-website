@@ -46,7 +46,7 @@ body{background:#F5F0EB;font-family:var(--font);color:var(--pkdark);display:flex
 .lpets img{width:48px;height:48px;object-fit:contain;animation:pF 3s ease-in-out infinite;background:rgba(238,21,21,0.03);border-radius:10px;padding:4px;border:1px solid rgba(0,0,0,0.04)}
 @keyframes pF{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .pkm-frame{border:2px solid var(--pkdark);border-radius:12px;padding:20px 18px;background:white;box-shadow:4px 4px 0 var(--pkdark);width:100%;max-width:290px}
-.pkm-frame input{width:100%;padding:10px 12px;border:2px solid #CCC;border-radius:8px;background:#F8F8F8;color:var(--text);font-size:14px;font-family:var(--font);outline:none;text-align:center;margin-bottom:8px}
+.pkm-frame input,.pkm-frame textarea{width:100%;padding:10px 12px;border:2px solid #CCC;border-radius:8px;background:#F8F8F8;color:var(--text);font-size:14px;font-family:var(--font);outline:none;text-align:center;margin-bottom:8px}
 .pkm-frame input:focus{border-color:var(--pkred);background:white;box-shadow:0 0 0 2px rgba(238,21,21,0.06)}
 .pk-btn{width:100%;padding:12px;border:2px solid var(--pkdark);border-radius:10px;background:var(--pkred);color:white;font-size:15px;font-weight:800;cursor:pointer;font-family:var(--font);margin-top:4px;box-shadow:3px 3px 0 var(--pkdark);transition:all .1s}
 .pk-btn:hover{transform:translateY(-2px);box-shadow:4px 4px 0 var(--pkdark)}
@@ -233,7 +233,7 @@ input,textarea{font-size:16px!important;-webkit-user-select:text!important;user-
       <div class="ls">Pet · Battle · Grow</div>
       <div class="lpets" id="loginPets"></div>
       <div class="pkm-frame">
-        <input id="loginName" placeholder="训练家名称" style="-webkit-user-select:text!important;user-select:text!important;font-size:16px">
+        <textarea id="loginName" placeholder="训练家名称" rows="1" style="-webkit-user-select:text!important;user-select:text!important;font-size:16px;resize:none;overflow:hidden;padding:10px 12px;border:2px solid #CCC;border-radius:8px;background:#F8F8F8;color:var(--pkdark);font-family:var(--font);outline:none;text-align:center;width:100%;box-sizing:border-box"></textarea>
         <input id="loginPwd" placeholder="密码" type="password" style="-webkit-user-select:text!important;user-select:text!important;font-size:16px">
         <button class="pk-btn" id="loginBtn">⚡ 进入精灵世界</button>
         <div class="lerr" id="loginError"></div>
