@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>打卡小精灵 - 管理端</title>
 <style>
+html{height:100%}
 
 /* ============================
 
@@ -40,7 +41,7 @@
 
 }
 
-html,body{height:100%;overflow:hidden}
+html,body{height:100%;min-height:100dvh;min-height:-webkit-fill-available;overflow:hidden}
 
 body{
 
@@ -56,7 +57,7 @@ body{
 
 .app{
 
-  width:100%;max-width:420px;height:100vh;max-height:880px;
+  width:100%;max-width:420px;min-height:100dvh;min-height:-webkit-fill-available;max-height:880px;
 
   position:relative;overflow:hidden;
 
@@ -306,7 +307,7 @@ body{
 
 
 
-body{background:#F5F0EB;font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;color:#2C2C2C;margin:0;padding:0;display:flex;align-items:center;justify-content:center;min-height:100vh}
+body{background:#F5F0EB;font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;color:#2C2C2C;margin:0;padding:0;min-height:100dvh;min-height:-webkit-fill-available}
 
 .app{width:100%;max-width:420px;min-height:100dvh;background:white;box-shadow:0 8px 40px rgba(0,0,0,0.1);position:relative;display:flex;flex-direction:column}
 
@@ -499,6 +500,10 @@ body{background:#F5F0EB;font-family:'Segoe UI','PingFang SC','Microsoft YaHei',s
 
 /* iOS IME fix */
 input,textarea{font-size:16px!important}
+
+@supports not (height:100dvh){
+body,.app{min-height:100vh}
+}
 </style>
 </head>
 <body>
@@ -587,9 +592,10 @@ function bind(){
 function grid(){
   var g=document.getElementById("personGrid"),t=td();
   if(!st.personOrder.length){g.innerHTML="<div class=empty-state>还没有人员</div>";return;}
-  g.innerHTML=st.personOrder.map(function(n){var p=st.people[n],sk=sts(p),idx=p.currentPetIdx,sid=p.petSlots[idx],e=PE[sid]||"🐣",lv=p.petLevels[idx],bx=p.pendingBoxes?.length||0,ck=p.lastCheckinDate===t;return '<div class=person-card data-n="'+n+'"><div class=pc-status><span class="badge '+(sk.h<20||sk.ha<20?"bg-red":"bg-green")+'">'+(sk.h<20?"🤤":sk.ha<20?"😞":"😊")+'</span></div><div class=pc-name>'+n+(bx?' <span style=color:#FF69B4;font-size:12px>🎁x'+bx+'</span>':'')+'</div><div class=pc-points>⭐ '+p.points+' 积分</div><div class=pc-pet>'+e+' #'+(sid+1)+' Lv.'+lv+(p.password?" 🔑":" 🔓")+'</div><div class=pc-actions><button class="btn-checkin'+(ck?" done":"")+'" data-ci="'+n+'">'+(ck?"✅":"📅")+'</button><button class=btn-pwd data-pw="'+n+'">🔑</button><button class=btn-icon data-chg="'+n+'" title="分配金币">💰</button></div></div>';}).join('');
+  g.innerHTML=st.personOrder.map(function(n){var p=st.people[n],sk=sts(p),idx=p.currentPetIdx,sid=p.petSlots[idx],e=PE[sid]||"🐣",lv=p.petLevels[idx],bx=p.pendingBoxes?.length||0,ck=p.lastCheckinDate===t;return '<div class=person-card data-n="'+n+'"><div class=pc-status><span class="badge '+(sk.h<20||sk.ha<20?"bg-red":"bg-green")+'">'+(sk.h<20?"🤤":sk.ha<20?"😞":"😊")+'</span></div><div class=pc-name>'+n+(bx?' <span style=color:#FF69B4;font-size:12px>🎁x'+bx+'</span>':'')+'</div><div class=pc-points>⭐ '+p.points+' 积分</div><div class=pc-pet>'+e+' #'+(sid+1)+' Lv.'+lv+(p.password?" 🔑":" 🔓")+'</div><div class=pc-actions><button class="btn-checkin'+(ck?" done":"")+'" data-ci="'+n+'">'+(ck?"✅":"📅")+'</button><button class=btn-pwd data-pw="'+n+'">🔑</button><button class=btn-icon data-chg="'+n+'" title="分配金币">💰</button><button class=btn-icon data-award="'+n+'" title="直接加积分">➕</button></div></div>';}).join('');
   g.querySelectorAll("[data-ci]").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();var nm=this.getAttribute("data-ci"),p2=st.people[nm],t2=td();if(p2.lastCheckinDate===t2){toast("已打卡");return}p2.points+=CP;p2.totalCheckins++;p2.happiness=Math.min(100,p2.happiness+3);p2.lastTimestamp=Date.now();p2.lastCheckinDate=t2;var ex=Math.min(TP,1+Math.floor(p2.totalCheckins/UE));while(p2.petSlots.length+p2.pendingBoxes.length<ex){var ri=rb(nm);if(ri!==null)p2.pendingBoxes.push(ri);else break}sv();rf();toast("打卡 +"+CP);});});
   g.querySelectorAll("[data-chg]").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();var nm=this.getAttribute("data-chg"),p3=st.people[nm];if(!p3)return;var v=prompt("修改 "+nm+" 金币：",p3.points);if(v!==null){var nv=parseInt(v);if(isNaN(nv)||nv<0){toast("❌ 无效");return}p3.points=nv;sv();grid()}})});
+  g.querySelectorAll("[data-award]").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();var nm=this.getAttribute("data-award"),p3=st.people[nm];if(!p3)return;var v=prompt("给 "+nm+" 加多少积分？","");if(v!==null){var nv=parseInt(v);if(isNaN(nv)||nv<=0){toast("无效");return}p3.points+=nv;sv();grid();toast("+ "+nv+" 积分")}})});
   g.querySelectorAll("[data-pw]").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();var nm=this.getAttribute("data-pw");document.getElementById("modalPwdName").textContent="为 "+nm+" 设置密码";document.getElementById("pwdInput").value="";document.getElementById("modalPwd").setAttribute("data-n",nm);document.getElementById("modalPwd").classList.add("show");});});
   g.querySelectorAll(".person-card").forEach(function(el){el.addEventListener("click",function(){st.curPerson=this.getAttribute("data-n");st.curSlot=st.people[st.curPerson].currentPetIdx;det();show("pagePerson");});});
 }
