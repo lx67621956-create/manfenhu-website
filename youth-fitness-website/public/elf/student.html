@@ -266,7 +266,7 @@ body,.app{min-height:100vh}
         <div class="bfp"><img class="be" id="bfE2" src="" style="width:64px;height:64px;object-fit:contain"><div class="bfn" id="bfN2">—</div></div>
       </div>
       <div class="blog" id="battleLog"></div>
-      <div class="brs" id="battleResult"><div class="bri" id="brT">🏆</div><div class="brt2" id="brTx"></div><div class="brd2" id="brD"></div></div>
+      <div class="brs" id="battleResult"><div class="bri" id="brT">🏆<div class="brd2" id="brReward" style="margin-top:4px;font-weight:700;color:#FFD700"></div><button id="battleAgain" class="bb" style="margin-top:8px;display:none">⚔️ 再来一局</button></div><div class="brt2" id="brTx"></div><div class="brd2" id="brD"></div></div>
     </div>
     <div class="bsu" id="battleSetup"></div>
     <div class="bms"><button class="bmb active" data-md="1v1">1 VS 1</button><button class="bmb" data-md="3v3">3 VS 3</button></div>
@@ -414,7 +414,7 @@ uH(1,ta[0].stats.hp*5,tb[0].stats.hp*5,ta[0].stats.hp*5,tb[0].stats.hp*5);var cA
                     if(s.special==="dodge"){lgTxt="<div class='bli cr'>🛡️ "+s.defenderName+" 闪避了攻击！</div>"}
                     else if(s.special==="critical"){lgTxt="<div class='bli cr'>💥 "+s.attackerName+" 暴击！对 "+s.defenderName+" 造成 "+s.dmg+" 点伤害！</div>"}
                     else{lgTxt="<div class='bli'>⚔️ "+s.attackerName+" 对 "+s.defenderName+" 造成 "+s.dmg+" 点伤害</div>"}
-                    lgEl.innerHTML+=lgTxt;lgEl.scrollTop=lgEl.scrollHeight;
+                    lgEl.innerHTML+=lgTxt;lgEl.scrollTop=lgEl.scrollHeight;var cs=lgEl.children;while(cs.length>50)lgEl.removeChild(cs[0]);
                     // ==== 战斗特效 ====
                     document.querySelector('.ba').style.animation='hitShake 0.3s';
                     var hpFill=document.querySelector('.ba .bhf');
@@ -422,7 +422,7 @@ uH(1,ta[0].stats.hp*5,tb[0].stats.hp*5,ta[0].stats.hp*5,tb[0].stats.hp*5);var cA
                     setTimeout(function(){document.querySelector('.ba').style.animation='';if(hpFill)hpFill.style.animation=''},300);
 
                     if(s.ko){lgEl.innerHTML+="<div class='bli info'>💀 "+(s.hpA<=0?s.attackerName:s.defenderName)+" 倒下了！</div>";lgEl.scrollTop=lgEl.scrollHeight}
-await sl(500)}}var wn=oc.winnerIsA?p1:p2;document.getElementById("brT").textContent=oc.isUpset?"🎉":"🏆";document.getElementById("brTx").textContent="🥇 "+wn+" 获胜！";document.getElementById("brD").textContent="战力 "+oc.powerA+" VS "+oc.powerB;document.getElementById("battleResult").classList.add("show");var wp=st.people[wn];if(wp){var sp2=st.people[p1];sp2.battlesToday=(sp2.battlesToday||0)+1;sp2.battleDate=fd();if(wn===p1||wn===p2){wp.points+=BP;
+await sl(500)}}var wn=oc.winnerIsA?p1:p2;document.getElementById("brT").textContent=oc.isUpset?"🎉":"🏆";document.getElementById("brTx").textContent="🥇 "+wn+" 获胜！";document.getElementById("brD").textContent="战力 "+oc.powerA+" VS "+oc.powerB;document.getElementById("brReward").textContent=(wn===p1||wn===p2)?"🏅 +1 金币 +1 随机属性":"";document.getElementById("battleAgain").style.display="block";document.getElementById("battleResult").classList.add("show");var wp=st.people[wn];if(wp){var sp2=st.people[p1];sp2.battlesToday=(sp2.battlesToday||0)+1;sp2.battleDate=fd();if(wn===p1||wn===p2){wp.points+=BP;
                     var lgEl2=document.getElementById("battleLog");
                     lgEl2.innerHTML+="<div class='bli info'>🏅 "+wn+" 获得胜利！+1 金币 +1 随机属性！</div>";
                     lgEl2.scrollTop=lgEl2.scrollHeight;
@@ -469,6 +469,8 @@ init();
 rLoginPets();
 
 setInterval(rfsh,30000);
+
+document.getElementById("battleAgain")&&document.getElementById("battleAgain").addEventListener("click",function(){document.getElementById("battleResult").classList.remove("show");rBatUI()});
 </script>
 </body>
 </html>
