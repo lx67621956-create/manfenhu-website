@@ -636,20 +636,15 @@ function stats(){
 
 function rf(){var a=document.querySelector(".page.active");if(!a)return;var id=a.id;if(id==="pageHome")grid();else if(id==="pagePerson")det();else if(id==="pageStats")stats();}
 function syncAPI(){
-  var x=new XMLHttpRequest();
-  x.open("GET","/api/data",true);
-  x.onload=function(){
-    if(x.status===200){
-      try{
-        var d=JSON.parse(x.responseText);
-        if(d&&d.people&&Object.keys(d.people).length){
-          var kl=Object.keys(d.people).length,kk=Object.keys(st.people).length;
-          if(kl>kk){st=d;sv();bind();grid()}
-        }
-      }catch(e){}
-    }
-  };
-  x.send()
+  // 管理端：强制上传本地数据到 API
+  if(!navigator.onLine)return;
+  try{
+    var d=JSON.stringify(st);
+    var x=new XMLHttpRequest();
+    x.open("POST","/api/data",true);
+    x.setRequestHeader("Content-Type","application/json");
+    x.send(d)
+  }catch(e){}
 }
 document.addEventListener("DOMContentLoaded",init);
 </script>

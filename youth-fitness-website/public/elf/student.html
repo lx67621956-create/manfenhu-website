@@ -331,13 +331,22 @@ function syncAPI(){
     if(x.status===200){
       try{
         var d=JSON.parse(x.responseText);
-        if(d&&d.people){
-          var kl=Object.keys(d.people).length,kk=Object.keys(st.people).length;
-          if(kl>kk){st=d;sv()}else{apiSv()}
-        }
-      }catch(e){}
-    }
+        if(d&&d.people&&!d.empty){
+          var merged=false;
+          if(!st.people){st.people={};st.personOrder=[]}
+          Object.keys(d.people).forEach(function(n){
+            if(!st.people[n]){
+              st.people[n]=d.people[n];
+              st.personOrder.push(n);
+              merged=true
+            }
+          });
+          if(merged){sv()}else{apiSv()}
+        }else{apiSv()}
+      }catch(e){apiSv()}
+    }else{apiSv()}
   };
+  x.onerror=function(){apiSv()};
   x.send()
 }
 function mkP(){var ri=Math.floor(Math.random()*TP);return{points:0,totalCheckins:0,currentPetIdx:0,petSlots:[ri],petLevels:[1],petXP:[0],statBonus:[{hp:0,atk:0,def:0,spd:0,int:0,luk:0}],hunger:80,happiness:80,lastTimestamp:Date.now(),password:"",battlesToday:0,battleDate:"",pendingBoxes:[],battleHistory:[]}}
