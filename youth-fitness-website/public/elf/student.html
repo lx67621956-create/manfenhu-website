@@ -3,10 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="format-detection" content="telephone=no">
-<meta name="x5-orientation" content="portrait">
-<meta name="x5-fullscreen" content="false">
-<meta name="x5-page-mode" content="app">
 <title>精灵世界</title>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -216,6 +212,19 @@ input,textarea,select{-webkit-user-select:text!important;user-select:text!import
 *:not(input):not(textarea){-webkit-touch-callout:none}
 
 input, textarea{font-size:16px!important} /* prevents iOS auto-zoom */
+
+/* ===== WeChat iOS Chinese IME Fix ===== */
+html,body{-webkit-user-select:text!important;user-select:text!important}
+input,textarea{-webkit-user-select:auto!important;user-select:auto!important}
+
+
+/* WeChat iOS input fix */
+.wechat-input-wrap{position:relative;width:100%;margin-bottom:8px}
+.fake-input{width:100%;padding:10px 12px;border:2px solid #CCC;border-radius:8px;background:#F8F8F8;color:var(--pkdark);font-size:16px;font-family:var(--font);outline:none;text-align:center;min-height:20px;box-sizing:border-box}
+.fake-input:focus{border-color:var(--pkred);background:white}
+.fake-input:empty:before{content:attr(data-placeholder);color:#999;pointer-events:none}
+.pkm-frame input[type=password]{font-size:16px!important;-webkit-user-select:text!important;user-select:text!important}
+
 </style>
 </head>
 <body>
@@ -228,8 +237,8 @@ input, textarea{font-size:16px!important} /* prevents iOS auto-zoom */
       <div class="ls">Pet · Battle · Grow</div>
       <div class="lpets" id="loginPets"></div>
       <div class="pkm-frame">
-        <input id="loginName" placeholder="训练家名称" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <input id="loginPwd" placeholder="密码" type="password">
+        <div class="wechat-input-wrap"><div class="fake-input" id="loginName" contenteditable="true" data-placeholder="训练家名称" style="-webkit-user-select:text!important;user-select:text!important"></div><input type="hidden" id="loginNameHidden"></div>
+        <input id="loginPwd" placeholder="密码" type="password" style="-webkit-user-select:text!important;user-select:text!important">
         <button class="pk-btn" id="loginBtn">⚡ 进入精灵世界</button>
         <div class="lerr" id="loginError"></div>
         <div class="lh">新训练家请联系老师获取账号密码</div>
@@ -322,7 +331,7 @@ function rb(n){var p=st.people[n];if(!p)return null;var s=new Set(p.petSlots);(p
 function gs(sl,lv){var b=BS[sl]||{hp:10,atk:8,def:6,spd:7,int:7,luk:6},m=1+(lv-1)*0.05;var r={hp:Math.round(b.hp*m),atk:Math.round(b.atk*m),def:Math.round(b.def*m),spd:Math.round(b.spd*m),int:Math.round(b.int*m),luk:Math.round(b.luk*m)};var bu=(st.people[st.tn||st.curPerson]?.statBonus?.[st.people[st.tn||st.curPerson]?.currentPetIdx||0]);if(bu){r.hp+=bu.hp;r.atk+=bu.atk;r.def+=bu.def;r.spd+=bu.spd;r.int+=bu.int;r.luk+=bu.luk}return r}
 function pwr(s,lv){return s.hp*0.8+s.atk*1.5+s.def*1.0+s.spd*1.0+s.int*1.2+s.luk*0.8+lv*2}
 function cs(p){var hrs=(Date.now()-(p.lastTimestamp||Date.now()))/3600000;var h=Math.max(0,Math.min(100,Math.round(p.hunger-hrs*8)));var ha=Math.max(0,Math.min(100,Math.round(p.happiness-(h<40?hrs*6:hrs*2))));return{hunger:h,happiness:ha}}
-function login(){var n=document.getElementById("loginName").value.trim(),pw=document.getElementById("loginPwd").value.trim(),err=document.getElementById("loginError");if(!n){err.textContent="请输入姓名";err.style.display="block";return}if(!st.people[n]){err.textContent="❌ "+n+" 不存在";err.style.display="block";return}if(st.people[n].password&&st.people[n].password!==pw){err.textContent="❌ 密码错误";err.style.display="block";return}st.tn=n;sv();err.style.display="none";document.getElementById("loginPwd").value="";document.getElementById("nav").classList.add("show");showPg("pageHome");rHome()}
+function login(){var n=(document.getElementById("loginName").textContent||"").trim(),pw=(document.getElementById("loginPwd").value||"").trim(),err=document.getElementById("loginError");if(!n){err.textContent="请输入姓名";err.style.display="block";return}if(!st.people[n]){err.textContent="❌ "+n+" 不存在";err.style.display="block";return}if(st.people[n].password&&st.people[n].password!==pw){err.textContent="❌ 密码错误";err.style.display="block";return}st.tn=n;sv();err.style.display="none";document.getElementById("loginName").textContent="";document.getElementById("loginPwd").value="";document.getElementById("nav").classList.add("show");showPg("pageHome");rHome()}
 
 function rHome(){var n=st.tn,p=st.people[n];if(!p)return;var idx=p.currentPetIdx,sid=p.petSlots[idx],lv=p.petLevels[idx],xp=p.petXP[idx],nd=xfl(lv),pct=Math.min(100,xp/nd*100),mx=lv>=100;var sk=cs(p);var bx=p.pendingBoxes?.length||0,bh=p.battleHistory||[];document.getElementById("homeContent").innerHTML='<div class=hh><div class=tn>🎮 '+n+' <span style=font-size:11px;cursor:pointer;color:#EE1515;font-weight:600 onclick="logout()">[退出]</span></div><div class=tp>⭐ '+p.points+' 金币</div><div class=ts><span>🐾 '+p.petSlots.length+'/'+TP+'</span><span>🔥 打卡 '+p.totalCheckins+' 次</span></div></div>'+
 '<div class=ps><div class=walk-area><img id=homePetGif class=pg src="/images/pets/pet_'+String(sid+1).padStart(2,"0")+'_'+(window._pf||"walk")+'.gif" alt=""></div><div class=pn>精灵 #'+(sid+1)+'</div><span class="pt badge '+(mx?"bg-gold":"bg-blue")+'">Lv.'+lv+(mx?" 🏆":"")+'</span></div>'+
