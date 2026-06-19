@@ -318,7 +318,23 @@ var DP=["张三","李四","王五","赵六"];
 
 function dedup(n){var p=st.people[n];if(!p||!p.petSlots)return;var seen={},news=[],newlv=[],newxp=[],newsb=[];p.petSlots.forEach(function(sl,i){if(!seen[sl]){seen[sl]=true;news.push(sl);newlv.push(p.petLevels[i]);newxp.push(p.petXP[i]);newsb.push(p.statBonus&&p.statBonus[i]?p.statBonus[i]:{hp:0,atk:0,def:0,spd:0,int:0,luk:0})}});if(news.length<p.petSlots.length){p.petSlots=news;p.petLevels=newlv;p.petXP=newxp;p.statBonus=newsb;sv()}}
 function initSt(){var r=localStorage.getItem("checkin_pets");if(r){try{st=JSON.parse(r);st.personOrder.forEach(fx);syncAPI();return}catch(e){}}if(navigator.onLine){var x=new XMLHttpRequest();x.open("GET","/api/data",false);try{x.send();if(x.status===200){var d=JSON.parse(x.responseText);if(d&&d.people&&Object.keys(d.people).length){st=d;sv();return}}}catch(e){}}DP.forEach(function(n){st.people[n]=mkP();st.personOrder.push(n)});if(!st.tn)st.tn=null;sv()}
-function syncAPI(){if(!navigator.onLine)return;var x=new XMLHttpRequest();x.open("GET","/api/data",true);x.onload=function(){if(x.status===200){try{var d=JSON.parse(x.responseText);if(d&&d.people){var kl=Object.keys(d.people).length,kk=Object.keys(st.people).length;if(kl>kk){st=d;sv()}else{apiSv()}}}catch(e){}}};x.send()}
+function syncAPI(){
+  if(!navigator.onLine)return;
+  var x=new XMLHttpRequest();
+  x.open("GET","/api/data",true);
+  x.onload=function(){
+    if(x.status===200){
+      try{
+        var d=JSON.parse(x.responseText);
+        if(d&&d.people){
+          var kl=Object.keys(d.people).length,kk=Object.keys(st.people).length;
+          if(kl>kk){st=d;sv()}else{apiSv()}
+        }
+      }catch(e){}
+    }
+  };
+  x.send()
+}
 function mkP(){var ri=Math.floor(Math.random()*TP);return{points:0,totalCheckins:0,currentPetIdx:0,petSlots:[ri],petLevels:[1],petXP:[0],statBonus:[{hp:0,atk:0,def:0,spd:0,int:0,luk:0}],hunger:80,happiness:80,lastTimestamp:Date.now(),password:"",battlesToday:0,battleDate:"",pendingBoxes:[],battleHistory:[]}}
 function fx(n){var p=st.people[n];if(!p)return;if(!p.petSlots)p.petSlots=[0];if(!p.petLevels)p.petLevels=[1];if(!p.petXP)p.petXP=[0];if(typeof p.currentPetIdx!="number")p.currentPetIdx=0;if(typeof p.hunger!="number")p.hunger=80;if(typeof p.happiness!="number")p.happiness=80;if(!p.lastTimestamp)p.lastTimestamp=Date.now();if(typeof p.totalCheckins!="number")p.totalCheckins=0;if(typeof p.battlesToday!="number")p.battlesToday=0;if(!p.battleDate)p.battleDate="";if(typeof p.password!="string")p.password="";if(!p.pendingBoxes)p.pendingBoxes=[];if(!p.battleHistory)p.battleHistory=[];var td=fd();if(p.battleDate!=td){p.battlesToday=0;p.battleDate=td}if(!p.statBonus||!p.statBonus.length){p.statBonus=[];p.petSlots.forEach(function(){p.statBonus.push({hp:0,atk:0,def:0,spd:0,int:0,luk:0})})}var ex=exp(p.totalCheckins);while(p.petSlots.length<ex){var idx=rb(n);if(idx!==null)p.pendingBoxes.push(idx);else break}if(p.currentPetIdx>=p.petSlots.length)p.currentPetIdx=0}
 function fd(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
