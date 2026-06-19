@@ -308,7 +308,7 @@ body{
 
 body{background:#F5F0EB;font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;color:#2C2C2C;margin:0;padding:0;display:flex;align-items:center;justify-content:center;min-height:100vh}
 
-.app{width:100%;max-width:420px;height:100dvh;background:white;box-shadow:0 8px 40px rgba(0,0,0,0.1);position:relative;overflow:hidden;display:flex;flex-direction:column}
+.app{width:100%;max-width:420px;min-height:100dvh;background:white;box-shadow:0 8px 40px rgba(0,0,0,0.1);position:relative;display:flex;flex-direction:column}
 
 @media(min-width:421px){.app{border-radius:24px;height:90vh;min-height:720px;margin:12px}}
 
@@ -496,6 +496,9 @@ body{background:#F5F0EB;font-family:'Segoe UI','PingFang SC','Microsoft YaHei',s
 
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 
+
+/* iOS IME fix */
+input,textarea{font-size:16px!important}
 </style>
 </head>
 <body>
