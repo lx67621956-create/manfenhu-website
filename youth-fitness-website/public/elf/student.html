@@ -2,7 +2,11 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="format-detection" content="telephone=no">
+<meta name="x5-orientation" content="portrait">
+<meta name="x5-fullscreen" content="false">
+<meta name="x5-page-mode" content="app">
 <title>精灵世界</title>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -206,7 +210,11 @@ body{background:#F5F0EB;font-family:var(--font);color:var(--pkdark);display:flex
 .bpk.bpk-cur{border-color:#EE1515}
 
 
-/* iOS IME fix */
+
+/* iOS + WeChat IME fix */
+input,textarea,select{-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:text!important}
+*:not(input):not(textarea){-webkit-touch-callout:none}
+
 input, textarea{font-size:16px!important} /* prevents iOS auto-zoom */
 </style>
 </head>
@@ -377,6 +385,7 @@ function setupDragScroll() {
   document.querySelectorAll(".scroll-x").forEach(function(el) {
     var isDown = false, startX, startY, scrollLeft, moved = false;
     el.addEventListener("mousedown", function(e) {
+      if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
       isDown = true; moved = false;
       startX = e.pageX - el.offsetLeft; startY = e.pageY;
       scrollLeft = el.scrollLeft;
