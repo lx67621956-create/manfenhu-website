@@ -234,6 +234,10 @@ body,.app{min-height:100vh}
 /* Page content fill */
 .page.active > .lp,.page.active > .hh,.page.active > .ps,.page.active > .pds{flex:1}
 .colc{flex-shrink:0}
+
+/* Utility classes */
+.mt10{margin-top:10px}.mt8{margin-top:8px}
+.text-muted{font-size:11px;color:#999}
 </style>
 </head>
 <body>
@@ -270,7 +274,7 @@ body,.app{min-height:100vh}
         <div class="bfp"><img class="be" id="bfE2" src="" style="width:64px;height:64px;object-fit:contain;background:rgba(0,0,0,0.05);border-radius:8px" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><text y=%2232%22 font-size=%2232%22 text-anchor=%22middle%22 dominant-baseline=%22central%22>&#x2753;</text></svg>'"><div class="bfn" id="bfN2">—</div></div>
       </div>
       <div class="blog" id="battleLog"></div>
-      <div class="brs" id="battleResult"><div class="bri" id="brT">🏆</div><div class="brt2" id="brTx"></div><div class="brd2" id="brD"></div><div class="brd2" id="brReward" style="margin-top:4px;font-weight:700;color:#FFD700"></div><button id="battleAgain" class="bb" style="margin-top:8px;display:none">⚔️ 再来一局</button></div>
+      <div class="brs" id="battleResult"><div class="bri" id="brT">🏆</div><div class="brt2" id="brTx"></div><div class="brd2" id="brD"></div><div class="brd2" id="brReward" style="margin-top:4px;font-weight:700;color:#FFD700"></div><button id="battleAgain" class="bb" class="mt8 battle-again" id="battleAgain" style="display:none">⚔️ 再来一局</button></div>
     </div>
     <div class="bsu" id="battleSetup"></div>
     <div class="bms"><button class="bmb active" data-md="1v1">1 VS 1</button><button class="bmb" data-md="3v3">3 VS 3</button></div>
