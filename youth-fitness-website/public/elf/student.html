@@ -238,6 +238,83 @@ body,.app{min-height:100vh}
 /* Utility classes */
 .mt10{margin-top:10px}.mt8{margin-top:8px}
 .text-muted{font-size:11px;color:#999}
+
+/* ==== 美观优化 Elon Edition ==== */
+
+/* 更柔和的阴影和过渡 */
+:root{--shadow-sm:0 2px 8px rgba(0,0,0,0.06);--shadow-md:0 4px 16px rgba(0,0,0,0.08);--shadow-lg:0 8px 32px rgba(0,0,0,0.12);--radius-sm:8px;--radius-md:12px;--radius-lg:16px}
+
+/* 导航栏 - 更精致 */
+.nav{background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.nav-item{border-radius:10px;padding:8px 6px;transition:all .25s cubic-bezier(.4,0,.2,1)}
+.nav-item:hover{background:rgba(238,21,21,0.04)}
+.nav-item.active{color:var(--pkred);background:rgba(238,21,21,0.08);transform:scale(1.02)}
+
+/* 卡片通用优化 */
+.person-card,.bi,.sc,.sc2,.pdl,.pli,.gb,.bhi{transition:all .25s cubic-bezier(.4,0,.2,1)}
+.bi{border-color:#E8E8E8;box-shadow:var(--shadow-sm)}
+.gb:hover{transform:translateY(-4px);box-shadow:6px 6px 0 var(--pkdark);border-color:var(--pkred)}
+
+/* 战斗场 - 更沉浸 */
+.ba{box-shadow:0 6px 30px rgba(0,0,0,0.1);border-color:var(--pkdark)}
+.bh{background:linear-gradient(135deg,rgba(0,0,0,0.6),rgba(0,0,0,0.4))}
+.bh .bn{font-size:13px;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
+.bhp{height:10px;border-radius:5px}
+.bhf{border-radius:5px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.bf{background:rgba(255,255,255,0.03);border-radius:12px;margin:0 8px}
+.bfp .be{filter:drop-shadow(0 2px 4px rgba(0,0,0,0.15));transition:all .3s}
+.blog{background:linear-gradient(180deg,rgba(255,255,255,0.95),white);border-top:1px solid var(--pkdark);max-height:140px}
+.blog .bli{padding:3px 0;font-size:11px;line-height:1.4;animation:logIn .3s ease-out}
+@keyframes logIn{0%{opacity:0;transform:translateY(-4px)}100%{opacity:1;transform:translateY(0)}}
+
+/* 战斗结果面板 */
+.brs{background:linear-gradient(135deg,rgba(0,0,0,0.7),rgba(0,0,0,0.5));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:12px;padding:16px;margin:8px}
+.bri{font-size:42px;margin-bottom:4px}
+.brt2{font-size:18px;font-weight:800;color:#FFD700;text-shadow:0 1px 4px rgba(0,0,0,0.2)}
+
+/* 商店网格优化 */
+.sc{border-color:var(--pkdark);box-shadow:3px 3px 0 var(--pkdark);padding:14px 10px}
+.sc:hover{transform:translateY(-4px);box-shadow:6px 6px 0 var(--pkred)}
+.sc .si{font-size:32px;display:block;margin-bottom:2px}
+.sc .sn{font-size:13px}
+.sc-price{font-size:12px}
+
+/* 图鉴网格优化 */
+.cg{gap:6px}
+.ccell{border-radius:12px;border:2px solid #E0E0E0;padding:8px 4px;transition:all .25s cubic-bezier(.4,0,.2,1);box-shadow:var(--shadow-sm)}
+.ccell.unlocked:hover{transform:translateY(-4px);border-color:var(--pkred);box-shadow:4px 4px 0 var(--pkred)}
+.ccell .ce{font-size:26px}
+.ccell .cn{font-size:9px}
+
+/* 精灵列表优化 */
+.pli{border-radius:12px;box-shadow:var(--shadow-sm)}
+.pli:hover{transform:translateY(-4px);border-color:var(--pkred);box-shadow:4px 4px 0 var(--pkred)}
+
+/* 宠物详情页优化 */
+.pdl{border-radius:14px;box-shadow:4px 4px 0 var(--pkdark)}
+.sc2{border-radius:12px;box-shadow:3px 3px 0 var(--pkdark)}
+.sc2 .si2{font-size:20px}
+.sc2 .sv{font-size:12px}
+
+/* 精灵选择（战斗） - 更清晰 */
+.bpk{border-radius:12px;transition:all .25s cubic-bezier(.4,0,.2,1)}
+.bpk:hover{transform:translateY(-3px);box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+.bpk.bpk-cur{border-color:var(--pkred);box-shadow:0 0 0 2px rgba(238,21,21,0.15)}
+
+/* 登录页 */
+.pkm-frame{box-shadow:6px 6px 0 var(--pkdark);border-radius:16px}
+.pk-btn{transition:all .15s cubic-bezier(.4,0,.2,1)}
+.pk-btn:active{transform:translateY(1px);box-shadow:2px 2px 0 var(--pkdark)}
+
+/* 血条优化 */
+.bpt{height:10px;border-radius:5px}
+.bpf{border-radius:5px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.eb .pt{height:10px;border-radius:5px}
+.eb .pf{border-radius:5px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+
+/* 进度条颜色 */
+.bpf.bg-hunger{background:linear-gradient(90deg,#FF8C00,#FFD700)}
+.bpf.bg-happy{background:linear-gradient(90deg,#32CD32,#7CFC00)}
 </style>
 </head>
 <body>
