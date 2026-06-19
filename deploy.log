@@ -1,0 +1,175 @@
+Retrieving project…
+Deploying gs-projects-f890d2b9/youth-fitness-website
+Uploading [--------------------] (0.0B/52.5KB)
+Uploading [======--------------] (16.0KB/52.5KB)
+Uploading [============--------] (32.1KB/52.5KB)
+Uploading [==================--] (48.1KB/52.5KB)
+Uploading [====================] (52.5KB/52.5KB)
+Inspect: https://vercel.com/gs-projects-f890d2b9/youth-fitness-website/DGieGp8NnncFGpB1onNWMoQMtwVp [3s]
+Production: https://youth-fitness-website-j6bxpzw47-gs-projects-f890d2b9.vercel.app [3s]
+https://youth-fitness-website-j6bxpzw47-gs-projects-f890d2b9.vercel.appBuilding...
+Building: Running build in Washington, D.C., USA (East) – iad1
+Building: Build machine configuration: 2 cores, 8 GB
+Building: Retrieving list of deployment files...
+Building: Retrieving list of deployment files...
+Building: Downloading 511 deployment files...
+Building: Restored build cache from previous deployment (D6ssX8niT7r5Rj46SVnfHBChK1it)
+Building: Running "vercel build"
+Building: Vercel CLI 54.14.0
+Building: Installing dependencies...
+Building: up to date in 1s
+Building: 200 packages are looking for funding
+Building: run `npm fund` for details
+Building: Running "npm run build"
+Building: > build
+Building: > astro build
+Building: 10:41:30 [content] Syncing content
+Building: 10:41:30 [content] Synced content
+Building: 10:41:30 [types] Generated 57ms
+Building: 10:41:30 [build] output: "static"
+Building: 10:41:30 [build] mode: "static"
+Building: 10:41:30 [build] directory: /vercel/path0/youth-fitness-website/dist/
+Building: 10:41:30 [build] Collecting build info...
+Building: 10:41:30 [build] ✓ Completed in 111ms.
+Building: 10:41:30 [build] Building static entrypoints...
+Building: 10:41:33 [vite] ✓ built in 2.41s
+Building: 10:41:33 [build] ✓ Completed in 2.47s.
+Building: building client (vite)
+Building: 10:41:33 [vite] transforming...
+Building: 10:41:33 [vite] ✓ 1 modules transformed.
+Building: 10:41:33 [vite] rendering chunks...
+Building: 10:41:33 [vite] ✓ built in 16ms
+Building: generating static routes
+Building: 10:41:33 ▶ src/pages/contact/index.astro
+Building: 10:41:33   └─ /contact/index.html (+7ms)
+Building: 10:41:33 ▶ src/pages/courses/ertong.astro
+Building: 10:41:33   └─ /courses/ertong/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/courses/shouqiu.astro
+Building: 10:41:33   └─ /courses/shouqiu/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/courses/zhongkao.astro
+Building: 10:41:33   └─ /courses/zhongkao/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/courses/index.astro
+Building: 10:41:33   └─ /courses/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/2026-sports-review.astro
+Building: 10:41:33   └─ /news/2026-sports-review/index.html (+3ms)
+Building: 10:41:33 ▶ src/pages/news/beijing-district-compare.astro
+Building: 10:41:33   └─ /news/beijing-district-compare/index.html (+3ms)
+Building: 10:41:33 ▶ src/pages/news/brain-fitness-study.astro
+Building: 10:41:33   └─ /news/brain-fitness-study/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/choose-institution.astro
+Building: 10:41:33   └─ /news/choose-institution/index.html (+4ms)
+Building: 10:41:33 ▶ src/pages/news/exam-anxiety.astro
+Building: 10:41:33   └─ /news/exam-anxiety/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/exam-performance-tips.astro
+Building: 10:41:33   └─ /news/exam-performance-tips/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/exam-psychology.astro
+Building: 10:41:33   └─ /news/exam-psychology/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/exam-psychology-guide.astro
+Building: 10:41:33   └─ /news/exam-psychology-guide/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/growth-development.astro
+Building: 10:41:33   └─ /news/growth-development/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/home-training.astro
+Building: 10:41:33   └─ /news/home-training/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/international-training.astro
+Building: 10:41:33   └─ /news/international-training/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/japan-youth-sports.astro
+Building: 10:41:33   └─ /news/japan-youth-sports/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/nutrition-guide.astro
+Building: 10:41:33   └─ /news/nutrition-guide/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/parent-mistakes.astro
+Building: 10:41:33   └─ /news/parent-mistakes/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/parent-mistakes-2.astro
+Building: 10:41:33   └─ /news/parent-mistakes-2/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/posture-correction.astro
+Building: 10:41:33   └─ /news/posture-correction/index.html (+5ms)
+Building: 10:41:33 ▶ src/pages/news/process-evaluation.astro
+Building: 10:41:33   └─ /news/process-evaluation/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/qingnian-tiyu-policy.astro
+Building: 10:41:33   └─ /news/qingnian-tiyu-policy/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/science-training-principles.astro
+Building: 10:41:33   └─ /news/science-training-principles/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/science-youth-training.astro
+Building: 10:41:33   └─ /news/science-youth-training/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/sleep-performance.astro
+Building: 10:41:33   └─ /news/sleep-performance/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/spine-health.astro
+Building: 10:41:33   └─ /news/spine-health/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/sports-injury.astro
+Building: 10:41:33   └─ /news/sports-injury/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/sports-sensitive-period.astro
+Building: 10:41:33   └─ /news/sports-sensitive-period/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/student-case-study.astro
+Building: 10:41:33   └─ /news/student-case-study/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/summer-training.astro
+Building: 10:41:33   └─ /news/summer-training/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/us-sports-education.astro
+Building: 10:41:33   └─ /news/us-sports-education/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/youth-fitness-data.astro
+Building: 10:41:33   └─ /news/youth-fitness-data/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/youth-injury-prevention-guide.astro
+Building: 10:41:33   └─ /news/youth-injury-prevention-guide/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/youth-pullup-master.astro
+Building: 10:41:33   └─ /news/youth-pullup-master/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-22x4-analysis.astro
+Building: 10:41:33   └─ /news/zhongkao-22x4-analysis/index.html (+3ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-bad-habits.astro
+Building: 10:41:33   └─ /news/zhongkao-bad-habits/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-ball.astro
+Building: 10:41:33   └─ /news/zhongkao-ball/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-breathing.astro
+Building: 10:41:33   └─ /news/zhongkao-breathing/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-diet.astro
+Building: 10:41:33   └─ /news/zhongkao-diet/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-district.astro
+Building: 10:41:33   └─ /news/zhongkao-district/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-girls-guide.astro
+Building: 10:41:33   └─ /news/zhongkao-girls-guide/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-hd-cost.astro
+Building: 10:41:33   └─ /news/zhongkao-hd-cost/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-injury-prevention.astro
+Building: 10:41:33   └─ /news/zhongkao-injury-prevention/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-jump.astro
+Building: 10:41:33   └─ /news/zhongkao-jump/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-late-start.astro
+Building: 10:41:33   └─ /news/zhongkao-late-start/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-myths.astro
+Building: 10:41:33   └─ /news/zhongkao-myths/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-online-offline.astro
+Building: 10:41:33   └─ /news/zhongkao-online-offline/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-parent-training.astro
+Building: 10:41:33   └─ /news/zhongkao-parent-training/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-pullup.astro
+Building: 10:41:33   └─ /news/zhongkao-pullup/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-running.astro
+Building: 10:41:33   └─ /news/zhongkao-running/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-selection.astro
+Building: 10:41:33   └─ /news/zhongkao-selection/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-sprint.astro
+Building: 10:41:33   └─ /news/zhongkao-sprint/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-warmup.astro
+Building: 10:41:33   └─ /news/zhongkao-warmup/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-winter.astro
+Building: 10:41:33   └─ /news/zhongkao-winter/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/zhongkao-yearly-plan.astro
+Building: 10:41:33   └─ /news/zhongkao-yearly-plan/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/news/index.astro
+Building: 10:41:33   └─ /news/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/students/index.astro
+Building: 10:41:33   └─ /students/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/team/index.astro
+Building: 10:41:33   └─ /team/index.html (+2ms)
+Building: 10:41:33 ▶ src/pages/venue/index.astro
+Building: 10:41:33   └─ /venue/index.html (+1ms)
+Building: 10:41:33 ▶ src/pages/index.astro
+Building: 10:41:33   └─ /index.html (+1ms)
+Building: 10:41:33 ✓ Completed in 201ms.
+Building: 10:41:33 [@astrojs/sitemap] `sitemap-index.xml` created at `dist`
+Building: 10:41:33 [build] 61 page(s) built in 2.84s
+Building: 10:41:33 [build] Complete!
+Building: Build Completed in /vercel/output [6s]
+Building: Deploying outputs...
+Building: Deployment completed
+Building: Creating build cache...
+[2K[1A[2K[GProduction: https://youth-fitness-website-j6bxpzw47-gs-projects-f890d2b9.vercel.app [25s]
+Completing...
+Aliased: https://www.manfenhu.com [25s]

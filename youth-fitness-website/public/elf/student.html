@@ -332,22 +332,34 @@ function syncAPI(){
       try{
         var d=JSON.parse(x.responseText);
         if(d&&d.people&&!d.empty){
-          var merged=false;
-          if(!st.people){st.people={};st.personOrder=[]}
-          Object.keys(d.people).forEach(function(n){
-            if(!st.people[n]){
-              st.people[n]=d.people[n];
-              st.personOrder.push(n);
-              merged=true
-            }
-          });
-          if(merged){sv()}else{apiSv()}
-        }else{apiSv()}
+          mergeWithAPI(d);
+        }else{
+          apiSv()
+        }
       }catch(e){apiSv()}
     }else{apiSv()}
   };
   x.onerror=function(){apiSv()};
   x.send()
+}
+function mergeWithAPI(apiData){
+  var changed=false;
+  if(!st.people){st.people={};st.personOrder=[]}
+  Object.keys(apiData.people).forEach(function(n){
+    if(!st.people[n]){
+      st.people[n]=apiData.people[n];
+      st.personOrder.push(n);
+      changed=true;
+    }else{
+      var localTS=st.people[n].lastTimestamp||0;
+      var apiTS=apiData.people[n].lastTimestamp||0;
+      if(apiTS>localTS){
+        st.people[n]=apiData.people[n];
+        changed=true;
+      }
+    }
+  });
+  if(changed){sv()}else{apiSv()}
 }
 function mkP(){var ri=Math.floor(Math.random()*TP);return{points:0,totalCheckins:0,currentPetIdx:0,petSlots:[ri],petLevels:[1],petXP:[0],statBonus:[{hp:0,atk:0,def:0,spd:0,int:0,luk:0}],hunger:80,happiness:80,lastTimestamp:Date.now(),password:"",battlesToday:0,battleDate:"",pendingBoxes:[],battleHistory:[]}}
 function fx(n){var p=st.people[n];if(!p)return;if(!p.petSlots)p.petSlots=[0];if(!p.petLevels)p.petLevels=[1];if(!p.petXP)p.petXP=[0];if(typeof p.currentPetIdx!="number")p.currentPetIdx=0;if(typeof p.hunger!="number")p.hunger=80;if(typeof p.happiness!="number")p.happiness=80;if(!p.lastTimestamp)p.lastTimestamp=Date.now();if(typeof p.totalCheckins!="number")p.totalCheckins=0;if(typeof p.battlesToday!="number")p.battlesToday=0;if(!p.battleDate)p.battleDate="";if(typeof p.password!="string")p.password="";if(!p.pendingBoxes)p.pendingBoxes=[];if(!p.battleHistory)p.battleHistory=[];var td=fd();if(p.battleDate!=td){p.battlesToday=0;p.battleDate=td}if(!p.statBonus||!p.statBonus.length){p.statBonus=[];p.petSlots.forEach(function(){p.statBonus.push({hp:0,atk:0,def:0,spd:0,int:0,luk:0})})}var ex=exp(p.totalCheckins);while(p.petSlots.length<ex){var idx=rb(n);if(idx!==null)p.pendingBoxes.push(idx);else break}if(p.currentPetIdx>=p.petSlots.length)p.currentPetIdx=0}
