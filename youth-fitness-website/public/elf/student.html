@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>精灵世界</title>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -217,7 +217,7 @@ body{background:#F5F0EB;font-family:var(--font);color:var(--pkdark);display:flex
       <div class="ls">Pet · Battle · Grow</div>
       <div class="lpets" id="loginPets"></div>
       <div class="pkm-frame">
-        <input id="loginName" placeholder="训练家名称" autocomplete="off">
+        <input id="loginName" placeholder="训练家名称" autocomplete="off" autocapitalize="off" spellcheck="false">
         <input id="loginPwd" placeholder="密码" type="password">
         <button class="pk-btn" id="loginBtn">⚡ 进入精灵世界</button>
         <div class="lerr" id="loginError"></div>
