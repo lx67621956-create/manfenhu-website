@@ -53,8 +53,23 @@ export default async function handler(req, res) {
       if (!body || !body.people) {
         return res.status(400).json({ error: 'Invalid data' });
       }
-      memoryStore = body;
-      await kvSet(body);
+      // 按人合并：只更新有更新的学生，不整体覆盖
+      // 这样可以防止两个管理端同时操作互相覆盖
+      const existing = memoryStore;
+      Object.keys(body.people).forEach(name => {
+        if (!existing.people[name] ||
+            body.people[name].lastTimestamp > existing.people[name].lastTimestamp) {
+          existing.people[name] = body.people[name];
+        }
+      });
+      // 补充personOrder中新学生
+      if (body.personOrder) {
+        body.personOrder.forEach(n => {
+          if (existing.personOrder.indexOf(n) < 0) existing.personOrder.push(n);
+        });
+      }
+      memoryStore = existing;
+      await kvSet(existing);
       return res.status(200).json({ ok: true, time: Date.now() });
     } catch (e) {
       return res.status(500).json({ error: e.message });

@@ -504,6 +504,15 @@ input,textarea{font-size:16px!important}
 @supports not (height:100dvh){
 body,.app{min-height:100vh}
 }
+
+/* ===== CSS迁移 - 替代内联style ===== */
+.input-field-gap{margin-bottom:8px}
+.input-field-gap-lg{margin-bottom:14px}
+.box-badge{color:#FF69B4;cursor:pointer;font-size:12px}
+.btn-sm{padding:4px 12px;font-size:12px}
+.box-open-icon{font-size:64px;cursor:pointer}
+.box-open-title{font-size:20px;color:#EE1515;font-weight:700}
+
 </style>
 </head>
 <body>
@@ -524,8 +533,8 @@ body,.app{min-height:100vh}
   <div class="modal-card">
     <div class="modal-title">➕ 添加训练家</div>
     <div class="modal-desc">为学生创建一个游戏账号</div>
-    <input class="input-field" id="addName" placeholder="学生姓名" style="margin-bottom:8px">
-    <input class="input-field" id="addPwd" placeholder="初始密码" style="margin-bottom:14px" type="password">
+    <input class="input-field input-field-gap" id="addName" placeholder="学生姓名">
+    <input class="input-field input-field-gap-lg" id="addPwd" placeholder="初始密码" type="password">
     <div class="modal-actions"><button class="btn-gold" id="addConfirm">✅ 确认</button><button class="btn-danger" id="addCancel">取消</button></div>
   </div>
 </div>
@@ -533,7 +542,7 @@ body,.app{min-height:100vh}
   <div class="modal-card">
     <div class="modal-title">🔑 设置密码</div>
     <div class="modal-desc" id="modalPwdName">设置密码</div>
-    <input class="input-field" id="pwdInput" placeholder="新密码" style="margin-bottom:14px" type="password">
+    <input class="input-field input-field-gap-lg" id="pwdInput" placeholder="新密码" type="password">
     <div class="modal-actions"><button class="btn-gold" id="pwdConfirm">✅ 确认</button><button class="btn-danger" id="pwdCancel">取消</button></div>
   </div>
 </div>
@@ -592,7 +601,7 @@ function bind(){
 function grid(){
   var g=document.getElementById("personGrid"),t=td();
   if(!st.personOrder.length){g.innerHTML="<div class=empty-state>还没有人员</div>";return;}
-  g.innerHTML=st.personOrder.map(function(n){var p=st.people[n],sk=sts(p),idx=p.currentPetIdx,sid=p.petSlots[idx],e=PE[sid]||"🐣",lv=p.petLevels[idx],bx=p.pendingBoxes?.length||0,ck=p.lastCheckinDate===t;return '<div class=person-card data-n="'+n+'"><div class=pc-status><span class="badge '+(sk.h<20||sk.ha<20?"bg-red":"bg-green")+'">'+(sk.h<20?"🤤":sk.ha<20?"😞":"😊")+'</span></div><div class=pc-name>'+n+(bx?' <span style=color:#FF69B4;font-size:12px>🎁x'+bx+'</span>':'')+'</div><div class=pc-points>⭐ '+p.points+' 积分</div><div class=pc-pet>'+e+' #'+(sid+1)+' Lv.'+lv+(p.password?" 🔑":" 🔓")+'</div><div class=pc-actions><button class="btn-checkin'+(ck?" done":"")+'" data-ci="'+n+'">'+(ck?"✅":"📅")+'</button><button class=btn-pwd data-pw="'+n+'">🔑</button><button class=btn-icon data-chg="'+n+'" title="分配金币">💰</button><button class=btn-icon data-award="'+n+'" title="直接加积分">➕</button></div></div>';}).join('');
+  g.innerHTML=st.personOrder.map(function(n){var p=st.people[n],sk=sts(p),idx=p.currentPetIdx,sid=p.petSlots[idx],e=PE[sid]||"🐣",lv=p.petLevels[idx],bx=p.pendingBoxes?.length||0,ck=p.lastCheckinDate===t;return '<div class=person-card data-n="'+n+'"><div class=pc-status><span class="badge '+(sk.h<20||sk.ha<20?"bg-red":"bg-green")+'">'+(sk.h<20?"🤤":sk.ha<20?"😞":"😊")+'</span></div><div class=pc-name>'+n+(bx?' <span class="box-badge">🎁x'+bx+'</span>':'')+'</div><div class=pc-points>⭐ '+p.points+' 积分</div><div class=pc-pet>'+e+' #'+(sid+1)+' Lv.'+lv+(p.password?" 🔑":" 🔓")+'</div><div class=pc-actions><button class="btn-checkin'+(ck?" done":"")+'" data-ci="'+n+'">'+(ck?"✅":"📅")+'</button><button class=btn-pwd data-pw="'+n+'">🔑</button><button class=btn-icon data-chg="'+n+'" title="分配金币">💰</button><button class=btn-icon data-award="'+n+'" title="直接加积分">➕</button></div></div>';}).join('');
   g.querySelectorAll("[data-ci]").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();var nm=this.getAttribute("data-ci"),p2=st.people[nm],t2=td();if(p2.lastCheckinDate===t2){toast("已打卡");return}p2.points+=CP;p2.totalCheckins++;p2.happiness=Math.min(100,p2.happiness+3);p2.lastTimestamp=Date.now();p2.lastCheckinDate=t2;var ex=Math.min(TP,1+Math.floor(p2.totalCheckins/UE));while(p2.petSlots.length+p2.pendingBoxes.length<ex){var ri=rb(nm);if(ri!==null)p2.pendingBoxes.push(ri);else break}sv();rf();toast("打卡 +"+CP);});});
   g.querySelectorAll("[data-chg]").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();var nm=this.getAttribute("data-chg"),p3=st.people[nm];if(!p3)return;var v=prompt("修改 "+nm+" 金币：",p3.points);if(v!==null){var nv=parseInt(v);if(isNaN(nv)||nv<0){toast("❌ 无效");return}p3.points=nv;sv();grid()}})});
   g.querySelectorAll("[data-award]").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();var nm=this.getAttribute("data-award"),p3=st.people[nm];if(!p3)return;var v=prompt("给 "+nm+" 加多少积分？","");if(v!==null){var nv=parseInt(v);if(isNaN(nv)||nv<=0){toast("无效");return}p3.points+=nv;sv();grid();toast("+ "+nv+" 积分")}})});
@@ -606,10 +615,10 @@ function det(){
   var sk=sts(p),bx=p.pendingBoxes?.length||0;
   var pwDisplay = p.password ? "🔑 "+p.password : "🔓 \U0000672A设置";
   var h = [];
-  h.push('<div class=detail-hero><div class=detail-name>🎮 '+n+(bx?' <span style=color:#FF69B4;cursor:pointer id=boxLink>🎁x'+bx+'</span>':'')+'</div><div class=detail-points>⭐ '+p.points+'</div></div>');
+  h.push('<div class=detail-hero><div class=detail-name>🎮 '+n+(bx?' <span class="box-badge" id=boxLink>🎁x'+bx+'</span>':'')+'</div><div class=detail-points>⭐ '+p.points+'</div></div>');
   h.push('<div class=active-pet-area>'+pg(sid,"happy","pet-gif-lg")+'<div class=active-pet-info>#'+(sid+1)+'</div><div class=active-pet-level>Lv.'+lv+(mx?' 🏆':'')+'</div></div>');
   h.push('<div class=bar-pair><div class=bar-item>🍖 '+sk.h+'%</div><div class=bar-item>😊 '+sk.ha+'%</div></div>');
-  h.push('<div class=pwd-section>🔐 '+pwDisplay+'<div style=margin-top:6px><button class=btn-gold id=pwdSet style="padding:4px 12px;font-size:12px">设置</button>'+(p.password?' <button class=btn-danger id=pwdClear style="padding:4px 12px;font-size:12px">清除</button>':'')+'</div></div>');
+  h.push('<div class=pwd-section>🔐 '+pwDisplay+'<div style=margin-top:6px><button class="btn-gold btn-sm" id=pwdSet>设置</button>'+(p.password?' <button class=btn-danger id=pwdClear class="btn-sm">清除</button>':'')+'</div></div>');
   h.push('<div class=pet-list-title><span>🐾 精灵列表</span></div><div class=scroll-list>'+p.petSlots.map(function(sl,i){var e2=PE[sl]||"🐣",lv2=p.petLevels[i],act=i===p.currentPetIdx;return '<div class="pet-list-item'+(act?" current":"")+'" data-sl="'+i+'">'+(act?'<span class=pl-badge>✔</span>':'')+'<img class=pet-icon src="/images/pets/pet_'+String(sl+1).padStart(2,"0")+'_icon.png" ><div>Lv.'+lv2+'</div></div>';}).join('')+'</div>');
   if(bx>0)h.push('<button class=btn-gold id=boxBtn style=margin-top:10px>🎁 打开盲盒</button>');
   document.getElementById("personContent").innerHTML=h.join('');
@@ -623,7 +632,7 @@ function det(){
 function openBox(){
   var n=st.curPerson,p=st.people[n];if(!p||!p.pendingBoxes||!p.pendingBoxes.length)return;
   var pet=p.pendingBoxes[0],mc=document.getElementById("modalBox");
-  mc.innerHTML='<div style=text-align:center;padding:10px><div style="font-size:64px;cursor:pointer" id=boxIcon>🎁</div><div style=color:#EE1515>点击打开</div></div>';
+  mc.innerHTML='<div style=text-align:center;padding:10px><div class="box-open-icon" id=boxIcon>🎁</div><div style=color:#EE1515>点击打开</div></div>';
   mc.parentNode.classList.add("show");
   document.getElementById("boxIcon").onclick=function(){this.textContent="✨";setTimeout(function(){mc.innerHTML=pg(pet,'happy','pet-gif-lg')+'<div style=font-size:20px;color:#EE1515;font-weight:700>#'+(pet+1)+'</div></div>';p.pendingBoxes.splice(0,1);p.petSlots.push(pet);p.petLevels.push(1);p.petXP.push(0);sv();rf();},500);};
 }
@@ -656,6 +665,7 @@ function syncAPI(){
 }
 function mergeWithAPI(apiData){
   var changed=false;
+  if(!st.people){st.people={};st.personOrder=[]}
   Object.keys(apiData.people).forEach(function(n){
     if(!st.people[n]){
       st.people[n]=apiData.people[n];
@@ -665,7 +675,20 @@ function mergeWithAPI(apiData){
       var localTS=st.people[n].lastTimestamp||0;
       var apiTS=apiData.people[n].lastTimestamp||0;
       if(apiTS>localTS){
-        st.people[n]=apiData.people[n];
+        // 字段级智能合并：关键数值取最大值
+        var local=st.people[n];
+        var api=apiData.people[n];
+        api.points=Math.max(api.points||0,local.points||0);
+        api.totalCheckins=Math.max(api.totalCheckins||0,local.totalCheckins||0);
+        api.battlesToday=Math.max(api.battlesToday||0,local.battlesToday||0);
+        // 合并pendingBoxes
+        if(local.pendingBoxes&&local.pendingBoxes.length){
+          api.pendingBoxes=api.pendingBoxes||[];
+          local.pendingBoxes.forEach(function(b){
+            if(api.pendingBoxes.indexOf(b)<0)api.pendingBoxes.push(b);
+          });
+        }
+        st.people[n]=api;
         changed=true;
       }
     }
@@ -686,6 +709,9 @@ function apiSv(){
   },200);
 }
 document.addEventListener("DOMContentLoaded",init);
+
+// 每15秒同步一次服务器数据
+setInterval(syncAPI,15000);
 </script>
 </body>
 </html>

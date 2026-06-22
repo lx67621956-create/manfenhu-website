@@ -24,10 +24,28 @@ module.exports = (req, res) => {
       req.on('end', () => {
         try {
           const data = JSON.parse(body);
+          // 按人合并：只更新有更新的学生，防止并发互相覆盖
+          let existing = {people:{}, personOrder:[]};
+          if (fs.existsSync(DATA_FILE)) {
+            existing = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+          }
+          if (data.people) {
+            Object.keys(data.people).forEach(name => {
+              if (!existing.people[name] ||
+                  data.people[name].lastTimestamp > existing.people[name].lastTimestamp) {
+                existing.people[name] = data.people[name];
+              }
+            });
+          }
+          if (data.personOrder) {
+            data.personOrder.forEach(n => {
+              if (existing.personOrder.indexOf(n) < 0) existing.personOrder.push(n);
+            });
+          }
           // 确保写入目录存在
           const dir = DATA_FILE.substring(0, DATA_FILE.lastIndexOf('/'));
           if (!fs.existsSync(dir)) fs.mkdirSync(dir, {recursive:true});
-          fs.writeFileSync(DATA_FILE, JSON.stringify(data), 'utf8');
+          fs.writeFileSync(DATA_FILE, JSON.stringify(existing), 'utf8');
           res.status(200).json({ok:true});
         } catch(e) {
           res.status(400).json({error:e.message});
