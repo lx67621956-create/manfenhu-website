@@ -18,7 +18,7 @@ html{height:100%}
   --rl:24px;
 }
 body{background:#F5F0EB;font-family:var(--font);color:var(--pkdark);margin:0;padding:0;overflow-x:hidden;min-height:100dvh;min-height:-webkit-fill-available}
-.app{width:100%;max-width:420px;min-height:100dvh;min-height:-webkit-fill-available;background:#F5F0EB;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.app{width:100%;max-width:420px;height:100dvh;min-height:-webkit-fill-available;background:#F5F0EB;position:relative;overflow:hidden;display:flex;flex-direction:column}
 @media(min-width:421px){.app{border-radius:var(--rl);margin:12px;border:3px solid var(--pkdark);overflow:hidden}}
 .app::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:var(--pkred);z-index:10}
 .page{display:none;flex-direction:column;overflow-y:auto;padding:12px 14px;padding-top:calc(var(--st)+12px);padding-bottom:calc(var(--sb)+12px);position:relative;z-index:1}
@@ -38,7 +38,7 @@ body{background:#F5F0EB;font-family:var(--font);color:var(--pkdark);margin:0;pad
 .page-title{font-size:17px;font-weight:800;color:var(--pkdark)}
 
 /* Login */
-.lp{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;min-height:-webkit-fill-available;padding:30px 20px;text-align:center}
+.lp{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:30px 20px;text-align:center}
 .pb-icon{width:80px;height:80px;border-radius:50%;margin:0 auto 14px;background:url(/images/ui/pokeball.png) center/contain no-repeat;border:3px solid var(--pkdark);box-shadow:0 4px 16px rgba(0,0,0,0.1)}
 .lt{font-size:28px;font-weight:900;color:var(--pkdark);letter-spacing:1px}
 .lt span{color:var(--pkred)}
