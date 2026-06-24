@@ -689,19 +689,22 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   
   <section class="pagination">
     <div class="container">
-      <div class="pagination-info" id="pagination-info">显示第 1-20 条，共 56 条</div>
+      <div class="pagination-info" id="pagination-info">显示第 1-10 条，共 56 条</div>
       <div class="pagination-links">
         <span class="page-prev disabled" id="page-prev">上一页</span>
         <span class="page-num active" data-page="1">1</span>
         <span class="page-num" data-page="2">2</span>
         <span class="page-num" data-page="3">3</span>
+        <span class="page-num" data-page="4">4</span>
+        <span class="page-num" data-page="5">5</span>
+        <span class="page-num" data-page="6">6</span>
         <span class="page-next" id="page-next">下一页</span>
       </div>
     </div>
   </section>
   <script>
     (function(){
-      var TOTAL=56, PER_PAGE=20, PAGE_COUNT=3;
+      var TOTAL=56, PER_PAGE=10, PAGE_COUNT=6;
       function getPage(){return parseInt(new URLSearchParams(window.location.search).get('page')||'1');}
       function renderPage(p){
         var c=document.querySelectorAll('.news-card');
