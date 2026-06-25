@@ -10,7 +10,18 @@
 <div class="app" id="app">
   <div class="top-bar" id="topBar"><button class="back-btn" id="backBtn">‹</button><div class="top-title" id="topTitle">返回</div></div>
   <div class="page active" id="pageHome">
-    <div class="page-header"><span class="page-title">👥 人员管理</span><button class="btn-icon" id="addBtn">＋</button></div>
+    <div class="page-header"><span class="page-title">👥 人员管理</span>
+      <div class="header-actions">
+        <button class="btn-icon btn-icon-sm" id="exportBtn" title="导出数据">📥</button>
+        <button class="btn-icon" id="addBtn">＋</button>
+      </div>
+    </div>
+    <div class="batch-toolbar" id="batchToolbar">
+      <label class="batch-cb"><input type="checkbox" id="selectAll"> 全选</label>
+      <button class="btn-gold btn-xs" id="batchPoints">⭐ +10</button>
+      <button class="btn-gold btn-xs" id="batchCheckin">📅 +1</button>
+      <span class="batch-count" id="batchCount"></span>
+    </div>
     <div class="person-grid" id="personGrid"></div>
   </div>
   <div class="page" id="pagePerson"><div id="personContent"></div></div>
