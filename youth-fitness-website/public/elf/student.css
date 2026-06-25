@@ -375,3 +375,11 @@ body,.app{min-height:100vh}
 .rk-num{font-size:13px;font-weight:800;color:var(--text3);min-width:30px;text-align:center}
 .rk-name{flex:1;font-size:13px;font-weight:700;color:var(--pkdark)}
 .rk-val{font-size:12px;font-weight:700;color:var(--pkred)}
+
+/* Achievements */
+.ac-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px}
+.ac-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;background:white;border:2px solid #E0E0E0;border-radius:10px;transition:all .15s}
+.ac-item.unlocked{border-color:var(--pkred);background:rgba(238,21,21,0.03)}
+.ac-item.lock{opacity:0.3;filter:grayscale(1)}
+.ac-icon{font-size:20px}
+.ac-name{font-size:8px;font-weight:600;color:var(--text2);text-align:center;line-height:1.2}
