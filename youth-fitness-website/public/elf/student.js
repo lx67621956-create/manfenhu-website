@@ -233,20 +233,12 @@ function rRank(){
     var pets=p.petSlots?.length||0;
     var wins=(p.battleHistory||[]).filter(function(h){return h.result==="win"}).length;
     var total=(p.battleHistory||[]).length;
-    var val=rt==="pts"?pts+" 金币":rt==="pets"?pets+"/30 精灵":wins+"/"+total+" 胜";
+    var val=rt==="pts"?pts+" 金币":rt==="pets"?pets+"/30 精灵":(total>0?wins+"/"+total:"0")+" 胜";
     return '<div class="rk-item"><span class="'+rankCls+'">'+m+'</span><span class="rk-name">'+item.name+'</span><span class="rk-val">'+val+'</span></div>'
   }).join("")+'</div>';
-  
-  document.querySelectorAll(".rk-tab").forEach(function(el){
-    el.addEventListener("click",function(){
-      document.querySelectorAll(".rk-tab").forEach(function(b){b.classList.remove("active")});
-      this.classList.add("active");
-      rRank()
-    })
-  })
 }
 
-function init(){initSt();setupDragScroll();document.querySelectorAll("[data-pg]").forEach(function(el){el.addEventListener("click",function(){var id=this.getAttribute("data-pg");PZ.length=0;PZ.push(id);if(id==="pageHome")rHome();else if(id==="pageBattle"){window._battlePicks=[];rBatUI()}else if(id==="pageShop")rShop();else if(id==="pageColl")rColl();else if(id==="pageRank")rRank();showPg(id)})});document.getElementById("backBtn").addEventListener("click",gB);document.getElementById("loginBtn").addEventListener("click",login);document.getElementById("loginName").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("loginPwd").focus()});document.getElementById("loginPwd").addEventListener("keydown",function(e){if(e.key==="Enter")login()});document.querySelectorAll(".bmb").forEach(function(el){el.addEventListener("click",function(){document.querySelectorAll(".bmb").forEach(function(b){b.classList.remove("active")});this.classList.add("active");window._battlePicks=[];rBatUI()})});document.getElementById("battleStart").addEventListener("click",rBat);document.querySelectorAll(".mo").forEach(function(m){m.addEventListener("click",function(e){if(e.target===e.currentTarget)this.classList.remove("show")})});if(st.tn){document.getElementById("nav").classList.add("show");showPg("pageHome");rHome()}else{showPg("pageLogin");rLoginPets()}}
+function init(){initSt();setupDragScroll();document.querySelectorAll("[data-pg]").forEach(function(el){el.addEventListener("click",function(){var id=this.getAttribute("data-pg");PZ.length=0;PZ.push(id);if(id==="pageHome")rHome();else if(id==="pageBattle"){window._battlePicks=[];rBatUI()}else if(id==="pageShop")rShop();else if(id==="pageColl")rColl();else if(id==="pageRank")rRank();showPg(id)})});document.getElementById("backBtn").addEventListener("click",gB);document.getElementById("loginBtn").addEventListener("click",login);document.getElementById("loginName").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("loginPwd").focus()});document.getElementById("loginPwd").addEventListener("keydown",function(e){if(e.key==="Enter")login()});document.querySelectorAll(".bmb").forEach(function(el){el.addEventListener("click",function(){document.querySelectorAll(".bmb").forEach(function(b){b.classList.remove("active")});this.classList.add("active");window._battlePicks=[];rBatUI()})});document.getElementById("battleStart").addEventListener("click",rBat);document.querySelectorAll(".mo").forEach(function(m){m.addEventListener("click",function(e){if(e.target===e.currentTarget)this.classList.remove("show")})});document.querySelectorAll(".rk-tab").forEach(function(el){el.addEventListener("click",function(){document.querySelectorAll(".rk-tab").forEach(function(b){b.classList.remove("active")});this.classList.add("active");rRank()})});if(st.tn){document.getElementById("nav").classList.add("show");showPg("pageHome");rHome()}else{showPg("pageLogin");rLoginPets()}}
 init();
 rLoginPets();
 
