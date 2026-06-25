@@ -45,17 +45,57 @@ function bind(){
   document.getElementById("pwdConfirm").addEventListener("click",function(){var n=document.getElementById("modalPwd").getAttribute("data-n");var pw=document.getElementById("pwdInput").value.trim();if(!pw){toast("输入密码");return}st.people[n].password=pw;sv();document.getElementById("modalPwd").classList.remove("show");rf();toast("已设置");});
   document.getElementById("pwdCancel").addEventListener("click",function(){document.getElementById("modalPwd").classList.remove("show");});
   document.querySelectorAll(".modal-overlay").forEach(function(m){m.addEventListener("click",function(e){if(e.target===e.currentTarget)this.classList.remove("show");});});
+  // === 导出数据 ===
+  document.getElementById("exportBtn").addEventListener("click",exportData);
+  // === 批量管理 ===
+  document.getElementById("selectAll").addEventListener("click",function(){
+    var cbs=document.querySelectorAll(".batch-cb"),ch=this.checked;
+    cbs.forEach(function(el){el.checked=ch;});
+    updateBatchCount();
+  });
+  document.getElementById("batchPoints").addEventListener("click",function(){
+    var sel=getSelected();
+    if(!sel.length){toast("请先选择学生");return}
+    sel.forEach(function(n){st.people[n].points=(st.people[n].points||0)+10;});
+    sv();rf();toast("批量 +10 积分，共 "+sel.length+" 人");
+  });
+  document.getElementById("batchCheckin").addEventListener("click",function(){
+    var sel=getSelected(),t=td();
+    if(!sel.length){toast("请先选择学生");return}
+    sel.forEach(function(n){
+      var p=st.people[n];
+      if(!p||p.lastCheckinDate===t)return;
+      p.points=(p.points||0)+CP;
+      p.totalCheckins=(p.totalCheckins||0)+1;
+      p.happiness=Math.min(100,(p.happiness||80)+3);
+      p.lastTimestamp=Date.now();
+      p.lastCheckinDate=t;
+      var ex=Math.min(TP,1+Math.floor(p.totalCheckins/UE));
+      while(p.petSlots.length+(p.pendingBoxes||[]).length<ex){
+        var ri=rb(n);
+        if(ri!==null){p.pendingBoxes=p.pendingBoxes||[];p.pendingBoxes.push(ri);}else break;
+      }
+    });
+    sv();rf();toast("批量打卡 +"+CP+"，共 "+sel.length+" 人");
+  });
 }
 
 function grid(){
   var g=document.getElementById("personGrid"),t=td();
   if(!st.personOrder.length){g.innerHTML="<div class=empty-state>还没有人员</div>";return;}
-  g.innerHTML=st.personOrder.map(function(n){var p=st.people[n],sk=sts(p),idx=p.currentPetIdx,sid=p.petSlots[idx],e=PE[sid]||"🐣",lv=p.petLevels[idx],bx=p.pendingBoxes?.length||0,ck=p.lastCheckinDate===t;return '<div class=person-card data-n="'+n+'"><div class=pc-status><span class="badge '+(sk.h<20||sk.ha<20?"bg-red":"bg-green")+'\">'+(sk.h<20?"🤤":sk.ha<20?"😞":"😊")+'</span></div><div class=pc-name>'+n+(bx?' <span class="box-badge">🎁x'+bx+'</span>':'')+'</div><div class=pc-points>⭐ '+p.points+' 积分</div><div class=pc-pet>'+e+' #'+(sid+1)+' Lv.'+lv+(p.password?" 🔑":" 🔓")+'</div><div class=pc-actions><button class="btn-checkin'+(ck?" done":"")+'" data-ci="'+n+'">'+(ck?"✅":"📅")+'</button><button class=btn-pwd data-pw="'+n+'">🔑</button><button class=btn-icon data-chg="'+n+'" title="分配金币">💰</button><button class=btn-icon data-award="'+n+'" title="直接加积分">➕</button></div></div>';}).join('');
+  g.innerHTML=st.personOrder.map(function(n){var p=st.people[n],sk=sts(p),idx=p.currentPetIdx,sid=p.petSlots[idx],e=PE[sid]||"🐣",lv=p.petLevels[idx],bx=p.pendingBoxes?.length||0,ck=p.lastCheckinDate===t;return '<div class=person-card data-n="'+n+'"><label class=cb-wrap><input type=checkbox class=batch-cb data-cbn="'+n+'"></label><div class=pc-status><span class="badge '+(sk.h<20||sk.ha<20?"bg-red":"bg-green")+'">'+(sk.h<20?"🤤":sk.ha<20?"😞":"😊")+'</span></div><div class=pc-name>'+n+(bx?' <span class="box-badge">🎁x'+bx+'</span>':'')+'</div><div class=pc-points>⭐ '+p.points+' 积分</div><div class=pc-pet>'+e+' #'+(sid+1)+' Lv.'+lv+(p.password?" 🔑":" 🔓")+'</div><div class=pc-actions><button class="btn-checkin'+(ck?" done":"")+'" data-ci="'+n+'">'+(ck?"✅":"📅")+'</button><button class=btn-pwd data-pw="'+n+'">🔑</button><button class=btn-icon data-chg="'+n+'" title="分配金币">💰</button><button class=btn-icon data-award="'+n+'" title="直接加积分">➕</button></div></div>';}).join('');
   g.querySelectorAll("[data-ci]").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();var nm=this.getAttribute("data-ci"),p2=st.people[nm],t2=td();if(p2.lastCheckinDate===t2){toast("已打卡");return}p2.points+=CP;p2.totalCheckins++;p2.happiness=Math.min(100,p2.happiness+3);p2.lastTimestamp=Date.now();p2.lastCheckinDate=t2;var ex=Math.min(TP,1+Math.floor(p2.totalCheckins/UE));while(p2.petSlots.length+p2.pendingBoxes.length<ex){var ri=rb(nm);if(ri!==null)p2.pendingBoxes.push(ri);else break}sv();rf();toast("打卡 +"+CP);});});
   g.querySelectorAll("[data-chg]").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();var nm=this.getAttribute("data-chg"),p3=st.people[nm];if(!p3)return;var v=prompt("修改 "+nm+" 金币：",p3.points);if(v!==null){var nv=parseInt(v);if(isNaN(nv)||nv<0){toast("❌ 无效");return}p3.points=nv;sv();grid()}})});
   g.querySelectorAll("[data-award]").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();var nm=this.getAttribute("data-award"),p3=st.people[nm];if(!p3)return;var v=prompt("给 "+nm+" 加多少积分？","");if(v!==null){var nv=parseInt(v);if(isNaN(nv)||nv<=0){toast("无效");return}p3.points+=nv;sv();grid();toast("+ "+nv+" 积分")}})});
   g.querySelectorAll("[data-pw]").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();var nm=this.getAttribute("data-pw");document.getElementById("modalPwdName").textContent="为 "+nm+" 设置密码";document.getElementById("pwdInput").value="";document.getElementById("modalPwd").setAttribute("data-n",nm);document.getElementById("modalPwd").classList.add("show");});});
   g.querySelectorAll(".person-card").forEach(function(el){el.addEventListener("click",function(){st.curPerson=this.getAttribute("data-n");st.curSlot=st.people[st.curPerson].currentPetIdx;det();show("pagePerson");});});
+  // 重置批量工具栏
+  document.getElementById("selectAll").checked=false;
+  document.getElementById("batchCount").textContent="";
+  // 卡片内复选框点击不触发卡片导航
+  g.querySelectorAll(".cb-wrap").forEach(function(el){el.addEventListener("click",function(e){e.stopPropagation();});});
+  // 单个复选框变化时更新计数
+  g.querySelectorAll(".batch-cb").forEach(function(el){el.addEventListener("change",function(e){e.stopPropagation();updateBatchCount();});});
 }
 
 function det(){
@@ -161,3 +201,30 @@ document.addEventListener("DOMContentLoaded",init);
 
 // 每15秒同步一次服务器数据
 setInterval(syncAPI,15000);
+
+// === 数据导出 ===
+function exportData(){
+  var d=localStorage.getItem("checkin_pets");
+  if(!d){toast("没有数据");return}
+  var blob=new Blob([d],{type:"application/json"});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="checkin_pets_backup_"+new Date().toISOString().slice(0,10)+".json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast("✅ 数据已导出");
+}
+
+// === 批量管理辅助 ===
+function getSelected(){
+  var r=[];
+  document.querySelectorAll(".batch-cb:checked").forEach(function(el){
+    var n=el.getAttribute("data-cbn");
+    if(n)r.push(n);
+  });
+  return r;
+}
+function updateBatchCount(){
+  var sel=getSelected(),el=document.getElementById("batchCount");
+  el.textContent=sel.length?"已选 "+sel.length+" 人":"";
+}

@@ -1,0 +1,9 @@
+{
+  "name":"精灵世界",
+  "short_name":"精灵",
+  "start_url":"/elf/student.html",
+  "display":"standalone",
+  "background_color":"#F5F0EB",
+  "theme_color":"#EE1515",
+  "icons":[{"src":"/images/ui/pokeball.png","sizes":"192x192","type":"image/png"}]
+}

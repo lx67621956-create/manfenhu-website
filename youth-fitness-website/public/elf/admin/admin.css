@@ -504,3 +504,35 @@ body,.app{min-height:100vh}
 .btn-sm{padding:4px 12px;font-size:12px}
 .box-open-icon{font-size:64px;cursor:pointer}
 .box-open-title{font-size:20px;color:#EE1515;font-weight:700}
+
+/* ===== 导出 & 批量管理 ===== */
+.header-actions{display:flex;align-items:center;gap:6px}
+.btn-icon-sm{width:32px;height:32px;font-size:15px}
+.btn-xs{padding:6px 12px;font-size:12px;border-radius:8px;white-space:nowrap}
+.batch-toolbar{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:10px;padding:8px 10px;
+  background:var(--card,rgba(255,255,255,0.06));
+  border:1px solid var(--border,rgba(255,255,255,0.10));
+  border-radius:var(--radius-sm,10px);
+  flex-wrap:wrap
+}
+.batch-cb{
+  cursor:pointer;user-select:none;
+  font-size:12px;color:var(--text2,rgba(255,255,255,0.7));
+  display:flex;align-items:center;gap:4px
+}
+.batch-cb input[type=checkbox]{accent-color:var(--gold2,#FFA500);cursor:pointer;width:14px;height:14px}
+.batch-count{
+  margin-left:auto;font-size:11px;
+  color:var(--gold,#FFD700);font-weight:600
+}
+/* 卡片内复选框包装 */
+.cb-wrap{
+  position:absolute;top:6px;left:6px;z-index:2;
+  cursor:pointer;display:flex;align-items:center;justify-content:center
+}
+.cb-wrap input[type=checkbox]{
+  accent-color:var(--gold2,#FFA500);cursor:pointer;
+  width:13px;height:13px;margin:0
+}

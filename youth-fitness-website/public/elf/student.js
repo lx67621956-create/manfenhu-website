@@ -7,9 +7,12 @@ var PE = ["🐱","🐶","🐰","🐻","🦊",
 
 var TP=30,CP=10,UE=20,MB=3,BP=1;
 
-function pg(id,an,cl){
+function pg(id,an,cl,evo){
   var p=String(id+1).padStart(2,"0"),c=cl||"pet-gif";
-  return '<img class="'+c+'" src="/images/pets/pet_'+p+'_'+an+'.gif" alt="">';
+  var anims=["idle","skill_attack","happy","walk"];
+  var anim=an;
+  if(evo>0 && an==="idle") anim=anims[Math.min(evo,anims.length-1)];
+  return '<img class="'+c+'" src="/images/pets/pet_'+p+'_'+anim+'.gif" alt="">';
 }
 function pi(id){
   var p=String(id+1).padStart(2,"0");
@@ -39,6 +42,13 @@ var AC=[
   {id:"collect30",n:"精灵大师",i:"👑",d:"集齐全部30只精灵",check:function(p){return (p.petSlots||[]).length>=30}},
   {id:"rich10k",n:"富甲一方",i:"💰",d:"积攒10000积分",check:function(p){return p.points>=10000}},
   {id:"train50",n:"训练师",i:"🧪",d:"训练50次",check:function(p){return(p.totalTrainings||0)>=50}}];
+
+var EL=[
+  {lv:10,stage:"⭐",mult:1.2},
+  {lv:30,stage:"⭐⭐",mult:1.5},
+  {lv:60,stage:"⭐⭐⭐",mult:2.0},
+  {lv:100,stage:"👑",mult:3.0}
+];
 
 var st={people:{},personOrder:[],curPerson:null,curSlot:null,tn:null};
 var DP=["张三","李四","王五","赵六"];
@@ -114,7 +124,8 @@ function exp(c){return Math.min(TP,1+Math.floor(c/UE))}
 function xfl(l){return 30+l*7}
 function rb(n){var p=st.people[n];if(!p)return null;var s=new Set(p.petSlots);(p.pendingBoxes||[]).forEach(function(i){s.add(i)});if(s.size>=TP)return null;var a=[];for(var i=0;i<TP;i++)if(!s.has(i))a.push(i);return a.length?a[Math.floor(Math.random()*a.length)]:null}
 function gs(sl,lv){var b=BS[sl]||{hp:10,atk:8,def:6,spd:7,int:7,luk:6},m=1+(lv-1)*0.05;var r={hp:Math.round(b.hp*m),atk:Math.round(b.atk*m),def:Math.round(b.def*m),spd:Math.round(b.spd*m),int:Math.round(b.int*m),luk:Math.round(b.luk*m)};var bu=(st.people[st.tn||st.curPerson]?.statBonus?.[st.people[st.tn||st.curPerson]?.currentPetIdx||0]);if(bu){r.hp+=bu.hp;r.atk+=bu.atk;r.def+=bu.def;r.spd+=bu.spd;r.int+=bu.int;r.luk+=bu.luk}return r}
-function pwr(s,lv){return s.hp*0.8+s.atk*1.5+s.def*1.0+s.spd*1.0+s.int*1.2+s.luk*0.8+lv*2}
+function getEvo(lv){var e=null;EL.forEach(function(el){if(lv>=el.lv)e=el});return e}
+function pwr(s,lv){
 function cs(p){var hrs=(Date.now()-(p.lastTimestamp||Date.now()))/3600000;var h=Math.max(0,Math.min(100,Math.round(p.hunger-hrs*8)));var ha=Math.max(0,Math.min(100,Math.round(p.happiness-(h<40?hrs*6:hrs*2))));return{hunger:h,happiness:ha}}
 function login(){var n=document.getElementById("loginName").value.trim(),pw=document.getElementById("loginPwd").value.trim(),err=document.getElementById("loginError");if(!n){err.textContent="请输入姓名";err.style.display="block";return}if(!st.people[n]){err.textContent="❌ "+n+" 不存在";err.style.display="block";return}if(st.people[n].password&&st.people[n].password!==pw){err.textContent="❌ 密码错误";err.style.display="block";return}st.tn=n;br=false;window._battlePicks=[];document.getElementById("battleResult").classList.remove("show");document.getElementById("battleLog").innerHTML="";document.getElementById("battleStart").disabled=false;sv();err.style.display="none";document.getElementById("loginName").textContent="";document.getElementById("loginName").value="";document.getElementById("loginPwd").value="";document.getElementById("nav").classList.add("show");checkAchievements(n);playSound("login");showPg("pageHome");rHome()}
 
@@ -135,8 +146,8 @@ function checkAchievements(n){
   if(unlocked)sv()
 }
 
-function rHome(){var n=st.tn,p=st.people[n];if(!p)return;var idx=p.currentPetIdx,sid=p.petSlots[idx],lv=p.petLevels[idx],xp=p.petXP[idx],nd=xfl(lv),pct=Math.min(100,xp/nd*100),mx=lv>=100;var sk=cs(p);var bx=p.pendingBoxes?.length||0,bh=p.battleHistory||[];var acs=p.achievements||[];document.getElementById("homeContent").innerHTML='<div class=hh><div class=tn>🎮 '+n+' <span class="logout-link" onclick="logout()">[退出]</span></div><div class=tp>⭐ '+p.points+' 金币</div><div class=ts><span>🐾 '+p.petSlots.length+'/'+TP+'</span><span>🔥 打卡 '+p.totalCheckins+' 次</span></div></div>'+
-'<div class=ps><div class=walk-area><img id=homePetGif class=pg src="/images/pets/pet_'+String(sid+1).padStart(2,"0")+'_'+(window._pf||"walk")+'.gif" alt=""></div><div class=pn>精灵 #'+(sid+1)+'</div><span class="pt badge '+(mx?"bg-gold":"bg-blue")+'">Lv.'+lv+(mx?" 🏆":"")+'</span></div>'+
+function rHome(){var n=st.tn,p=st.people[n];if(!p)return;var idx=p.currentPetIdx,sid=p.petSlots[idx],lv=p.petLevels[idx],xp=p.petXP[idx],nd=xfl(lv),pct=Math.min(100,xp/nd*100),mx=lv>=100;var evo=getEvo(lv);var sk=cs(p);var bx=p.pendingBoxes?.length||0,bh=p.battleHistory||[];var acs=p.achievements||[];document.getElementById("homeContent").innerHTML='<div class=hh><div class=tn>🎮 '+n+' <span class="logout-link" onclick="logout()">[退出]</span></div><div class=tp>⭐ '+p.points+' 金币</div><div class=ts><span>🐾 '+p.petSlots.length+'/'+TP+'</span><span>🔥 打卡 '+p.totalCheckins+' 次</span></div></div>'+
+'<div class=ps><div class=walk-area><img id=homePetGif class=pg src="/images/pets/pet_'+String(sid+1).padStart(2,"0")+'_'+(window._pf||"walk")+'.gif" alt=""></div><div class=pn>精灵 #'+(sid+1)+(evo?'<span class="evo-badge">'+evo.stage+'</span>':'')+'</div><span class="pt badge '+(mx?"bg-gold":"bg-blue")+'">Lv.'+lv+(mx?" 🏆":"")+'</span></div>'+
 '<div class=eb><div class=pt><div class=pf style="width:'+pct+'%"></div></div><div class=et>'+(mx?"🏆 已满级！":"EXP "+(nd-xp)+" 到下一级")+'</div></div>'+
 '<div class=bg><div class=bi><div class=lb>🍖 饱食度</div><div class=bpt><div class=bpf style="width:'+sk.hunger+'%;background:'+(sk.hunger>60?"#32CD32":sk.hunger>30?"#FFA500":"#FF4500")+'"></div></div><div class=bv>'+(sk.hunger)+'%</div></div><div class=bi><div class=lb>😊 心情</div><div class=bpt><div class=bpf style="width:'+sk.happiness+'%;background:'+(sk.happiness>60?"#32CD32":sk.happiness>30?"#FFA500":"#FF4500")+'"></div></div><div class=bv>'+(sk.happiness)+'%</div></div></div>'+
 '<div class=ga><button class="gb fd" onclick="fdAct()"><span class=gi>🍖</span><span class=gl>喂食</span><span class=gc>-5 金币</span></button><button class="gb tr" onclick="trAct()"><span class=gi>🧪</span><span class=gl>训练</span><span class=gc>-5 金币</span></button></div>'+
@@ -150,7 +161,7 @@ function swPet(si){var n=st.tn,p=st.people[n];if(!p)return;var sl=p.petSlots[si]
 function resetWalk(){var e=document.querySelector(".walk-area .pg");if(e){e.style.animation="none";void e.offsetWidth;e.style.animation="walkAcross 8s ease-in-out infinite alternate"}}
 function fdAct(){playSound("eat");var n=st.tn,p=st.people[n];if(!p||p.points<5){return}p.points-=5;p.hunger=Math.min(100,p.hunger+15);p.happiness=Math.min(100,p.happiness+5);p.lastTimestamp=Date.now();sv();cL(n);window._pf="idle_eat";rHome();setTimeout(function(){window._pf="walk";rHome();resetWalk()},1500)}
 function trAct(){var n=st.tn,p=st.people[n];if(!p)return;var idx=p.currentPetIdx;if(p.petLevels[idx]>=100){return}if(p.points<5){return}p.points-=5;p.petXP[idx]+=10;p.happiness=Math.min(100,p.happiness+2);p.lastTimestamp=Date.now();if(!p.totalTrainings)p.totalTrainings=0;p.totalTrainings++;if(!p.statBonus)p.statBonus=[];while(p.statBonus.length<=idx)p.statBonus.push({hp:0,atk:0,def:0,spd:0,int:0,luk:0});var sb=p.statBonus[idx];if(!sb)sb={hp:0,atk:0,def:0,spd:0,int:0,luk:0};var sts=["hp","atk","def","spd","int","luk"];var rs=sts[Math.floor(Math.random()*6)];sb[rs]+=Math.floor(Math.random()*2)+1;cL(n);sv();checkAchievements(n);window._pf="happy";rHome();setTimeout(function(){window._pf="walk";rHome();resetWalk()},1500)}
-function cL(n){var p=st.people[n],idx=p.currentPetIdx,nd=xfl(p.petLevels[idx]);while(p.petXP[idx]>=nd){p.petXP[idx]-=nd;p.petLevels[idx]++;playSound("levelup");p.happiness=Math.min(100,p.happiness+10);if(p.petLevels[idx]>=100){var ni=rb(n);if(ni!==null){p.pendingBoxes.push(ni)}}nd=xfl(p.petLevels[idx])}sv()}
+function cL(n){var p=st.people[n],idx=p.currentPetIdx,nd=xfl(p.petLevels[idx]);while(p.petXP[idx]>=nd){p.petXP[idx]-=nd;p.petLevels[idx]++;var ne=getEvo(p.petLevels[idx]);var oe=getEvo(p.petLevels[idx]-1);if(ne&&ne!==oe)toast("🌟 精灵 #"+(p.petSlots[idx]+1)+" 进化至 "+ne.stage+"！");playSound("levelup");p.happiness=Math.min(100,p.happiness+10);if(p.petLevels[idx]>=100){var ni=rb(n);if(ni!==null){p.pendingBoxes.push(ni)}}nd=xfl(p.petLevels[idx])}sv()}
 function cU(n){var p=st.people[n],ex=exp(p.totalCheckins),u=false;while(p.petSlots.length+p.pendingBoxes.length<ex){var idx=rb(n);if(idx!==null){p.pendingBoxes.push(idx);u=true}else break}if(u)sv()}
 
 function rPet(){var n=st.curPerson||st.tn,p=st.people[n];if(!p)return;var sl=typeof st.curSlot==="number"?st.curSlot:p.currentPetIdx;var pid=p.petSlots[sl],lv=p.petLevels[sl],xp=p.petXP[sl],nd=xfl(lv),pct=Math.min(100,xp/nd*100);var sk=cs(p),isCur=sl===p.currentPetIdx;var ss=gs(pid,lv);document.getElementById("petContent").innerHTML='<div class=pds><div class=pdh><img class=pet-gif-xl src="/images/pets/pet_'+String(pid+1).padStart(2,"0")+'_idle.gif" alt=""><div class=pdn>精灵 #'+(pid+1)+'</div><div class=pdtg>'+(isCur?"👑 当前精灵":"")+'</div></div>'+
@@ -267,7 +278,7 @@ function rRank(){
   }).join("")+'</div>';
 }
 
-function init(){initSt();setupDragScroll();document.querySelectorAll("[data-pg]").forEach(function(el){el.addEventListener("click",function(){var id=this.getAttribute("data-pg");PZ.length=0;PZ.push(id);if(id==="pageHome")rHome();else if(id==="pageBattle"){window._battlePicks=[];rBatUI()}else if(id==="pageShop")rShop();else if(id==="pageColl")rColl();else if(id==="pageRank")rRank();showPg(id)})});document.getElementById("backBtn").addEventListener("click",gB);document.getElementById("loginBtn").addEventListener("click",login);document.getElementById("loginName").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("loginPwd").focus()});document.getElementById("loginPwd").addEventListener("keydown",function(e){if(e.key==="Enter")login()});document.querySelectorAll(".bmb").forEach(function(el){el.addEventListener("click",function(){document.querySelectorAll(".bmb").forEach(function(b){b.classList.remove("active")});this.classList.add("active");window._battlePicks=[];rBatUI()})});document.getElementById("battleStart").addEventListener("click",rBat);document.querySelectorAll(".mo").forEach(function(m){m.addEventListener("click",function(e){if(e.target===e.currentTarget)this.classList.remove("show")})});document.querySelectorAll(".rk-tab").forEach(function(el){el.addEventListener("click",function(){document.querySelectorAll(".rk-tab").forEach(function(b){b.classList.remove("active")});this.classList.add("active");rRank()})});if(st.tn){document.getElementById("nav").classList.add("show");showPg("pageHome");rHome()}else{showPg("pageLogin");rLoginPets()}}
+function init(){initSt();if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js');setupDragScroll();document.querySelectorAll("[data-pg]").forEach(function(el){el.addEventListener("click",function(){var id=this.getAttribute("data-pg");PZ.length=0;PZ.push(id);if(id==="pageHome")rHome();else if(id==="pageBattle"){window._battlePicks=[];rBatUI()}else if(id==="pageShop")rShop();else if(id==="pageColl")rColl();else if(id==="pageRank")rRank();showPg(id)})});document.getElementById("backBtn").addEventListener("click",gB);document.getElementById("loginBtn").addEventListener("click",login);document.getElementById("loginName").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("loginPwd").focus()});document.getElementById("loginPwd").addEventListener("keydown",function(e){if(e.key==="Enter")login()});document.querySelectorAll(".bmb").forEach(function(el){el.addEventListener("click",function(){document.querySelectorAll(".bmb").forEach(function(b){b.classList.remove("active")});this.classList.add("active");window._battlePicks=[];rBatUI()})});document.getElementById("battleStart").addEventListener("click",rBat);document.querySelectorAll(".mo").forEach(function(m){m.addEventListener("click",function(e){if(e.target===e.currentTarget)this.classList.remove("show")})});document.querySelectorAll(".rk-tab").forEach(function(el){el.addEventListener("click",function(){document.querySelectorAll(".rk-tab").forEach(function(b){b.classList.remove("active")});this.classList.add("active");rRank()})});if(st.tn){document.getElementById("nav").classList.add("show");showPg("pageHome");rHome()}else{showPg("pageLogin");rLoginPets()}}
 init();
 
 // 每15秒同步一次服务器数据
