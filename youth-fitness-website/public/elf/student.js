@@ -116,7 +116,7 @@ function rb(n){var p=st.people[n];if(!p)return null;var s=new Set(p.petSlots);(p
 function gs(sl,lv){var b=BS[sl]||{hp:10,atk:8,def:6,spd:7,int:7,luk:6},m=1+(lv-1)*0.05;var r={hp:Math.round(b.hp*m),atk:Math.round(b.atk*m),def:Math.round(b.def*m),spd:Math.round(b.spd*m),int:Math.round(b.int*m),luk:Math.round(b.luk*m)};var bu=(st.people[st.tn||st.curPerson]?.statBonus?.[st.people[st.tn||st.curPerson]?.currentPetIdx||0]);if(bu){r.hp+=bu.hp;r.atk+=bu.atk;r.def+=bu.def;r.spd+=bu.spd;r.int+=bu.int;r.luk+=bu.luk}return r}
 function pwr(s,lv){return s.hp*0.8+s.atk*1.5+s.def*1.0+s.spd*1.0+s.int*1.2+s.luk*0.8+lv*2}
 function cs(p){var hrs=(Date.now()-(p.lastTimestamp||Date.now()))/3600000;var h=Math.max(0,Math.min(100,Math.round(p.hunger-hrs*8)));var ha=Math.max(0,Math.min(100,Math.round(p.happiness-(h<40?hrs*6:hrs*2))));return{hunger:h,happiness:ha}}
-function login(){var n=document.getElementById("loginName").value.trim(),pw=document.getElementById("loginPwd").value.trim(),err=document.getElementById("loginError");if(!n){err.textContent="请输入姓名";err.style.display="block";return}if(!st.people[n]){err.textContent="❌ "+n+" 不存在";err.style.display="block";return}if(st.people[n].password&&st.people[n].password!==pw){err.textContent="❌ 密码错误";err.style.display="block";return}st.tn=n;br=false;window._battlePicks=[];document.getElementById("battleResult").classList.remove("show");document.getElementById("battleLog").innerHTML="";document.getElementById("battleStart").disabled=false;sv();err.style.display="none";document.getElementById("loginName").textContent="";document.getElementById("loginName").value="";document.getElementById("loginPwd").value="";document.getElementById("nav").classList.add("show");checkAchievements(n);showPg("pageHome");rHome()}
+function login(){var n=document.getElementById("loginName").value.trim(),pw=document.getElementById("loginPwd").value.trim(),err=document.getElementById("loginError");if(!n){err.textContent="请输入姓名";err.style.display="block";return}if(!st.people[n]){err.textContent="❌ "+n+" 不存在";err.style.display="block";return}if(st.people[n].password&&st.people[n].password!==pw){err.textContent="❌ 密码错误";err.style.display="block";return}st.tn=n;br=false;window._battlePicks=[];document.getElementById("battleResult").classList.remove("show");document.getElementById("battleLog").innerHTML="";document.getElementById("battleStart").disabled=false;sv();err.style.display="none";document.getElementById("loginName").textContent="";document.getElementById("loginName").value="";document.getElementById("loginPwd").value="";document.getElementById("nav").classList.add("show");checkAchievements(n);playSound("login");showPg("pageHome");rHome()}
 
 function toast(msg){var el=document.getElementById("toast");if(!el)return;el.textContent=msg;el.classList.add("show");setTimeout(function(){el.classList.remove("show")},2500)}
 function checkAchievements(n){
@@ -128,6 +128,7 @@ function checkAchievements(n){
     if(p.achievements.indexOf(a.id)<0 && a.check(p)){
       p.achievements.push(a.id);
       toast("🏆 解锁成就: "+a.i+" "+a.n);
+      playSound("achievement");
       unlocked=true
     }
   });
@@ -147,9 +148,9 @@ document.querySelectorAll(".pli").forEach(function(el){var dc=0;el.addEventListe
 
 function swPet(si){var n=st.tn,p=st.people[n];if(!p)return;var sl=p.petSlots[si],lv=p.petLevels[si],xp=p.petXP[si],nd=xfl(lv),pct=Math.min(100,xp/nd*100),mx=lv>=100,sk=cs(p);var gif=document.getElementById("homePetGif");if(gif)gif.src="/images/pets/pet_"+String(sl+1).padStart(2,"0")+"_"+(window._pf||"walk")+".gif";var pn=document.querySelector(".pn");if(pn)pn.textContent="🐾 精灵 #"+(sl+1);var pt=document.querySelector(".pt .badge");if(pt)pt.textContent="Lv."+lv+(mx?" 🏆":"");var eb=document.querySelector(".eb .pf");if(eb)eb.style.width=pct+"%";var et=document.querySelector(".eb .et");if(et)et.textContent=mx?"🏆 已满级！":"EXP "+(nd-xp)+" 到下一级";var bis=document.querySelectorAll(".bi");if(bis.length>=2){var b1=bis[0].querySelector(".pf");if(b1){b1.style.width=sk.hunger+"%";b1.style.background=sk.hunger>60?"#32CD32":sk.hunger>30?"#FFA500":"#FF4500"}var bv1=bis[0].querySelector(".bv");if(bv1)bv1.textContent=sk.hunger+"%";var b2=bis[1].querySelector(".pf");if(b2){b2.style.width=sk.happiness+"%";b2.style.background=sk.happiness>60?"#32CD32":sk.happiness>30?"#FFA500":"#FF4500"}var bv2=bis[1].querySelector(".bv");if(bv2)bv2.textContent=sk.happiness+"%"}document.querySelectorAll(".pli").forEach(function(e,i){e.classList.toggle("cur",i===si);if(i===si){var b=e.querySelector(".pb");if(!b){b=document.createElement("span");b.className="pb";b.textContent="✔";e.appendChild(b)}}else{var b2=e.querySelector(".pb");if(b2)b2.remove()}});resetWalk()}
 function resetWalk(){var e=document.querySelector(".walk-area .pg");if(e){e.style.animation="none";void e.offsetWidth;e.style.animation="walkAcross 8s ease-in-out infinite alternate"}}
-function fdAct(){var n=st.tn,p=st.people[n];if(!p||p.points<5){return}p.points-=5;p.hunger=Math.min(100,p.hunger+15);p.happiness=Math.min(100,p.happiness+5);p.lastTimestamp=Date.now();sv();cL(n);window._pf="idle_eat";rHome();setTimeout(function(){window._pf="walk";rHome();resetWalk()},1500)}
+function fdAct(){playSound("eat");var n=st.tn,p=st.people[n];if(!p||p.points<5){return}p.points-=5;p.hunger=Math.min(100,p.hunger+15);p.happiness=Math.min(100,p.happiness+5);p.lastTimestamp=Date.now();sv();cL(n);window._pf="idle_eat";rHome();setTimeout(function(){window._pf="walk";rHome();resetWalk()},1500)}
 function trAct(){var n=st.tn,p=st.people[n];if(!p)return;var idx=p.currentPetIdx;if(p.petLevels[idx]>=100){return}if(p.points<5){return}p.points-=5;p.petXP[idx]+=10;p.happiness=Math.min(100,p.happiness+2);p.lastTimestamp=Date.now();if(!p.totalTrainings)p.totalTrainings=0;p.totalTrainings++;if(!p.statBonus)p.statBonus=[];while(p.statBonus.length<=idx)p.statBonus.push({hp:0,atk:0,def:0,spd:0,int:0,luk:0});var sb=p.statBonus[idx];if(!sb)sb={hp:0,atk:0,def:0,spd:0,int:0,luk:0};var sts=["hp","atk","def","spd","int","luk"];var rs=sts[Math.floor(Math.random()*6)];sb[rs]+=Math.floor(Math.random()*2)+1;cL(n);sv();checkAchievements(n);window._pf="happy";rHome();setTimeout(function(){window._pf="walk";rHome();resetWalk()},1500)}
-function cL(n){var p=st.people[n],idx=p.currentPetIdx,nd=xfl(p.petLevels[idx]);while(p.petXP[idx]>=nd){p.petXP[idx]-=nd;p.petLevels[idx]++;p.happiness=Math.min(100,p.happiness+10);if(p.petLevels[idx]>=100){var ni=rb(n);if(ni!==null){p.pendingBoxes.push(ni)}}nd=xfl(p.petLevels[idx])}sv()}
+function cL(n){var p=st.people[n],idx=p.currentPetIdx,nd=xfl(p.petLevels[idx]);while(p.petXP[idx]>=nd){p.petXP[idx]-=nd;p.petLevels[idx]++;playSound("levelup");p.happiness=Math.min(100,p.happiness+10);if(p.petLevels[idx]>=100){var ni=rb(n);if(ni!==null){p.pendingBoxes.push(ni)}}nd=xfl(p.petLevels[idx])}sv()}
 function cU(n){var p=st.people[n],ex=exp(p.totalCheckins),u=false;while(p.petSlots.length+p.pendingBoxes.length<ex){var idx=rb(n);if(idx!==null){p.pendingBoxes.push(idx);u=true}else break}if(u)sv()}
 
 function rPet(){var n=st.curPerson||st.tn,p=st.people[n];if(!p)return;var sl=typeof st.curSlot==="number"?st.curSlot:p.currentPetIdx;var pid=p.petSlots[sl],lv=p.petLevels[sl],xp=p.petXP[sl],nd=xfl(lv),pct=Math.min(100,xp/nd*100);var sk=cs(p),isCur=sl===p.currentPetIdx;var ss=gs(pid,lv);document.getElementById("petContent").innerHTML='<div class=pds><div class=pdh><img class=pet-gif-xl src="/images/pets/pet_'+String(pid+1).padStart(2,"0")+'_idle.gif" alt=""><div class=pdn>精灵 #'+(pid+1)+'</div><div class=pdtg>'+(isCur?"👑 当前精灵":"")+'</div></div>'+
@@ -158,7 +159,7 @@ function rPet(){var n=st.curPerson||st.tn,p=st.people[n];if(!p)return;var sl=typ
 '<div class=bg><div class=bi><div class=lb>🍖 饱食度</div><div class=bpt><div class=bpf style="width:'+sk.hunger+'%;background:'+(sk.hunger>60?"#32CD32":sk.hunger>30?"#FFA500":"#FF4500")+'"></div></div><div class=bv>'+(sk.hunger)+'%</div></div><div class=bi><div class=lb>😊 心情</div><div class=bpt><div class=bpf style="width:'+sk.happiness+'%;background:'+(sk.happiness>60?"#32CD32":sk.happiness>30?"#FFA500":"#FF4500")+'"></div></div><div class=bv>'+(sk.happiness)+'%</div></div></div>'+
 '<div class=sg2>'+[{k:"hp",l:"HP",i:"❤️",c:"schp",f:"sfhp"},{k:"atk",l:"攻击",i:"⚔️",c:"scatk",f:"sfatk"},{k:"def",l:"防御",i:"🛡️",c:"scdef",f:"sfdef"},{k:"spd",l:"速度",i:"💨",c:"scspd",f:"sfspd"},{k:"int",l:"智力",i:"🧠",c:"scint",f:"sfint"},{k:"luk",l:"运气",i:"🍀",c:"scluk",f:"sfluk"}].map(function(s){var v=ss[s.k];return '<div class=sc2><div class=si2>'+s.i+'</div><div class="sl '+s.c+'">'+s.l+'</div><div class=sb><div class="sf '+s.f+'" style="width:'+Math.round((v/Math.max(ss.hp,ss.atk,ss.def,ss.spd,ss.int,ss.luk))*100)+'%"></div></div><div class="sv '+s.c+'">'+v+'</div></div>';}).join("")+'</div></div>';}
 
-function ob(n,i){var p=st.people[n];if(!p||!p.pendingBoxes||!p.pendingBoxes.length)return;if(i===undefined)i=0;var pet=p.pendingBoxes[i];var modal=document.getElementById("modalBox"),cont=document.getElementById("boxContent");cont.innerHTML='<div class="br" style="padding:24px"><div class="box-icon" id=boxI>🎁</div><div class="box-hint">点击打开盲盒</div></div>';modal.classList.add("show");setTimeout(function(){var ic=document.getElementById("boxI");if(ic)ic.onclick=function(){ic.style.animation="none";ic.style.transform="scale(1.5)";ic.style.opacity="0";ic.style.transition="all .3s";setTimeout(function(){var nid=String(pet+1).padStart(2,"0");cont.innerHTML='<div class="br" style="padding:24px"><img src="/images/pets/pet_'+nid+'_happy.gif" class="pet-gif-lg"><div class="box-result-title">精灵 #'+(pet+1)+'</div><div class="box-result-desc">🎉 加入了你的精灵列表！</div></div>';p.pendingBoxes.splice(i,1);p.petSlots.push(pet);p.petLevels.push(1);p.petXP.push(0);sv();rfsh()},350)}},50)}
+function ob(n,i){playSound("box");var p=st.people[n];if(!p||!p.pendingBoxes||!p.pendingBoxes.length)return;if(i===undefined)i=0;var pet=p.pendingBoxes[i];var modal=document.getElementById("modalBox"),cont=document.getElementById("boxContent");cont.innerHTML='<div class="br" style="padding:24px"><div class="box-icon" id=boxI>🎁</div><div class="box-hint">点击打开盲盒</div></div>';modal.classList.add("show");setTimeout(function(){var ic=document.getElementById("boxI");if(ic)ic.onclick=function(){ic.style.animation="none";ic.style.transform="scale(1.5)";ic.style.opacity="0";ic.style.transition="all .3s";setTimeout(function(){var nid=String(pet+1).padStart(2,"0");cont.innerHTML='<div class="br" style="padding:24px"><img src="/images/pets/pet_'+nid+'_happy.gif" class="pet-gif-lg"><div class="box-result-title">精灵 #'+(pet+1)+'</div><div class="box-result-desc">🎉 加入了你的精灵列表！</div></div>';p.pendingBoxes.splice(i,1);p.petSlots.push(pet);p.petLevels.push(1);p.petXP.push(0);sv();rfsh()},350)}},50)}
 
 function showPetDetail(pid){var n=st.tn,p=st.people[n];if(!p)return;var idx=p.petSlots.indexOf(pid);if(idx<0)return;st.curPerson=n;st.curSlot=idx;st.people[n].currentPetIdx=idx;rPet();showPg("pagePet","精灵详情")}
 
@@ -198,9 +199,9 @@ function showDmg(el,dmg,type){
 }
 async function rBattleLoop(ta,tb,oc,steps,p1,p2){var cA=ta[0].stats.hp*5,cB=tb[0].stats.hp*5,mA=cA,mB=cB;for(var r=0;r<steps.length;r++){var round=steps[r];if(round.round>1){var ap=ta[round.round-1],bp=tb[round.round-1];if(ap&&bp){cA=ap.stats.hp*5;cB=bp.stats.hp*5;uH(round.round,cA,cB,cA,cB,ta,tb);await sl(1000)}}for(var i=0;i<round.steps.length;i++){var s=round.steps[i];var rv=await rBattleStep(r,round,s,cA,cB,mA,mB,ta,tb);cA=rv.cA;cB=rv.cB;if(rv.ko)break}}var wn=oc.winnerIsA?p1:p2;showBattleResult(wn,oc,p1,p2,st.people[p1])}
 
-async function rBattleStep(r,round,s,cA,cB,mA,mB,ta,tb){var e1=document.getElementById("bfE1"),e2=document.getElementById("bfE2"),isA1=s.attackerName===ta[round.round-1]?.personName;var dodgeEl=isA1?e2:e1;showDmg(dodgeEl,0,"dodge");if(s.special==="dodge"){document.getElementById("bfE1").src=gifUrl(ta[Math.min(r,ta.length-1)]?.petId||0,"idle");document.getElementById("bfE2").src=gifUrl(tb[Math.min(r,tb.length-1)]?.petId||0,"idle");(isA1?e2:e1).className="be dodge"}else if(s.special==="critical"){var at=ta[Math.min(r,ta.length-1)];var df=tb[Math.min(r,tb.length-1)];if(at&&df){document.getElementById("bfE1").src=gifUrl((isA1?at:df).petId,"skill_attack");document.getElementById("bfE2").src=gifUrl((isA1?df:at).petId,"unhappy")}var critEl=isA1?e1:e2;showDmg(critEl,s.dmg,"critical");(isA1?e1:e2).className="be flash"}else{var at2=ta[Math.min(r,ta.length-1)];var df2=tb[Math.min(r,tb.length-1)];if(at2&&df2){document.getElementById("bfE1").src=gifUrl((isA1?at2:df2).petId,"skill_attack");document.getElementById("bfE2").src=gifUrl((isA1?df2:at2).petId,"unhappy")}var normEl=isA1?e1:e2;showDmg(normEl,s.dmg,"normal");(isA1?e1:e2).className="be shake"}cA=s.hpA;cB=s.hpB;uH(round.round,cA,cB,mA,mB,ta,tb);await sl(700);e1.className="be";e2.className="be";var at3=ta[Math.min(r,ta.length-1)];var df3=tb[Math.min(r,tb.length-1)];if(at3&&df3){document.getElementById("bfE1").src=gifUrl(at3.petId,"idle");document.getElementById("bfE2").src=gifUrl(df3.petId,"idle")}if(s.ko){document.getElementById("battleLog").innerHTML+="<div class='bli info'>💀 "+(s.hpA<=0?s.attackerName:s.defenderName)+" 倒下了！</div>";await sl(500);return{cA:cA,cB:cB,ko:true}}var lgEl=document.getElementById("battleLog");var lgTxt="";if(s.special==="dodge"){lgTxt="<div class='bli cr'>🛡️ "+s.defenderName+" 闪避了攻击！</div>"}else if(s.special==="critical"){lgTxt="<div class='bli cr'>💥 "+s.attackerName+" 暴击！对 "+s.defenderName+" 造成 "+s.dmg+" 点伤害！</div>"}else{lgTxt="<div class='bli'>⚔️ "+s.attackerName+" 对 "+s.defenderName+" 造成 "+s.dmg+" 点伤害</div>"}lgEl.innerHTML+=lgTxt;lgEl.scrollTop=lgEl.scrollHeight;await sl(300);return{cA:cA,cB:cB,ko:false}}
+async function rBattleStep(r,round,s,cA,cB,mA,mB,ta,tb){var e1=document.getElementById("bfE1"),e2=document.getElementById("bfE2"),isA1=s.attackerName===ta[round.round-1]?.personName;var dodgeEl=isA1?e2:e1;showDmg(dodgeEl,0,"dodge");if(s.special==="dodge"){document.getElementById("bfE1").src=gifUrl(ta[Math.min(r,ta.length-1)]?.petId||0,"idle");document.getElementById("bfE2").src=gifUrl(tb[Math.min(r,tb.length-1)]?.petId||0,"idle");(isA1?e2:e1).className="be dodge"}else if(s.special==="critical"){var at=ta[Math.min(r,ta.length-1)];var df=tb[Math.min(r,tb.length-1)];if(at&&df){document.getElementById("bfE1").src=gifUrl((isA1?at:df).petId,"skill_attack");document.getElementById("bfE2").src=gifUrl((isA1?df:at).petId,"unhappy")}playSound("critical");var critEl=isA1?e1:e2;showDmg(critEl,s.dmg,"critical");(isA1?e1:e2).className="be flash"}else{playSound("attack");var at2=ta[Math.min(r,ta.length-1)];var df2=tb[Math.min(r,tb.length-1)];if(at2&&df2){document.getElementById("bfE1").src=gifUrl((isA1?at2:df2).petId,"skill_attack");document.getElementById("bfE2").src=gifUrl((isA1?df2:at2).petId,"unhappy")}var normEl=isA1?e1:e2;showDmg(normEl,s.dmg,"normal");(isA1?e1:e2).className="be shake"}cA=s.hpA;cB=s.hpB;uH(round.round,cA,cB,mA,mB,ta,tb);await sl(700);e1.className="be";e2.className="be";var at3=ta[Math.min(r,ta.length-1)];var df3=tb[Math.min(r,tb.length-1)];if(at3&&df3){document.getElementById("bfE1").src=gifUrl(at3.petId,"idle");document.getElementById("bfE2").src=gifUrl(df3.petId,"idle")}if(s.ko){document.getElementById("battleLog").innerHTML+="<div class='bli info'>💀 "+(s.hpA<=0?s.attackerName:s.defenderName)+" 倒下了！</div>";await sl(500);return{cA:cA,cB:cB,ko:true}}var lgEl=document.getElementById("battleLog");var lgTxt="";if(s.special==="dodge"){lgTxt="<div class='bli cr'>🛡️ "+s.defenderName+" 闪避了攻击！</div>"}else if(s.special==="critical"){lgTxt="<div class='bli cr'>💥 "+s.attackerName+" 暴击！对 "+s.defenderName+" 造成 "+s.dmg+" 点伤害！</div>"}else{lgTxt="<div class='bli'>⚔️ "+s.attackerName+" 对 "+s.defenderName+" 造成 "+s.dmg+" 点伤害</div>"}lgEl.innerHTML+=lgTxt;lgEl.scrollTop=lgEl.scrollHeight;await sl(300);return{cA:cA,cB:cB,ko:false}}
 
-function showBattleResult(wn,oc,p1,p2,sp){document.getElementById("brT").textContent=oc.isUpset?"🎉":"🏆";document.getElementById("brTx").textContent="🥇 "+wn+" 获胜！";document.getElementById("brD").textContent="战力 "+oc.powerA+" VS "+oc.powerB;document.getElementById("brReward").textContent=wn===p1?"🏅 +1 金币 +1 随机属性！":wn===p2?"😢 下次加油！":"";document.getElementById("battleAgain").classList.add("show");document.getElementById("battleResult").classList.add("show");var wp=st.people[wn];if(wp){sp.battlesToday=(sp.battlesToday||0)+1;sp.battleDate=fd();if(wn===p1||wn===p2){wp.points+=BP;var lgEl2=document.getElementById("battleLog");lgEl2.innerHTML+="<div class='bli info'>🏅 "+wn+" 获得胜利！+1 金币 +1 随机属性！</div>";lgEl2.scrollTop=lgEl2.scrollHeight;var bpIdx=window._battlePetIdx||wp.currentPetIdx;if(!wp.statBonus)wp.statBonus=[];while(wp.statBonus.length<=bpIdx)wp.statBonus.push({hp:0,atk:0,def:0,spd:0,int:0,luk:0});var sb=wp.statBonus[bpIdx];if(!sb)sb={hp:0,atk:0,def:0,spd:0,int:0,luk:0};var sts=["hp","atk","def","spd","int","luk"];var rs=sts[Math.floor(Math.random()*6)];sb[rs]+=1}var he={result:(wn===p1?"win":"lose"),opponent:(wn===p1?p2:p1),myPower:oc.powerA,date:fd()};sp.battleHistory.push(he);sv();checkAchievements(wn);rBatUI()}br=false;var btn2=document.getElementById("battleStart");if(btn2)btn2.disabled=false}
+function showBattleResult(wn,oc,p1,p2,sp){if(wn===p1)playSound("win");else playSound("lose");document.getElementById("brT").textContent=oc.isUpset?"🎉":"🏆";document.getElementById("brTx").textContent="🥇 "+wn+" 获胜！";document.getElementById("brD").textContent="战力 "+oc.powerA+" VS "+oc.powerB;document.getElementById("brReward").textContent=wn===p1?"🏅 +1 金币 +1 随机属性！":wn===p2?"😢 下次加油！":"";document.getElementById("battleAgain").classList.add("show");document.getElementById("battleResult").classList.add("show");var wp=st.people[wn];if(wp){sp.battlesToday=(sp.battlesToday||0)+1;sp.battleDate=fd();if(wn===p1||wn===p2){wp.points+=BP;var lgEl2=document.getElementById("battleLog");lgEl2.innerHTML+="<div class='bli info'>🏅 "+wn+" 获得胜利！+1 金币 +1 随机属性！</div>";lgEl2.scrollTop=lgEl2.scrollHeight;var bpIdx=window._battlePetIdx||wp.currentPetIdx;if(!wp.statBonus)wp.statBonus=[];while(wp.statBonus.length<=bpIdx)wp.statBonus.push({hp:0,atk:0,def:0,spd:0,int:0,luk:0});var sb=wp.statBonus[bpIdx];if(!sb)sb={hp:0,atk:0,def:0,spd:0,int:0,luk:0};var sts=["hp","atk","def","spd","int","luk"];var rs=sts[Math.floor(Math.random()*6)];sb[rs]+=1}var he={result:(wn===p1?"win":"lose"),opponent:(wn===p1?p2:p1),myPower:oc.powerA,date:fd()};sp.battleHistory.push(he);sv();checkAchievements(wn);rBatUI()}br=false;var btn2=document.getElementById("battleStart");if(btn2)btn2.disabled=false}
 
 function rBatUI(){document.getElementById("bfE1").src="";document.getElementById("bfE2").src="";document.getElementById("bhP1").textContent="—";document.getElementById("bhP2").textContent="—";document.getElementById("bhN1").textContent="—";document.getElementById("bhN2").textContent="—";document.getElementById("bhH1").style.width="0%";document.getElementById("bhH2").style.width="0%";document.getElementById("bhT1").textContent="HP";document.getElementById("bhT2").textContent="HP";document.getElementById("battleResult").classList.remove("show");if(!st.tn||!st.people[st.tn]){document.getElementById("battleSetup").innerHTML='<div style=text-align:center><div style=font-size:36px>🎮</div><div style=font-size:14px;font-weight:700>请先登录</div></div>';document.getElementById("battleStart").disabled=true;return}var p=st.people[st.tn],td2=fd();if(p.battleDate!==td2){p.battlesToday=0;p.battleDate=td2}var rm=MB-(p.battlesToday||0),md=document.querySelector(".bmb.active")?.getAttribute("data-md")||"1v1",sel=st.people[st.tn];window._battlePicks=window._battlePicks||[];if(!window._battlePicks.length){window._battlePicks=[sel?sel.currentPetIdx:0]}var need=md==="3v3"?3:1;buildBpk();document.getElementById("battleCount").innerHTML='<span>🎮 '+st.tn+'</span><span>⚔️ 今日 '+Math.max(0,rm)+'/'+MB+' 场</span>';document.getElementById("battleStart").textContent=rm>0?"🎲 随机匹配战斗":"⏰ 今日已打满";document.getElementById("battleStart").disabled=rm<=0||window._battlePicks.length<need}
 
@@ -278,3 +279,115 @@ function sparkle(el){for(var i=0;i<8;i++){var s=document.createElement('div');s.
 
 
 document.getElementById("battleAgain")&&document.getElementById("battleAgain").addEventListener("click",function(){document.getElementById("battleResult").classList.remove("show");rBatUI()});
+
+// ==== 🎵 音效系统 ====
+var act=null;
+function initAudio(){
+  try{
+    act=new(window.AudioContext||window.webkitAudioContext)()
+  }catch(e){}
+}
+function playSound(type){
+  if(!act){
+    initAudio();
+    if(!act)return
+  }
+  var o=act.createOscillator(),g=act.createGain();
+  o.connect(g);g.connect(act.destination);
+  var t=act.currentTime;
+  switch(type){
+    case"click":
+      o.frequency.setValueAtTime(800,t);
+      g.gain.setValueAtTime(0.08,t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+0.06);
+      o.start(t);o.stop(t+0.06);
+      break;
+    case"login":
+      o.type="sine";
+      o.frequency.setValueAtTime(523,t);
+      o.frequency.setValueAtTime(659,t+0.1);
+      o.frequency.setValueAtTime(784,t+0.2);
+      g.gain.setValueAtTime(0.12,t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+0.35);
+      o.start(t);o.stop(t+0.35);
+      break;
+    case"eat":
+      o.type="sine";
+      o.frequency.setValueAtTime(300,t);
+      o.frequency.setValueAtTime(400,t+0.08);
+      g.gain.setValueAtTime(0.08,t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+0.2);
+      o.start(t);o.stop(t+0.2);
+      break;
+    case"levelup":
+      o.type="sine";
+      o.frequency.setValueAtTime(400,t);
+      o.frequency.linearRampToValueAtTime(800,t+0.3);
+      g.gain.setValueAtTime(0.12,t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+0.35);
+      o.start(t);o.stop(t+0.35);
+      break;
+    case"attack":
+      o.type="sawtooth";
+      o.frequency.setValueAtTime(200,t);
+      o.frequency.linearRampToValueAtTime(80,t+0.15);
+      g.gain.setValueAtTime(0.1,t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+0.2);
+      o.start(t);o.stop(t+0.2);
+      break;
+    case"critical":
+      o.type="square";
+      o.frequency.setValueAtTime(150,t);
+      o.frequency.linearRampToValueAtTime(400,t+0.1);
+      o.frequency.linearRampToValueAtTime(100,t+0.2);
+      g.gain.setValueAtTime(0.12,t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+0.3);
+      o.start(t);o.stop(t+0.3);
+      break;
+    case"win":
+      o.type="sine";
+      [523,659,784,1047].forEach(function(f,i){
+        o.frequency.setValueAtTime(f,t+i*0.12)
+      });
+      g.gain.setValueAtTime(0.13,t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+0.5);
+      o.start(t);o.stop(t+0.5);
+      break;
+    case"lose":
+      o.type="sine";
+      o.frequency.setValueAtTime(400,t);
+      o.frequency.linearRampToValueAtTime(200,t+0.3);
+      g.gain.setValueAtTime(0.1,t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+0.4);
+      o.start(t);o.stop(t+0.4);
+      break;
+    case"box":
+      o.type="sine";
+      o.frequency.setValueAtTime(400,t);
+      o.frequency.setValueAtTime(600,t+0.08);
+      o.frequency.setValueAtTime(800,t+0.16);
+      g.gain.setValueAtTime(0.1,t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+0.3);
+      o.start(t);o.stop(t+0.3);
+      break;
+    case"achievement":
+      o.type="sine";
+      [523,659,784,1047,1319].forEach(function(f,i){
+        o.frequency.setValueAtTime(f,t+i*0.1)
+      });
+      g.gain.setValueAtTime(0.14,t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+0.6);
+      o.start(t);o.stop(t+0.6);
+      break
+  }
+}
+
+// 初始化音频（用户首次交互时）
+document.addEventListener("click",function(){
+  if(!act)initAudio()
+},{once:true})
+
+// 全局按钮点击音效
+document.addEventListener("click",function(e){
+  if(e.target.closest("button,.btn-gold,.gb,.nav-item,.bmb,.rk-tab,.mo,.pli"))playSound("click")
+})
