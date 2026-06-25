@@ -281,7 +281,7 @@ function sparkle(el){for(var i=0;i<8;i++){var s=document.createElement('div');s.
 document.getElementById("battleAgain")&&document.getElementById("battleAgain").addEventListener("click",function(){document.getElementById("battleResult").classList.remove("show");rBatUI()});
 
 // ==== 🎵 音效系统 ====
-var act=null;
+var act=null,_lastSoundTime=0;
 function initAudio(){
   try{
     act=new(window.AudioContext||window.webkitAudioContext)()
@@ -292,6 +292,7 @@ function playSound(type){
     initAudio();
     if(!act)return
   }
+  _lastSoundTime=Date.now();
   var o=act.createOscillator(),g=act.createGain();
   o.connect(g);g.connect(act.destination);
   var t=act.currentTime;
