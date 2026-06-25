@@ -135,7 +135,7 @@ function ob(n,i){var p=st.people[n];if(!p||!p.pendingBoxes||!p.pendingBoxes.leng
 function showPetDetail(pid){var n=st.tn,p=st.people[n];if(!p)return;var idx=p.petSlots.indexOf(pid);if(idx<0)return;st.curPerson=n;st.curSlot=idx;st.people[n].currentPetIdx=idx;rPet();showPg("pagePet","精灵详情")}
 
 var PZ=["pageHome"];
-function showPg(id,ti){document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active")});var el=document.getElementById(id);if(el)el.classList.add("active");var tb=document.getElementById("topBar"),nv=document.getElementById("nav");if(id==="pageLogin"||!st.tn){tb.classList.remove("show");nv.classList.remove("show")}else if(["pageHome","pageBattle","pageShop","pageColl"].indexOf(id)>=0){tb.classList.remove("show");nv.classList.add("show")}else{tb.classList.add("show");nv.classList.remove("show");document.getElementById("topTitle").textContent={pagePet:"精灵详情"}[id]||"返回"}document.querySelectorAll(".nav-item").forEach(function(n){n.classList.toggle("active",n.getAttribute("data-pg")===id)});if(PZ[PZ.length-1]!==id)PZ.push(id)}
+function showPg(id,ti){document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active")});var el=document.getElementById(id);if(el)el.classList.add("active");var tb=document.getElementById("topBar"),nv=document.getElementById("nav");if(id==="pageLogin"||!st.tn){tb.classList.remove("show");nv.classList.remove("show")}else if(["pageHome","pageBattle","pageShop","pageColl","pageRank"].indexOf(id)>=0){tb.classList.remove("show");nv.classList.add("show")}else{tb.classList.add("show");nv.classList.remove("show");document.getElementById("topTitle").textContent={pagePet:"精灵详情"}[id]||"返回"}document.querySelectorAll(".nav-item").forEach(function(n){n.classList.toggle("active",n.getAttribute("data-pg")===id)});if(PZ[PZ.length-1]!==id)PZ.push(id)}
 function gB(){if(PZ.length>1){PZ.pop();var p=PZ[PZ.length-1];if(p==="pagePet")rPet();else if(p==="pageHome")rHome();else if(p==="pageBattle")rBatUI();else if(p==="pageShop")rShop();else if(p==="pageColl")rColl();showPg(p)}}
 
 function rColl(){var n=st.tn,p=st.people[n],un=new Set(),cur=-1;if(p){p.petSlots.forEach(function(s){un.add(s)});if(p.petSlots[p.currentPetIdx]!==undefined)cur=p.petSlots[p.currentPetIdx]}document.getElementById("collC").textContent=un.size+"/"+TP;document.getElementById("collGrid").innerHTML=Array.from({length:TP},function(_,i){var u=un.has(i),c=i===cur;return '<div class="ccell '+(c?"cur":u?"unlocked":"lock")+'"'+(u?' onclick="showPetDetail('+i+')"':'')+'><span class=ce>'+(u?pi(i):"❓")+'</span><span class=cn>#'+(i+1)+'</span></div>'}).join("")}
@@ -180,7 +180,7 @@ function buildBpk(){var sel=st.people[st.tn],md=document.querySelector(".bmb.act
 
 function logout(){if(confirm("确认退出？")){st.tn=null;br=false;window._battlePicks=[];document.getElementById("battleResult").classList.remove("show");document.getElementById("battleLog").innerHTML="";document.getElementById("battleStart").disabled=false;sv();document.getElementById("nav").classList.remove("show");showPg("pageLogin");setTimeout(function(){document.getElementById("loginName").focus()},300)}}
 function rLoginPets(){document.getElementById("loginPets").innerHTML=[0,1,2,3,4,5,6,7].map(function(i){return pg(i,"happy","")}).join("")}
-function rfsh(){var a=document.querySelector(".page.active");if(!a)return;var id=a.id;if(id==="pageHome")rHome();else if(id==="pagePet")rPet();else if(id==="pageBattle")rBatUI();else if(id==="pageShop")rShop();else if(id==="pageColl")rColl()}
+function rfsh(){var a=document.querySelector(".page.active");if(!a)return;var id=a.id;if(id==="pageHome")rHome();else if(id==="pagePet")rPet();else if(id==="pageBattle")rBatUI();else if(id==="pageShop")rShop();else if(id==="pageColl")rColl();else if(id==="pageRank")rRank()}
 
 
 // Drag-to-scroll for pet list
@@ -206,7 +206,47 @@ function setupDragScroll() {
     el.addEventListener("click", function(e) { if(moved) { e.stopPropagation(); } }, true);
   });
 }
-function init(){initSt();setupDragScroll();document.querySelectorAll("[data-pg]").forEach(function(el){el.addEventListener("click",function(){var id=this.getAttribute("data-pg");PZ.length=0;PZ.push(id);if(id==="pageHome")rHome();else if(id==="pageBattle"){window._battlePicks=[];rBatUI()}else if(id==="pageShop")rShop();else if(id==="pageColl")rColl();showPg(id)})});document.getElementById("backBtn").addEventListener("click",gB);document.getElementById("loginBtn").addEventListener("click",login);document.getElementById("loginName").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("loginPwd").focus()});document.getElementById("loginPwd").addEventListener("keydown",function(e){if(e.key==="Enter")login()});document.querySelectorAll(".bmb").forEach(function(el){el.addEventListener("click",function(){document.querySelectorAll(".bmb").forEach(function(b){b.classList.remove("active")});this.classList.add("active");window._battlePicks=[];rBatUI()})});document.getElementById("battleStart").addEventListener("click",rBat);document.querySelectorAll(".mo").forEach(function(m){m.addEventListener("click",function(e){if(e.target===e.currentTarget)this.classList.remove("show")})});if(st.tn){document.getElementById("nav").classList.add("show");showPg("pageHome");rHome()}else{showPg("pageLogin");rLoginPets()}}
+
+function rRank(){
+  var rt=document.querySelector(".rk-tab.active")?.getAttribute("data-rt")||"pts";
+  var list=document.getElementById("rankList");
+  var people=st.people||{};
+  var order=st.personOrder||[];
+  var items=order.map(function(n){return {name:n,data:people[n]}}).filter(function(i){return i.data});
+  if(rt==="pts"){
+    items.sort(function(a,b){return(b.data.points||0)-(a.data.points||0)})
+  }else if(rt==="pets"){
+    items.sort(function(a,b){return(b.data.petSlots?.length||0)-(a.data.petSlots?.length||0)})
+  }else if(rt==="battle"){
+    items.sort(function(a,b){
+      var aw=(a.data.battleHistory||[]).filter(function(h){return h.result==="win"}).length;
+      var bw=(b.data.battleHistory||[]).filter(function(h){return h.result==="win"}).length;
+      return bw-aw
+    })
+  }
+  var medals=["🥇","🥈","🥉"];
+  list.innerHTML='<div class="rk-list">'+items.map(function(item,i){
+    var m=i<3?medals[i]:"#"+(i+1);
+    var rankCls=i<3?"rk-medal":"rk-num";
+    var p=item.data;
+    var pts=p.points||0;
+    var pets=p.petSlots?.length||0;
+    var wins=(p.battleHistory||[]).filter(function(h){return h.result==="win"}).length;
+    var total=(p.battleHistory||[]).length;
+    var val=rt==="pts"?pts+" 金币":rt==="pets"?pets+"/30 精灵":wins+"/"+total+" 胜";
+    return '<div class="rk-item"><span class="'+rankCls+'">'+m+'</span><span class="rk-name">'+item.name+'</span><span class="rk-val">'+val+'</span></div>'
+  }).join("")+'</div>';
+  
+  document.querySelectorAll(".rk-tab").forEach(function(el){
+    el.addEventListener("click",function(){
+      document.querySelectorAll(".rk-tab").forEach(function(b){b.classList.remove("active")});
+      this.classList.add("active");
+      rRank()
+    })
+  })
+}
+
+function init(){initSt();setupDragScroll();document.querySelectorAll("[data-pg]").forEach(function(el){el.addEventListener("click",function(){var id=this.getAttribute("data-pg");PZ.length=0;PZ.push(id);if(id==="pageHome")rHome();else if(id==="pageBattle"){window._battlePicks=[];rBatUI()}else if(id==="pageShop")rShop();else if(id==="pageColl")rColl();else if(id==="pageRank")rRank();showPg(id)})});document.getElementById("backBtn").addEventListener("click",gB);document.getElementById("loginBtn").addEventListener("click",login);document.getElementById("loginName").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("loginPwd").focus()});document.getElementById("loginPwd").addEventListener("keydown",function(e){if(e.key==="Enter")login()});document.querySelectorAll(".bmb").forEach(function(el){el.addEventListener("click",function(){document.querySelectorAll(".bmb").forEach(function(b){b.classList.remove("active")});this.classList.add("active");window._battlePicks=[];rBatUI()})});document.getElementById("battleStart").addEventListener("click",rBat);document.querySelectorAll(".mo").forEach(function(m){m.addEventListener("click",function(e){if(e.target===e.currentTarget)this.classList.remove("show")})});if(st.tn){document.getElementById("nav").classList.add("show");showPg("pageHome");rHome()}else{showPg("pageLogin");rLoginPets()}}
 init();
 rLoginPets();
 

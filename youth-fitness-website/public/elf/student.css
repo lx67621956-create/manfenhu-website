@@ -363,3 +363,15 @@ body,.app{min-height:100vh}
 .exp-header{display:flex;justify-content:space-between;font-size:13px}
 .box-section{margin-bottom:10px;text-align:center}
 .empty-battle{text-align:center;padding:14px;color:#999;font-size:12px}
+
+/* Rank */
+.rk-tabs{display:flex;gap:6px;margin-bottom:10px}
+.rk-tab{flex:1;padding:8px;border:2px solid var(--pkdark);border-radius:10px;background:white;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);text-align:center;transition:all .15s}
+.rk-tab.active{background:var(--pkred);color:white;border-color:var(--pkdark);box-shadow:2px 2px 0 var(--pkdark)}
+.rk-list{display:flex;flex-direction:column;gap:4px}
+.rk-item{display:flex;align-items:center;gap:8px;background:white;border:2px solid #E0E0E0;border-radius:10px;padding:8px 10px;transition:all .15s}
+.rk-item:hover{border-color:var(--pkred)}
+.rk-medal{font-size:20px;min-width:30px;text-align:center}
+.rk-num{font-size:13px;font-weight:800;color:var(--text3);min-width:30px;text-align:center}
+.rk-name{flex:1;font-size:13px;font-weight:700;color:var(--pkdark)}
+.rk-val{font-size:12px;font-weight:700;color:var(--pkred)}
