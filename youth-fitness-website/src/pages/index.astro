@@ -2,13 +2,45 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="首页 - 青少年体能培训机构">
-  <!-- 轮播图占位 -->
-  <section class="hero-banner">
-    <div class="placeholder hero-placeholder">
-      🖼️ 轮播图位置（建议尺寸：1920×600）<br/>可上传 3-5 张宣传图
-    </div>
-  </section>
+|<BaseLayout title="满分虎中考体育 — 青少年体能培训专家">
+|  <!-- 轮播图 -->
+|  <section class="hero-banner">
+|    <div class="carousel">
+|      <div class="carousel-slides">
+|        <div class="carousel-slide active" data-index="0">
+|          <img src="/images/banner-zhongkao.jpg" alt="专注青少年体质提升" class="carousel-img" />
+|          <div class="carousel-overlay">
+|            <h2 class="carousel-title">专注青少年体质提升</h2>
+|            <p class="carousel-sub">科学训练，为成长加分</p>
+|            <a href="/courses/" class="btn btn-primary btn-lg">了解课程</a>
+|          </div>
+|        </div>
+|        <div class="carousel-slide" data-index="1">
+|          <img src="/images/banner-handball.jpg" alt="中考体育提分个体化训练" class="carousel-img" />
+|          <div class="carousel-overlay">
+|            <h2 class="carousel-title">中考体育提分·个体化训练</h2>
+|            <p class="carousel-sub">每个孩子都值得一份专属训练方案</p>
+|            <a href="/courses/zhongkao/" class="btn btn-primary btn-lg">了解详情</a>
+|          </div>
+|        </div>
+|        <div class="carousel-slide" data-index="2">
+|          <img src="/images/banner-fitness.jpg" alt="手球专业运动员输送" class="carousel-img" />
+|          <div class="carousel-overlay">
+|            <h2 class="carousel-title">手球专业运动员输送</h2>
+|            <p class="carousel-sub">从兴趣到专业，打通体育升学之路</p>
+|            <a href="/courses/shouqiu/" class="btn btn-primary btn-lg">了解详情</a>
+|          </div>
+|        </div>
+|      </div>
+|      <div class="carousel-dots">
+|        <span class="dot active" data-slide="0"></span>
+|        <span class="dot" data-slide="1"></span>
+|        <span class="dot" data-slide="2"></span>
+|      </div>
+|      <button class="carousel-arrow carousel-prev" aria-label="上一张">&#10094;</button>
+|      <button class="carousel-arrow carousel-next" aria-label="下一张">&#10095;</button>
+|    </div>
+|  </section>
 
   <!-- 课程展示占位 -->
   <section class="section">
@@ -63,7 +95,120 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 
 <style>
   .hero-banner { position: relative; }
-  .hero-placeholder { min-height: 400px; font-size: 1.1rem; }
+  .carousel {
+    position: relative;
+    width: 100%;
+    height: 480px;
+    overflow: hidden;
+    background: #222;
+  }
+  .carousel-slides {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .carousel-slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    z-index: 0;
+  }
+  .carousel-slide.active {
+    opacity: 1;
+    z-index: 1;
+  }
+  .carousel-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .carousel-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(0,0,0,0.55), rgba(0,0,0,0.25));
+    color: #fff;
+    padding: 24px;
+  }
+  .carousel-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    letter-spacing: 2px;
+  }
+  .carousel-sub {
+    font-size: 1.15rem;
+    margin-bottom: 28px;
+    opacity: 0.9;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+  .btn-lg {
+    padding: 14px 40px;
+    font-size: 1.05rem;
+    border-radius: 8px;
+    font-weight: 700;
+  }
+  .carousel-dots {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 10;
+  }
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: background .3s;
+  }
+  .dot.active {
+    background: #fff;
+  }
+  .carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    border: none;
+    font-size: 1.8rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background .3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .carousel-arrow:hover {
+    background: rgba(0,0,0,0.6);
+  }
+  .carousel-prev { left: 20px; }
+  .carousel-next { right: 20px; }
+  
+  @media (max-width: 768px) {
+    .carousel { height: 320px; }
+    .carousel-title { font-size: 1.6rem; }
+    .carousel-sub { font-size: 1rem; }
+    .carousel-arrow { width: 36px; height: 36px; font-size: 1.2rem; }
+  }
   .video-wrapper {
     position: relative;
     width: 100%;
@@ -89,5 +234,51 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   .card-body { padding: 24px; }
   .card-body h3 { margin-bottom: 8px; }
   .text-muted { color: var(--c-text-muted); }
-  @media (max-width: 768px) { .hero-placeholder { min-height: 240px; } }
 </style>
+
+<script>
+  (function() {
+    var slides = document.querySelectorAll('.carousel-slide');
+    var dots = document.querySelectorAll('.dot');
+    var prev = document.querySelector('.carousel-prev');
+    var next = document.querySelector('.carousel-next');
+    var current = 0;
+    var timer;
+
+    function goTo(index) {
+      slides.forEach(function(s, i) {
+        s.classList.toggle('active', i === index);
+      });
+      dots.forEach(function(d, i) {
+        d.classList.toggle('active', i === index);
+      });
+      current = index;
+    }
+
+    function nextSlide() {
+      goTo((current + 1) % slides.length);
+    }
+
+    function prevSlide() {
+      goTo((current - 1 + slides.length) % slides.length);
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      timer = setInterval(nextSlide, 5000);
+    }
+
+    if (slides.length) {
+      goTo(0);
+      timer = setInterval(nextSlide, 5000);
+      dots.forEach(function(d) {
+        d.addEventListener('click', function() {
+          goTo(parseInt(this.dataset.slide));
+          resetTimer();
+        });
+      });
+      if (prev) { prev.addEventListener('click', function() { prevSlide(); resetTimer(); }); }
+      if (next) { next.addEventListener('click', function() { nextSlide(); resetTimer(); }); }
+    }
+  })();
+</script>
