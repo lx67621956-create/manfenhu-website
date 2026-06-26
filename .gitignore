@@ -1,1 +1,9 @@
 .vercel
+*.key
+sn_key.txt
+test_img.py
+test_api.py
+scripts/test_api*.py
+.env
+__pycache__/
+*.pyc
