@@ -94,11 +94,11 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 </BaseLayout>
 
 <style>
-  .hero-banner { position: relative; }
+  .hero-banner { position: relative; max-width: 1200px; margin: 0 auto; border-radius: 0 0 12px 12px; overflow: hidden; }
   .carousel {
     position: relative;
     width: 100%;
-    height: 480px;
+    height: 420px;
     overflow: hidden;
     background: #222;
   }
@@ -124,6 +124,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: top center;
     display: block;
   }
   .carousel-overlay {
@@ -136,7 +137,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: linear-gradient(135deg, rgba(0,0,0,0.55), rgba(0,0,0,0.25));
+    background: rgba(0,0,0,0.2);
     color: #fff;
     padding: 24px;
   }
@@ -204,10 +205,11 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   .carousel-next { right: 20px; }
   
   @media (max-width: 768px) {
-    .carousel { height: 320px; }
+    .carousel { height: 280px; }
     .carousel-title { font-size: 1.6rem; }
     .carousel-sub { font-size: 1rem; }
     .carousel-arrow { width: 36px; height: 36px; font-size: 1.2rem; }
+    .hero-banner { border-radius: 0; }
   }
   .video-wrapper {
     position: relative;
