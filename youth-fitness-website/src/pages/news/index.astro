@@ -11,6 +11,42 @@ import BaseLayout from '@layouts/BaseLayout.astro';
     <div class="container">
       <div class="news-grid">
 
+        <article class="news-card">
+          <a href="/news/parent-child-sport" class="news-image">
+            <img src="/images/news/parent-child-sport.jpg" alt="催孩子运动真的没用" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-07-25">2026年7月25日</time>
+            <h2><a href="/news/parent-child-sport">催孩子运动真的没用——试试这3个方法，让孩子自己主动出门跑</a></h2>
+            <p>催了八百遍没有用，问题不在孩子懒，在方法不对。3个真实的沟通方法，让孩子自己穿上鞋出门。</p>
+            <a href="/news/parent-child-sport" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <a href="/news/workout-recovery" class="news-image">
+            <img src="/images/news/workout-recovery.jpg" alt="练完第二天浑身疼还要继续练吗" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-07-24">2026年7月24日</time>
+            <h2><a href="/news/workout-recovery">练完第二天浑身疼还要继续练吗？运动性肌肉酸痛的真相与处理</a></h2>
+            <p>运动后第二天大腿酸得走不了路——这是练到位了还是受伤了？要不要继续练？这篇讲清楚酸痛的对策。</p>
+            <a href="/news/workout-recovery" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <a href="/news/sport-shoes-guide" class="news-image">
+            <img src="/images/news/sport-shoes-guide.jpg" alt="中考体育穿什么鞋" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-07-23">2026年7月23日</time>
+            <h2><a href="/news/sport-shoes-guide">中考体育穿什么鞋？不同项目选鞋指南，穿错一双白练一年</a></h2>
+            <p>跑800米穿什么鞋？立定跳远穿什么鞋？中考体育不同项目对鞋的要求完全不一样。选错了鞋，练得再努力也白搭。</p>
+            <a href="/news/sport-shoes-guide" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
         <article        <article class="news-card">
           <a href="/news/core-strength-running" class="news-image">
             <img src="/images/news/core-strength-running.jpg" alt="核心力量对跑步成绩的影响" loading="lazy" />
@@ -689,7 +725,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   
   <section class="pagination">
     <div class="container">
-      <div class="pagination-info" id="pagination-info">显示第 1-10 条，共 56 条</div>
+      <div class="pagination-info" id="pagination-info">显示第 1-10 条，共 59 条</div>
       <div class="pagination-links">
         <span class="page-prev disabled" id="page-prev">上一页</span>
         <span class="page-num active" data-page="1">1</span>
@@ -704,7 +740,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   </section>
   <script>
     (function(){
-      var TOTAL=56, PER_PAGE=10, PAGE_COUNT=6;
+      var TOTAL=59, PER_PAGE=10, PAGE_COUNT=6;
       function getPage(){return parseInt(new URLSearchParams(window.location.search).get('page')||'1');}
       function renderPage(p){
         var c=document.querySelectorAll('.news-card');
