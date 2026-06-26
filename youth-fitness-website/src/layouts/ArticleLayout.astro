@@ -5,24 +5,28 @@ interface Props {
   title: string;
   description?: string;
   pubDate?: string;
+  date?: string;
   image?: string;
+  coverImage?: string;
 }
 
-const { title, description, pubDate, image } = Astro.props;
+const { title, description, pubDate, date, image, coverImage } = Astro.props;
+const displayDate = pubDate || date;
+const displayImage = image || coverImage;
 ---
 
 <BaseLayout title={title + ' - 满分虎体育'}>
   <section class="page-hero" style="background:linear-gradient(135deg, var(--c-secondary), #00B8D4);">
     <div class="container">
       <h1>{title}</h1>
-      {pubDate && <p class="meta">{pubDate}</p>}
+      {displayDate && <p class="meta">{displayDate}</p>}
     </div>
   </section>
 
-  {image && (
+  {displayImage && (
     <section class="article-hero-image">
       <div class="container">
-        <img src={image} alt={title} loading="lazy" />
+        <img src={displayImage} alt={title} loading="lazy" />
       </div>
     </section>
   )}
