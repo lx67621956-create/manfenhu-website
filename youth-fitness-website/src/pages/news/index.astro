@@ -12,7 +12,66 @@ import BaseLayout from '@layouts/BaseLayout.astro';
       <div class="news-grid">
 
         <article class="news-card">
-          <a href="/news/exam-day-guide" class="news-image">
+          <a href="/news/post-exam-summer" class="news-image">
+            <img src="/images/news/post-exam-summer.jpg" alt="中考体育满分之后暑假怎么过" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-06-29">2026年6月29日</time>
+            <h2><a href="/news/post-exam-summer">中考体育满分之后，暑假怎么过？</a></h2>
+            <p>体育考完不是终点。暑假如何保持运动习惯、从应试训练转向兴趣运动，提前为高中体育做准备。</p>
+            <a href="/news/post-exam-summer" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <a href="/news/heavy-kid-training" class="news-image">
+            <img src="/images/news/heavy-kid-training.jpg" alt="胖孩子能不能练好中考体育" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-06-29">2026年6月29日</time>
+            <h2><a href="/news/heavy-kid-training">胖孩子能不能练好中考体育？当然能，关键是方法要对</a></h2>
+            <p>体重偏大的孩子训练要注意什么？如何保护关节、从走路到跑步的进阶方案，给家长信心的实用指南。</p>
+            <a href="/news/heavy-kid-training" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <a href="/news/day-before-exam" class="news-image">
+            <img src="/images/news/day-before-exam.jpg" alt="中考体育考前一天别做5件事" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-06-29">2026年6月29日</time>
+            <h2><a href="/news/day-before-exam">中考体育考前一天，这5件事千万别做</a></h2>
+            <p>考前一天最容易犯的5个错误：不要突击训练、不要吃奇怪的东西、不要给孩子施压。正向建议为主。</p>
+            <a href="/news/day-before-exam" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <a href="/news/jump-rope-technique" class="news-image">
+            <img src="/images/news/jump-rope-technique.jpg" alt="为什么孩子跳绳总断" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-06-29">2026年6月29日</time>
+            <h2><a href="/news/jump-rope-technique">为什么孩子跳绳总断？从握绳到落地，一个动作拆开讲</a></h2>
+            <p>跳绳常见错误全拆解：绳太长、手腕不动、跳太高、落地太重。正确的握绳和发力技巧。</p>
+            <a href="/news/jump-rope-technique" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <a href="/news/sports-drinks-guide" class="news-image">
+            <img src="/images/news/sports-drinks-guide.jpg" alt="运动饮料要不要喝" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-06-29">2026年6月29日</time>
+            <h2><a href="/news/sports-drinks-guide">运动饮料要不要喝？青少年运动补水的科学方法</a></h2>
+            <p>白开水vs运动饮料，什么时候需要喝？考试当天怎么喝水？运动饮料对青少年的利弊分析。</p>
+            <a href="/news/sports-drinks-guide" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
             <img src="/images/news/exam-day-guide.jpg" alt="考试当天全流程" loading="lazy" />
           </a>
           <div class="news-content">
@@ -737,7 +796,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   
   <section class="pagination">
     <div class="container">
-      <div class="pagination-info" id="pagination-info">显示第 1-10 条，共 60 条</div>
+      <div class="pagination-info" id="pagination-info">显示第 1-10 条，共 65 条</div>
       <div class="pagination-links">
         <span class="page-prev disabled" id="page-prev">上一页</span>
         <span class="page-num active" data-page="1">1</span>
@@ -746,13 +805,14 @@ import BaseLayout from '@layouts/BaseLayout.astro';
         <span class="page-num" data-page="4">4</span>
         <span class="page-num" data-page="5">5</span>
         <span class="page-num" data-page="6">6</span>
+        <span class="page-num" data-page="7">7</span>
         <span class="page-next" id="page-next">下一页</span>
       </div>
     </div>
   </section>
   <script>
     (function(){
-      var TOTAL=60, PER_PAGE=10, PAGE_COUNT=6;
+      var TOTAL=65, PER_PAGE=10, PAGE_COUNT=7;
       function getPage(){return parseInt(new URLSearchParams(window.location.search).get('page')||'1');}
       function renderPage(p){
         var c=document.querySelectorAll('.news-card');
