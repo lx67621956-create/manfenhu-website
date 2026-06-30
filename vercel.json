@@ -1,0 +1,5 @@
+{
+  "rootDirectory": "youth-fitness-website",
+  "buildCommand": "cd youth-fitness-website && npm run build",
+  "outputDirectory": "youth-fitness-website/dist"
+}
