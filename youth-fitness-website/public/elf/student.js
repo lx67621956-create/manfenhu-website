@@ -146,7 +146,7 @@ function checkAchievements(n){
   if(unlocked)sv()
 }
 
-function rHome(){var n=st.tn,p=st.people[n];if(!p)return;var idx=p.currentPetIdx,sid=p.petSlots[idx],lv=p.petLevels[idx],xp=p.petXP[idx],nd=xfl(lv),pct=Math.min(100,xp/nd*100),mx=lv>=100;var evo=getEvo(lv);var sk=cs(p);var bx=p.pendingBoxes?.length||0,bh=p.battleHistory||[];var acs=p.achievements||[];document.getElementById("homeContent").innerHTML='<div class=hh><div class=tn>🎮 '+n+' <span class="logout-link" onclick="logout()">[退出]</span></div><div class=tp>⭐ '+p.points+' 金币</div><div class=ts><span>🐾 '+p.petSlots.length+'/'+TP+'</span><span>🔥 打卡 '+p.totalCheckins+' 次</span></div></div>'+
+function rHome(){var n=st.tn,p=st.people[n];if(!p)return;var idx=p.currentPetIdx,sid=p.petSlots[idx],lv=p.petLevels[idx],xp=p.petXP[idx],nd=xfl(lv),pct=Math.min(100,xp/nd*100),mx=lv>=100;var evo=getEvo(lv);var sk=cs(p);var bx=p.pendingBoxes?.length||0,bh=p.battleHistory||[];var acs=p.achievements||[];document.getElementById("homeContent").innerHTML='<div class=hh><div class=tn>🎮 '+n+' <span class="logout-link" onclick="logout()">[退出]</span><span class="sound-toggle" onclick="toggleSound()">'+(_soundEnabled?'🔊':'🔇')+'</span></div><div class=tp>⭐ '+p.points+' 金币</div><div class=ts><span>🐾 '+p.petSlots.length+'/'+TP+'</span><span>🔥 打卡 '+p.totalCheckins+' 次</span></div></div>'+
 '<div class=ps><div class=walk-area><img id=homePetGif class=pg src="/images/pets/pet_'+String(sid+1).padStart(2,"0")+'_'+(window._pf||"walk")+'.gif" alt=""></div><div class=pn>精灵 #'+(sid+1)+(evo?'<span class="evo-badge">'+evo.stage+'</span>':'')+'</div><span class="pt badge '+(mx?"bg-gold":"bg-blue")+'">Lv.'+lv+(mx?" 🏆":"")+'</span></div>'+
 '<div class=eb><div class=pt><div class=pf style="width:'+pct+'%"></div></div><div class=et>'+(mx?"🏆 已满级！":"EXP "+(nd-xp)+" 到下一级")+'</div></div>'+
 '<div class=bg><div class=bi><div class=lb>🍖 饱食度</div><div class=bpt><div class=bpf style="width:'+sk.hunger+'%;background:'+(sk.hunger>60?"#32CD32":sk.hunger>30?"#FFA500":"#FF4500")+'"></div></div><div class=bv>'+(sk.hunger)+'%</div></div><div class=bi><div class=lb>😊 心情</div><div class=bpt><div class=bpf style="width:'+sk.happiness+'%;background:'+(sk.happiness>60?"#32CD32":sk.happiness>30?"#FFA500":"#FF4500")+'"></div></div><div class=bv>'+(sk.happiness)+'%</div></div></div>'+
@@ -219,7 +219,18 @@ function rBatUI(){document.getElementById("bfE1").src="";document.getElementById
 function buildBpk(){var sel=st.people[st.tn],md=document.querySelector(".bmb.active")?.getAttribute("data-md")||"1v1",need=md==="3v3"?3:1;var c=document.getElementById("battleSetup");var h=['<div style=text-align:center><div style=font-size:36px>🎲</div><div style=font-size:14px;font-weight:700>随机匹配对手</div><div style=font-size:11px;color:#999;margin-bottom:6px>'+(need>1?"选择"+need+"只":"选择出战")+'</div><div class="bpk-row">'];if(sel&&sel.petSlots){sel.petSlots.forEach(function(sl,i){var e=PE[sl]||"🐣",lv2=sel.petLevels[i],pi=window._battlePicks.indexOf(i),pk=pi>=0;h.push('<div class="bpk'+(pk?' bpk-cur':'')+'" data-bpk="'+i+'">');if(pk)h.push('<span class="bpk-badge">'+(pi+1)+'</span>');h.push('<img src="/images/pets/pet_'+String(sl+1).padStart(2,"0")+'_idle.gif" onerror="this.style.display=\'none\'" class="bpk-icon"><div class="bpk-level">Lv.'+lv2+'</div></div>')})}h.push('</div><div class="bpk-hint">'+(need>1?"已选 "+window._battlePicks.length+"/"+need:"")+'</div></div>');c.innerHTML=h.join("");document.querySelectorAll("[data-bpk]").forEach(function(el){function pkFn(){var si=parseInt(this.getAttribute("data-bpk")),md2=document.querySelector(".bmb.active")?.getAttribute("data-md")||"1v1",need2=md2==="3v3"?3:1,idx=window._battlePicks.indexOf(si);if(idx>=0){window._battlePicks.splice(idx,1)}else{if(window._battlePicks.length<need2){window._battlePicks.push(si)}}buildBpk()}el.addEventListener("click",pkFn);el.addEventListener("touchend",function(e){e.preventDefault();pkFn.call(this)})})}
 
 function logout(){if(confirm("确认退出？")){st.tn=null;br=false;window._battlePicks=[];document.getElementById("battleResult").classList.remove("show");document.getElementById("battleLog").innerHTML="";document.getElementById("battleStart").disabled=false;sv();document.getElementById("nav").classList.remove("show");showPg("pageLogin");setTimeout(function(){document.getElementById("loginName").focus()},300)}}
-function rLoginPets(){document.getElementById("loginPets").innerHTML=[0,1,2,3,4,5,6,7].map(function(i){return pg(i,"happy","")}).join("")}
+function rLoginPets(){
+  document.getElementById("loginPets").innerHTML=[0,1,2,3,4,5,6,7].map(function(i){return pg(i,"happy","")}).join("");
+  var lf=document.querySelector('.pkm-frame');
+  if(lf&&!lf.querySelector('.sound-toggle')){
+    var el=document.createElement('div');
+    el.className='sound-toggle';
+    el.textContent=_soundEnabled?'🔊':'🔇';
+    el.onclick=toggleSound;
+    el.style.cssText='text-align:center;margin-top:12px;font-size:16px;cursor:pointer';
+    lf.after(el)
+  }
+}
 function rfsh(){var a=document.querySelector(".page.active");if(!a)return;var id=a.id;if(id==="pageHome")rHome();else if(id==="pagePet")rPet();else if(id==="pageBattle")rBatUI();else if(id==="pageShop")rShop();else if(id==="pageColl")rColl();else if(id==="pageRank")rRank()}
 
 
@@ -291,7 +302,7 @@ function sparkle(el){for(var i=0;i<8;i++){var s=document.createElement('div');s.
 document.getElementById("battleAgain")&&document.getElementById("battleAgain").addEventListener("click",function(){document.getElementById("battleResult").classList.remove("show");rBatUI()});
 
 // ==== 🎵 音效系统 ====
-var act=null,_lastSoundTime=0;
+var act=null,_lastSoundTime=0,_soundEnabled=localStorage.getItem('elf_sound')!=='off';
 function initAudio(){
   try{
     act=new(window.AudioContext||window.webkitAudioContext)()
@@ -302,6 +313,7 @@ function playSound(type){
     initAudio();
     if(!act)return
   }
+  if(!_soundEnabled)return;
   _lastSoundTime=Date.now();
   var o=act.createOscillator(),g=act.createGain();
   o.connect(g);g.connect(act.destination);
@@ -393,6 +405,15 @@ function playSound(type){
   }
 }
 
+function toggleSound(){
+  _soundEnabled=!_soundEnabled;
+  localStorage.setItem('elf_sound',_soundEnabled?'on':'off');
+  document.querySelectorAll('.sound-toggle').forEach(function(btn){
+    btn.textContent=_soundEnabled?'🔊':'🔇'
+  });
+  toast(_soundEnabled?'🔊 音效已开启':'🔇 音效已关闭')
+}
+
 // 初始化音频（用户首次交互时）
 document.addEventListener("click",function(){
   if(!act)initAudio()
@@ -400,5 +421,6 @@ document.addEventListener("click",function(){
 
 // 全局按钮点击音效
 document.addEventListener("click",function(e){
+  if(Date.now()-_lastSoundTime<100)return;
   if(e.target.closest("button,.btn-gold,.gb,.nav-item,.bmb,.rk-tab,.mo,.pli"))playSound("click")
 })
