@@ -1,15 +1,15 @@
 html{height:100%}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --pkred:#EE1515;--pkred2:#CC0000;--pkred3:#FF4444;
-  --pkblue:#3B4CCA;--pkdark:#222;--pkgreen:#32CD32;
-  --gold:#FFD700;--gold2:#FFA500;--gold3:#DAA520;
+  --pkred:#EE1515;--pkred2:#CC0000;--pkred3:#F44;
+  --pkblue:#3B4CCA;--pkdark:#222;--pkgreen:#3C2;
+  --gold:#FFD700;--gold2:#FA0;--gold3:#DAA520;
   --text:#444;--text2:#888;--text3:#AAA;
   --font:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
   --st:env(safe-area-inset-top,0px);
   --sb:env(safe-area-inset-bottom,0px);
   --rl:24px;
-  --shadow-sm:0 3px 10px rgba(0,0,0,0.08);--shadow-md:0 6px 20px rgba(0,0,0,0.1);--shadow-lg:0 10px 40px rgba(0,0,0,0.15);--pink:#FF69B4;--orange:#FF8C00;--cyan:#00CED1;--yellow:#FFD700;--purple:#9B59B6
+  --shadow-sm:0 3px 10px rgba(0,0,0,0.08);--shadow-md:0 6px 20px rgba(0,0,0,0.1);--shadow-lg:0 10px 40px rgba(0,0,0,0.15);--pink:#FF69B4;--orange:#FA0;--cyan:#00CED1;--yellow:#FFD700;--purple:#9B59B6
 }
 body{background:#F5F0EB;font-family:var(--font);color:var(--pkdark);margin:0;padding:0;overflow-x:hidden;min-height:100dvh;min-height:-webkit-fill-available}
 .app{width:100%;max-width:420px;height:100dvh;min-height:-webkit-fill-available;background:#F5F0EB;position:relative;overflow:hidden;display:flex;flex-direction:column}
@@ -57,6 +57,7 @@ body{background:#F5F0EB;font-family:var(--font);color:var(--pkdark);margin:0;pad
 /* Home */
 .hh{text-align:center;padding:0 0 6px}
 .tn{font-size:18px;font-weight:800;color:var(--pkdark)}
+.sound-toggle{background:none;border:none;cursor:pointer;font-size:16px;padding:2px 6px;vertical-align:middle;line-height:1;font-family:var(--font)}
 .tp{font-size:13px;color:var(--pkred);font-weight:700;margin-bottom:2px}
 .ts{display:flex;justify-content:center;gap:6px;font-size:10px;margin-bottom:10px;flex-wrap:wrap}
 
@@ -113,8 +114,8 @@ body{background:#F5F0EB;font-family:var(--font);color:var(--pkdark);margin:0;pad
 .sc2 .sb{height:3px;background:#F0F0F0;border-radius:2px;overflow:hidden;margin-bottom:1px}
 .sc2 .sf{height:100%;border-radius:2px}
 .sc2 .sv{font-size:11px;font-weight:700}
-.schp{color:#FF6B6B}.scatk{color:#FF4500}.scdef{color:#48D1CC}.scspd{color:#32CD32}.scint{color:#DDA0DD}.scluk{color:#FFD700}
-.sfhp{background:#FF6B6B}.sfatk{background:#FF4500}.sfdef{background:#48D1CC}.sfspd{background:#32CD32}.sfint{background:#DDA0DD}.sfluk{background:#FFD700}
+.schp{color:#FF6B6B}.scatk{color:#F40}.scdef{color:#48D1CC}.scspd{color:#3C2}.scint{color:#DDA0DD}.scluk{color:#FFD700}
+.sfhp{background:#FF6B6B}.sfatk{background:#F40}.sfdef{background:#48D1CC}.sfspd{background:#3C2}.sfint{background:#DDA0DD}.sfluk{background:#FFD700}
 
 /* Battle */
 .bsu{text-align:center;margin-bottom:6px}
@@ -133,7 +134,7 @@ body{background:#F5F0EB;font-family:var(--font);color:var(--pkdark);margin:0;pad
 .bhv{font-size:12px;font-weight:800;color:#FFD700;display:flex;align-items:center}
 .bhp{height:12px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,0.15);border:1px solid #DDD}
 .bhf{height:100%;border-radius:6px;background:var(--pkgreen);transition:width .5s cubic-bezier(.4,0,.2,1)}
-.bhf[style*="30%"],.bhf[style*="20%"],.bhf[style*="10%"]{background:#FF4444!important}
+.bhf[style*="30%"],.bhf[style*="20%"],.bhf[style*="10%"]{background:#F44!important}
 .bht{font-size:8px;color:rgba(255,255,255,0.7);margin-top:1px}
 .bf{display:flex;justify-content:space-around;align-items:center;padding:14px 10px 10px;min-height:80px;flex:1;position:relative;z-index:2}
 .bfp{text-align:center}
@@ -248,9 +249,9 @@ body,.app{min-height:100vh}
 /* ===== 战斗伤害数字浮动 ===== */
 .dmg-num{position:fixed;pointer-events:none;z-index:9999;font-size:28px;font-weight:900;animation:dmgFloat 1s ease-out forwards;text-shadow:0 2px 4px rgba(0,0,0,0.3)}
 @keyframes dmgFloat{0%{opacity:1;transform:translateY(0) scale(1)}50%{opacity:1;transform:translateY(-30px) scale(1.2)}100%{opacity:0;transform:translateY(-60px) scale(0.8)}}
-.dmg-heal{color:#32CD32}
+.dmg-heal{color:#3C2}
 .dmg-normal{color:#FFD700}
-.dmg-critical{color:#FF4500;font-size:36px}
+.dmg-critical{color:#F40;font-size:36px}
 .dmg-dodge{color:#48D1CC;font-size:22px}
 
 /* ===== CSS迁移 - 替代内联style ===== */
