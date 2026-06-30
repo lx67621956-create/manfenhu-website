@@ -12,6 +12,42 @@ import BaseLayout from '@layouts/BaseLayout.astro';
       <div class="news-grid">
 
         <article class="news-card">
+          <a href="/news/post-workout-care" class="news-image">
+            <img src="/images/news/post-workout-care.jpg" alt="运动后能不能马上洗澡吹空调" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-06-29">2026年6月29日</time>
+            <h2><a href="/news/post-workout-care">运动后能不能马上洗澡、吹空调？这些习惯正在伤害孩子</a></h2>
+            <p>运动后马上吹空调、洗冷水澡？这些习惯可能让孩子生病。正确的运动后"冷却"步骤，每个家长都该知道。</p>
+            <a href="/news/post-workout-care" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <a href="/news/exam-defer-policy" class="news-image">
+            <img src="/images/news/exam-defer-policy.jpg" alt="中考体育缓考免考政策" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-06-29">2026年6月29日</time>
+            <h2><a href="/news/exam-defer-policy">中考体育能申请缓考或免考吗？家长必知的政策和流程</a></h2>
+            <p>什么情况可以申请缓考？什么情况可以免考？申请流程、材料准备、女生生理期怎么办？这篇讲清楚。</p>
+            <a href="/news/exam-defer-policy" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <a href="/news/sports-vision" class="news-image">
+            <img src="/images/news/sports-vision.jpg" alt="运动真的能预防近视吗" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-06-29">2026年6月29日</time>
+            <h2><a href="/news/sports-vision">运动真的能预防近视吗？每天户外1小时，效果比眼药水好</a></h2>
+            <p>每天户外运动1小时，近视风险降低50%。什么运动最护眼？球类运动为什么比跑步效果好？</p>
+            <a href="/news/sports-vision" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
           <a href="/news/post-exam-summer" class="news-image">
             <img src="/images/news/post-exam-summer.jpg" alt="中考体育满分之后暑假怎么过" loading="lazy" />
           </a>
@@ -796,7 +832,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   
   <section class="pagination">
     <div class="container">
-      <div class="pagination-info" id="pagination-info">显示第 1-10 条，共 65 条</div>
+      <div class="pagination-info" id="pagination-info">显示第 1-10 条，共 68 条</div>
       <div class="pagination-links">
         <span class="page-prev disabled" id="page-prev">上一页</span>
         <span class="page-num active" data-page="1">1</span>
@@ -812,7 +848,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   </section>
   <script>
     (function(){
-      var TOTAL=65, PER_PAGE=10, PAGE_COUNT=7;
+      var TOTAL=68, PER_PAGE=10, PAGE_COUNT=7;
       function getPage(){return parseInt(new URLSearchParams(window.location.search).get('page')||'1');}
       function renderPage(p){
         var c=document.querySelectorAll('.news-card');
