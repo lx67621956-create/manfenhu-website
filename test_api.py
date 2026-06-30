@@ -1,35 +1,33 @@
-import urllib.request, json
+import subprocess, json, sys
 
-api_key = 'REDACTED_IMG_API_KEY'
-url = 'https://aiapi.up.railway.app/v1/images/generations'
+key = open("/tmp/sn_key.txt").read().strip()
 
-payload = json.dumps({
-    'model': 'dall-e-3',
-    'prompt': 'test image',
-    'n': 1,
-    'size': '1024x1024'
-}).encode('utf-8')
+models = ["sensenova-u1", "sensenova-u1-flash", "nano-banana", 
+          "gpt-image-2", "sensenova-image", "dall-e-3", "sensenova-image-gen"]
 
-# Try different auth headers
-auth_attempts = [
-    ('Authorization', f'Bearer {api_key}'),
-    ('api-key', api_key),
-    ('X-Api-Key', api_key),
-    ('Authorization', api_key),
-]
-
-for header_name, header_val in auth_attempts:
+for model in models:
+    payload = json.dumps({
+        "model": model,
+        "prompt": "a cute cat, digital art",
+        "n": 1,
+        "size": "1024x1024"
+    })
+    r = subprocess.run([
+        "curl", "-s", "https://token.sensenova.cn/v1/images/generations",
+        "-H", "Authorization: Bearer " + key,
+        "-H", "Content-Type: application/json",
+        "-d", payload
+    ], capture_output=True, text=True, timeout=60)
+    
     try:
-        req = urllib.request.Request(url, data=payload, headers={
-            'Content-Type': 'application/json',
-            header_name: header_val
-        }, method='POST')
-        resp = urllib.request.urlopen(req, timeout=15)
-        data = json.loads(resp.read())
-        print(f'SUCCESS with {header_name}: {str(data)[:300]}')
-        break
-    except urllib.error.HTTPError as e:
-        body = e.read().decode('utf-8', errors='replace')
-        print(f'{header_name} -> {e.code}: {body[:200]}')
-    except Exception as e:
-        print(f'{header_name} -> Error: {e}')
+        data = json.loads(r.stdout)
+        if "data" in data:
+            print(f"  {model}: ✅ SUCCESS! URL: {str(data['data'][0].get('url',''))[:60]}")
+        elif "error" in data:
+            msg = data["error"].get("message", "")
+            code = data["error"].get("code", "")
+            print(f"  {model}: ❌ {msg} (code={code})")
+        else:
+            print(f"  {model}: ❌ {r.stdout[:100]}")
+    except:
+        print(f"  {model}: ❌ {r.stdout[:100]}")
