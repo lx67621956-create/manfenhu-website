@@ -12,6 +12,30 @@ import BaseLayout from '@layouts/BaseLayout.astro';
       <div class="news-grid">
 
         <article class="news-card">
+          <a href="/news/boring-pe-class" class="news-image">
+            <img src="/images/news/boring-pe-class.jpg" alt="孩子说体育课好无聊怎么办" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-06-30">2026年6月30日</time>
+            <h2><a href="/news/boring-pe-class">孩子总说"体育课好无聊"？可能是这些原因，家长可以做这些事</a></h2>
+            <p>孩子不爱上体育课，不一定是懒。分析"无聊"背后的真实原因，给家长具体的沟通和行动建议。</p>
+            <a href="/news/boring-pe-class" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <a href="/news/ball-electives-compare" class="news-image">
+            <img src="/images/news/ball-electives-compare.jpg" alt="中考体育选篮球还是排球还是足球" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-06-30">2026年6月30日</time>
+            <h2><a href="/news/ball-electives-compare">中考体育选篮球还是排球还是足球？三大球选考项目深度对比</a></h2>
+            <p>篮球运球、排球垫球、足球射门怎么选？从得分难度、训练周期、身体条件全面对比，帮孩子选最适合的。</p>
+            <a href="/news/ball-electives-compare" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
           <a href="/news/post-workout-care" class="news-image">
             <img src="/images/news/post-workout-care.jpg" alt="运动后能不能马上洗澡吹空调" loading="lazy" />
           </a>
@@ -832,7 +856,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   
   <section class="pagination">
     <div class="container">
-      <div class="pagination-info" id="pagination-info">显示第 1-10 条，共 68 条</div>
+      <div class="pagination-info" id="pagination-info">显示第 1-10 条，共 70 条</div>
       <div class="pagination-links">
         <span class="page-prev disabled" id="page-prev">上一页</span>
         <span class="page-num active" data-page="1">1</span>
@@ -848,7 +872,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   </section>
   <script>
     (function(){
-      var TOTAL=68, PER_PAGE=10, PAGE_COUNT=7;
+      var TOTAL=70, PER_PAGE=10, PAGE_COUNT=7;
       function getPage(){return parseInt(new URLSearchParams(window.location.search).get('page')||'1');}
       function renderPage(p){
         var c=document.querySelectorAll('.news-card');
