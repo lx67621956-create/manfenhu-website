@@ -12,6 +12,42 @@ import BaseLayout from '@layouts/BaseLayout.astro';
       <div class="news-grid">
 
         <article class="news-card">
+          <a href="/news/sports-confidence" class="news-image">
+            <img src="/images/news/sports-confidence.jpg" alt="运动真的能让孩子更自信吗" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-07-01">2026年7月1日</time>
+            <h2><a href="/news/sports-confidence">运动真的能让孩子更自信吗？从体育差生到班级活跃分子</a></h2>
+            <p>体育可能是帮孩子建立自信最快的方式。从心理学角度讲运动如何改变孩子的自我认知，给家长具体的操作步骤。</p>
+            <a href="/news/sports-confidence" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <a href="/news/exam-outfit-guide" class="news-image">
+            <img src="/images/news/exam-outfit-guide.jpg" alt="中考体育穿什么衣服" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-07-01">2026年7月1日</time>
+            <h2><a href="/news/exam-outfit-guide">中考体育穿什么衣服？不是随便穿件运动服就行</a></h2>
+            <p>中考体育穿什么材质的运动服？短袖还是长袖？各项目对着装的不同要求，非常实用的细节指南。</p>
+            <a href="/news/exam-outfit-guide" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
+          <a href="/news/sports-phone-addiction" class="news-image">
+            <img src="/images/news/sports-phone-addiction.jpg" alt="运动能帮孩子戒掉手机吗" loading="lazy" />
+          </a>
+          <div class="news-content">
+            <time datetime="2026-07-01">2026年7月1日</time>
+            <h2><a href="/news/sports-phone-addiction">运动能帮孩子戒掉手机吗？比没收手机更有效的办法</a></h2>
+            <p>孩子抱着手机不撒手。运动可能是更好的解决方案。从多巴胺机制讲为什么运动能替代手机，给家长落地的操作方法。</p>
+            <a href="/news/sports-phone-addiction" class="read-more">阅读全文 →</a>
+          </div>
+        </article>
+
+        <article class="news-card">
           <a href="/news/boring-pe-class" class="news-image">
             <img src="/images/news/boring-pe-class.jpg" alt="孩子说体育课好无聊怎么办" loading="lazy" />
           </a>
@@ -856,7 +892,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   
   <section class="pagination">
     <div class="container">
-      <div class="pagination-info" id="pagination-info">显示第 1-10 条，共 70 条</div>
+      <div class="pagination-info" id="pagination-info">显示第 1-10 条，共 73 条</div>
       <div class="pagination-links">
         <span class="page-prev disabled" id="page-prev">上一页</span>
         <span class="page-num active" data-page="1">1</span>
@@ -866,13 +902,14 @@ import BaseLayout from '@layouts/BaseLayout.astro';
         <span class="page-num" data-page="5">5</span>
         <span class="page-num" data-page="6">6</span>
         <span class="page-num" data-page="7">7</span>
+        <span class="page-num" data-page="8">8</span>
         <span class="page-next" id="page-next">下一页</span>
       </div>
     </div>
   </section>
   <script>
     (function(){
-      var TOTAL=70, PER_PAGE=10, PAGE_COUNT=7;
+      var TOTAL=73, PER_PAGE=10, PAGE_COUNT=8;
       function getPage(){return parseInt(new URLSearchParams(window.location.search).get('page')||'1');}
       function renderPage(p){
         var c=document.querySelectorAll('.news-card');
