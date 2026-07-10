@@ -113,34 +113,6 @@ import BaseLayout from '@layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <!-- 荣誉墙 -->
-  <section class="section">
-    <div class="container">
-      <h2 class="section-title">荣誉墙</h2>
-      <p class="section-desc">实力证明一切</p>
-      <div class="honor-grid">
-        <div class="honor-item">
-          <span class="honor-icon">🏅</span>
-          <strong>北京中考体育培训</strong>
-          <span>行业领军品牌</span>
-        </div>
-        <div class="honor-item">
-          <span class="honor-icon">🏆</span>
-          <strong>北京市手球协会</strong>
-          <span>青少年训练基地</span>
-        </div>
-        <div class="honor-item">
-          <span class="honor-icon">🎖️</span>
-          <strong>前国家队运动员</strong>
-          <span>教练团队资质认证</span>
-        </div>
-        <div class="honor-item">
-          <span class="honor-icon">📜</span>
-          <strong>中国体育科学学会</strong>
-          <span>会员单位</span>
-        </div>
-      </div>
-    </div>
   </section>
 
   <section class="cta-section">
@@ -212,18 +184,6 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 .story-body p { color: #555; line-height: 1.7; margin-bottom: 10px; font-size: 0.88rem; }
 .story-body p:last-child { margin-bottom: 0; }
 @media (max-width: 768px) { .stories-grid { grid-template-columns: 1fr; } }
-
-.honor-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-.honor-item {
-  background: #fff; border: 1px solid #eee; border-radius: 12px;
-  padding: 28px 20px; text-align: center; transition: all .3s;
-}
-.honor-item:hover { border-color: #44BD32; transform: translateY(-4px); }
-.honor-icon { font-size: 2rem; display: block; margin-bottom: 10px; }
-.honor-item strong { font-size: 0.9rem; display: block; color: #1E272E; margin-bottom: 4px; }
-.honor-item span { font-size: 0.8rem; color: #888; }
-@media (max-width: 768px) { .honor-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 500px) { .honor-grid { grid-template-columns: 1fr; } }
 
 .cta-section { padding: 60px 0; }
 .cta-inner {
