@@ -10,6 +10,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
         <div class="carousel-slide active" data-index="0">
           <img src="/images/banner-zhongkao.jpg" alt="专注青少年体质提升" class="carousel-img" />
           <div class="carousel-overlay">
+            <span class="carousel-badge">2026中考体育</span>
             <h2 class="carousel-title">专注青少年体质提升</h2>
             <p class="carousel-sub">科学训练，为成长加分</p>
             <a href="/courses/" class="btn btn-primary btn-lg">了解课程</a>
@@ -18,6 +19,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
         <div class="carousel-slide" data-index="1">
           <img src="/images/banner-handball.jpg" alt="中考体育提分个体化训练" class="carousel-img" />
           <div class="carousel-overlay">
+            <span class="carousel-badge">个体化训练</span>
             <h2 class="carousel-title">中考体育提分·个体化训练</h2>
             <p class="carousel-sub">每个孩子都值得一份专属训练方案</p>
             <a href="/courses/zhongkao/" class="btn btn-primary btn-lg">了解详情</a>
@@ -26,6 +28,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
         <div class="carousel-slide" data-index="2">
           <img src="/images/banner-fitness.jpg" alt="手球专业运动员输送" class="carousel-img" />
           <div class="carousel-overlay">
+            <span class="carousel-badge">专业输送</span>
             <h2 class="carousel-title">手球专业运动员输送</h2>
             <p class="carousel-sub">从兴趣到专业，打通体育升学之路</p>
             <a href="/courses/shouqiu/" class="btn btn-primary btn-lg">了解详情</a>
@@ -42,245 +45,275 @@ import BaseLayout from '@layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <!-- 课程展示占位 -->
+  <!-- 数据统计 -->
+  <section class="stats-bar">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-number">300+</span>
+          <span class="stat-label">累计学员</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">96%</span>
+          <span class="stat-label">中考体育达标率</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">8年</span>
+          <span class="stat-label">专注青少年体能</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">15+</span>
+          <span class="stat-label">专业教练团队</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 课程体系 -->
   <section class="section">
     <div class="container">
       <h2 class="section-title">课程体系</h2>
-      <div class="grid-3">
-        <div class="card">
-          <img src="/images/courses/zhongkao.jpg.png" alt="中考体育特训" class="course-img" />
-          <div class="card-body">
+      <p class="section-desc">科学分龄，因材施教，三大课程覆盖从兴趣到升学的完整路径</p>
+      <div class="course-grid">
+        <div class="course-card">
+          <div class="course-img-wrap">
+            <img src="/images/courses/zhongkao.jpg.png" alt="中考体育特训" class="course-img" />
+            <span class="course-tag">提分冲刺</span>
+          </div>
+          <div class="course-body">
             <h3>中考体育特训</h3>
-            <p class="text-muted">课程简介待填写</p>
-            <a href="/courses/zhongkao/" class="btn btn-outline">了解详情</a>
+            <p>针对北京中考体育测试项目，从800米到引体向上，专项提分训练。</p>
+            <div class="course-meta">
+              <span class="meta-item">📅 12节课/期</span>
+              <span class="meta-item">👥 4-6人小班</span>
+            </div>
+            <a href="/courses/zhongkao/" class="btn btn-outline">了解详情 →</a>
           </div>
         </div>
-        <div class="card">
-          <img src="/images/courses/ertong.jpg.png" alt="少儿体能训练" class="course-img" />
-          <div class="card-body">
+        <div class="course-card">
+          <div class="course-img-wrap">
+            <img src="/images/courses/ertong.jpg.png" alt="少儿体能训练" class="course-img" />
+            <span class="course-tag tag-green">基础体能</span>
+          </div>
+          <div class="course-body">
             <h3>少儿体能训练</h3>
-            <p class="text-muted">课程简介待填写</p>
-            <a href="/courses/ertong/" class="btn btn-outline">了解详情</a>
+            <p>4-12岁少儿基础体能训练，通过趣味运动培养运动兴趣和习惯。</p>
+            <div class="course-meta">
+              <span class="meta-item">📅 16节课/期</span>
+              <span class="meta-item">👥 6-8人小班</span>
+            </div>
+            <a href="/courses/ertong/" class="btn btn-outline">了解详情 →</a>
           </div>
         </div>
-        <div class="card">
-          <img src="/images/courses/shouqiu.jpg.png" alt="手球专项特训" class="course-img" />
-          <div class="card-body">
+        <div class="course-card">
+          <div class="course-img-wrap">
+            <img src="/images/courses/shouqiu.jpg.png" alt="手球专项特训" class="course-img" />
+            <span class="course-tag tag-blue">专项培养</span>
+          </div>
+          <div class="course-body">
             <h3>手球专项特训</h3>
-            <p class="text-muted">课程简介待填写</p>
-            <a href="/courses/shouqiu/" class="btn btn-outline">了解详情</a>
+            <p>前国家队运动员执教，专业手球技战术训练，培养团队协作能力。</p>
+            <div class="course-meta">
+              <span class="meta-item">📅 20节课/期</span>
+              <span class="meta-item">👥 8-10人小班</span>
+            </div>
+            <a href="/courses/shouqiu/" class="btn btn-outline">了解详情 →</a>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 机构简介占位 -->
-  <section class="section" style="background:var(--c-surface);">
+  <!-- 关于我们 -->
+  <section class="section about-section">
     <div class="container">
-      <h2 class="section-title">关于我们</h2>
-      <div class="grid-2" style="align-items:center;">
-        <div class="video-wrapper">
-          <iframe src="https://player.youku.com/embed/XNjI1MjgyNTI0OA==" width="100%" height="100%" frameborder="0" allowfullscreen loading="lazy"></iframe>
+      <div class="about-grid">
+        <div class="about-video">
+          <div class="video-wrapper">
+            <iframe src="https://player.youku.com/embed/XNjI1MjgyNTI0OA==" frameborder="0" allowfullscreen loading="lazy"></iframe>
+          </div>
         </div>
-        <div>
-          <h3 style="margin-bottom:16px;">满分虎中考体育</h3>
-          <p class="text-muted" style="margin-bottom:24px;">满分虎是针对青少年体质健康与应试满分问题的解决方案。意在通过"提升应试分数"的方式，开启每个中国家庭对于孩子身体素质全面提升的意识；帮助每一位孩子从小建立正确的运动模式、培养终身的运动习惯。</p>
-          <a href="/contact/" class="btn btn-primary">预约体验</a>
+        <div class="about-content">
+          <span class="about-badge">关于满分虎</span>
+          <h2>不只提分，更要培养一生的运动习惯</h2>
+          <p>满分虎是针对青少年体质健康与应试满分问题的解决方案。意在通过"提升应试分数"的方式，开启每个中国家庭对于孩子身体素质全面提升的意识；帮助每一位孩子从小建立正确的运动模式、培养终身的运动习惯。</p>
+          <div class="about-features">
+            <div class="about-feature">
+              <span class="feature-icon">✓</span>
+              <span>前国家队运动员教练团队</span>
+            </div>
+            <div class="about-feature">
+              <span class="feature-icon">✓</span>
+              <span>个体化训练方案定制</span>
+            </div>
+            <div class="about-feature">
+              <span class="feature-icon">✓</span>
+              <span>从兴趣培养到专业输送</span>
+            </div>
+          </div>
+          <a href="/contact/" class="btn btn-primary">预约免费体验 →</a>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-inner">
+        <h2>让孩子爱上运动，从满分虎开始</h2>
+        <p>免费体验课预约中，来试试就知道</p>
+        <a href="/contact/" class="btn btn-cta">立即预约 →</a>
       </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .hero-banner { position: relative; max-width: 1200px; margin: 0 auto; border-radius: 0 0 12px 12px; overflow: hidden; }
-  .carousel {
-    position: relative;
-    width: 100%;
-    height: 420px;
-    overflow: hidden;
-    background: #222;
-  }
-  .carousel-slides {
-    position: relative;
-    width: 100%;
-    height: 100%;
-  }
-  .carousel-slide {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    transition: opacity 0.8s ease;
-    z-index: 0;
-  }
-  .carousel-slide.active {
-    opacity: 1;
-    z-index: 1;
-  }
-  .carousel-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
-    display: block;
-  }
-  .carousel-overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    background: rgba(0,0,0,0.2);
-    color: #fff;
-    padding: 24px;
-  }
-  .carousel-title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 12px;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    letter-spacing: 2px;
-  }
-  .carousel-sub {
-    font-size: 1.15rem;
-    margin-bottom: 28px;
-    opacity: 0.9;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
-  }
-  .btn-lg {
-    padding: 14px 40px;
-    font-size: 1.05rem;
-    border-radius: 8px;
-    font-weight: 700;
-  }
-  .carousel-dots {
-    position: absolute;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 12px;
-    z-index: 10;
-  }
-  .dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.4);
-    cursor: pointer;
-    transition: background .3s;
-  }
-  .dot.active {
-    background: #fff;
-  }
-  .carousel-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-    background: rgba(0,0,0,0.3);
-    color: #fff;
-    border: none;
-    font-size: 1.8rem;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background .3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .carousel-arrow:hover {
-    background: rgba(0,0,0,0.6);
-  }
-  .carousel-prev { left: 20px; }
-  .carousel-next { right: 20px; }
-  
-  @media (max-width: 768px) {
-    .carousel { height: 280px; }
-    .carousel-title { font-size: 1.6rem; }
-    .carousel-sub { font-size: 1rem; }
-    .carousel-arrow { width: 36px; height: 36px; font-size: 1.2rem; }
-    .hero-banner { border-radius: 0; }
-  }
-  .video-wrapper {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #f0f0f0;
-  }
-  .video-wrapper iframe {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-  .card { overflow: hidden; }
-  .course-img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    display: block;
-  }
-  .card-body { padding: 24px; }
-  .card-body h3 { margin-bottom: 8px; }
-  .text-muted { color: var(--c-text-muted); }
+/* ===== Hero Banner ===== */
+.hero-banner { position: relative; max-width: 1200px; margin: 0 auto; border-radius: 0 0 12px 12px; overflow: hidden; }
+.carousel { position: relative; width: 100%; height: 420px; overflow: hidden; background: #222; }
+.carousel-slides { position: relative; width: 100%; height: 100%; }
+.carousel-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.8s ease; z-index: 0; }
+.carousel-slide.active { opacity: 1; z-index: 1; }
+.carousel-img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+.carousel-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+  background: linear-gradient(135deg, rgba(0,0,0,0.45), rgba(0,0,0,0.15));
+  color: #fff; padding: 24px;
+}
+.carousel-badge {
+  display: inline-block; padding: 4px 14px; border-radius: 20px;
+  background: rgba(255,107,53,0.85); color: #fff;
+  font-size: 0.8rem; font-weight: 600; letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+.carousel-title {
+  font-size: 2.5rem; font-weight: 800; margin-bottom: 10px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3); letter-spacing: 2px;
+}
+.carousel-sub { font-size: 1.1rem; margin-bottom: 24px; opacity: 0.9; text-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+.btn-lg { padding: 14px 40px; font-size: 1.05rem; border-radius: 8px; font-weight: 700; }
+.carousel-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 10; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.4); cursor: pointer; transition: all .3s; }
+.dot.active { background: #FF6B35; width: 28px; border-radius: 5px; }
+.carousel-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
+  background: rgba(0,0,0,0.25); color: #fff; border: none;
+  font-size: 1.5rem; width: 42px; height: 42px; border-radius: 50%;
+  cursor: pointer; transition: background .3s; display: flex; align-items: center; justify-content: center;
+}
+.carousel-arrow:hover { background: rgba(0,0,0,0.5); }
+.carousel-prev { left: 16px; }
+.carousel-next { right: 16px; }
+@media (max-width: 768px) {
+  .carousel { height: 280px; }
+  .carousel-title { font-size: 1.5rem; }
+  .carousel-sub { font-size: 0.95rem; }
+  .carousel-arrow { width: 32px; height: 32px; font-size: 1.1rem; }
+  .hero-banner { border-radius: 0; }
+}
+
+/* ===== Stats Bar ===== */
+.stats-bar { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 32px 0; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center; }
+.stat-item { display: flex; flex-direction: column; gap: 4px; }
+.stat-number { font-size: 2rem; font-weight: 800; color: #FF6B35; letter-spacing: -0.5px; }
+.stat-label { font-size: 0.9rem; color: #666; }
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .stats-bar { padding: 24px 0; }
+}
+
+/* ===== Section ===== */
+.section { padding: 80px 0; }
+.section-title { font-size: 1.8rem; text-align: center; margin-bottom: 8px; color: #1E272E; font-weight: 700; }
+.section-title::after { content: ""; display: block; width: 40px; height: 3px; background: #FF6B35; margin: 12px auto 0; border-radius: 2px; }
+.section-desc { text-align: center; color: #888; font-size: 1rem; margin-bottom: 48px; }
+
+/* ===== Course Cards ===== */
+.course-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.course-card {
+  background: #fff; border-radius: 12px; overflow: hidden;
+  border: 1px solid #eee; transition: all 0.3s ease;
+}
+.course-card:hover { border-color: #FF6B35; box-shadow: 0 8px 32px rgba(255,107,53,0.1); transform: translateY(-4px); }
+.course-img-wrap { position: relative; height: 200px; overflow: hidden; background: #f5f5f5; }
+.course-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.course-tag {
+  position: absolute; top: 12px; left: 12px;
+  padding: 3px 12px; border-radius: 20px;
+  background: #FF6B35; color: #fff;
+  font-size: 0.75rem; font-weight: 600;
+}
+.tag-green { background: #44BD32; }
+.tag-blue { background: #0097E6; }
+.course-body { padding: 20px; }
+.course-body h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; color: #1E272E; }
+.course-body p { font-size: 0.88rem; color: #666; line-height: 1.6; margin-bottom: 14px; }
+.course-meta { display: flex; gap: 16px; margin-bottom: 16px; }
+.meta-item { font-size: 0.8rem; color: #888; }
+@media (max-width: 900px) { .course-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .course-grid { grid-template-columns: 1fr; } .section { padding: 48px 0; } }
+
+/* ===== About Section ===== */
+.about-section { background: #F8F9FA; }
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.about-badge {
+  display: inline-block; padding: 3px 12px; border-radius: 20px;
+  background: #FF6B35; color: #fff; font-size: 0.78rem; font-weight: 600; margin-bottom: 12px;
+}
+.about-content h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 16px; line-height: 1.4; color: #1E272E; }
+.about-content > p { font-size: 0.9rem; color: #555; line-height: 1.7; margin-bottom: 20px; }
+.about-features { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.about-feature { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: #444; }
+.feature-icon { color: #44BD32; font-weight: 700; font-size: 1rem; }
+@media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+.video-wrapper {
+  position: relative; width: 100%; aspect-ratio: 16 / 9;
+  border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+/* ===== CTA Section ===== */
+.cta-section { padding: 80px 0; }
+.cta-inner {
+  text-align: center; padding: 48px; border-radius: 16px;
+  background: linear-gradient(135deg, #FF6B35, #FF8C42);
+  color: #fff;
+}
+.cta-inner h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; }
+.cta-inner p { font-size: 1rem; opacity: 0.85; margin-bottom: 24px; }
+.btn-cta {
+  display: inline-block; padding: 14px 40px; border-radius: 8px;
+  background: #fff; color: #FF6B35; font-weight: 700; font-size: 1rem;
+  transition: all .3s;
+}
+.btn-cta:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
 </style>
 
 <script>
-  (function() {
-    var slides = document.querySelectorAll('.carousel-slide');
-    var dots = document.querySelectorAll('.dot');
-    var prev = document.querySelector('.carousel-prev');
-    var next = document.querySelector('.carousel-next');
-    var current = 0;
-    var timer;
-
-    function goTo(index) {
-      slides.forEach(function(s, i) {
-        s.classList.toggle('active', i === index);
-      });
-      dots.forEach(function(d, i) {
-        d.classList.toggle('active', i === index);
-      });
-      current = index;
-    }
-
-    function nextSlide() {
-      goTo((current + 1) % slides.length);
-    }
-
-    function prevSlide() {
-      goTo((current - 1 + slides.length) % slides.length);
-    }
-
-    function resetTimer() {
-      clearInterval(timer);
-      timer = setInterval(nextSlide, 5000);
-    }
-
-    if (slides.length) {
-      goTo(0);
-      timer = setInterval(nextSlide, 5000);
-      dots.forEach(function(d) {
-        d.addEventListener('click', function() {
-          goTo(parseInt(this.dataset.slide));
-          resetTimer();
-        });
-      });
-      if (prev) { prev.addEventListener('click', function() { prevSlide(); resetTimer(); }); }
-      if (next) { next.addEventListener('click', function() { nextSlide(); resetTimer(); }); }
-    }
-  })();
+(function() {
+  var slides = document.querySelectorAll('.carousel-slide');
+  var dots = document.querySelectorAll('.dot');
+  var prev = document.querySelector('.carousel-prev');
+  var next = document.querySelector('.carousel-next');
+  var current = 0, timer;
+  function goTo(index) {
+    slides.forEach(function(s, i) { s.classList.toggle('active', i === index); });
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === index); });
+    current = index;
+  }
+  function nextSlide() { goTo((current + 1) % slides.length); }
+  function prevSlide() { goTo((current - 1 + slides.length) % slides.length); }
+  function resetTimer() { clearInterval(timer); timer = setInterval(nextSlide, 5000); }
+  if (slides.length) {
+    goTo(0); timer = setInterval(nextSlide, 5000);
+    dots.forEach(function(d) { d.addEventListener('click', function() { goTo(parseInt(this.dataset.slide)); resetTimer(); }); });
+    if (prev) { prev.addEventListener('click', function() { prevSlide(); resetTimer(); }); }
+    if (next) { next.addEventListener('click', function() { nextSlide(); resetTimer(); }); }
+  }
+})();
 </script>
