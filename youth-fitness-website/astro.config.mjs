@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   site: 'https://www.manfenhu.com',
@@ -9,7 +10,10 @@ export default defineConfig({
     mdx(),
   ],
   output: 'static',
-    build: {
+  vite: {
+    plugins: [tailwindcss()],
+  },
+  build: {
     inlineStylesheets: 'auto',
   },
 });
