@@ -2,58 +2,210 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="课程体系 - 青少年体能培训机构">
-  <section class="page-hero" style="background:linear-gradient(135deg, var(--c-primary), #FF8C42);">
+<BaseLayout title="课程体系 - 满分虎中考体育">
+  <section class="page-hero">
     <div class="container">
+      <span class="hero-badge">OUR COURSES</span>
       <h1>课程体系</h1>
-      <p>科学分龄，因材施教</p>
+      <p>科学分龄，因材施教，三大课程覆盖从兴趣培养到升学冲刺的完整路径</p>
     </div>
   </section>
 
   <section class="section">
     <div class="container">
-      <div class="grid-3">
-        <div class="card course-card">
-          <img src="/images/courses/zhongkao.jpg.png" alt="中考体育特训" class="course-img" />
-          <div class="card-body">
+      <div class="course-grid">
+        <div class="course-card">
+          <div class="course-img-wrap">
+            <img src="/images/courses/zhongkao.jpg.png" alt="中考体育特训" class="course-img" />
+            <span class="course-tag">提分冲刺</span>
+          </div>
+          <div class="course-body">
             <h3>中考体育特训</h3>
-            <p class="text-muted">针对中考体育测试项目，专项提分训练。</p>
-            <a href="/courses/zhongkao/" class="btn btn-outline btn-sm">查看详情</a>
+            <p>针对北京中考体育测试项目，从800米到引体向上，专项提分训练，每期都能看到提升后的自己。</p>
+            <div class="course-meta">
+              <span class="meta-item">📅 5节课/期</span>
+              <span class="meta-item">👥 2-4人小班</span>
+            </div>
+            <div class="course-features">
+              <span class="cf">✅ 中考体育模拟测试</span>
+              <span class="cf">✅ 个体化训练方案</span>
+              <span class="cf">✅ 动作纠正+心理辅导</span>
+            </div>
+            <a href="/courses/zhongkao/" class="btn btn-primary">查看详情 →</a>
           </div>
         </div>
-        <div class="card course-card">
-          <img src="/images/courses/ertong.jpg.png" alt="少儿体能训练" class="course-img" />
-          <div class="card-body">
+
+        <div class="course-card">
+          <div class="course-img-wrap">
+            <img src="/images/courses/ertong.jpg.png" alt="少儿体能训练" class="course-img" />
+            <span class="course-tag tag-green">基础体能</span>
+          </div>
+          <div class="course-body">
             <h3>少儿体能训练</h3>
-            <p class="text-muted">4-12岁少儿基础体能，培养运动兴趣。</p>
-            <a href="/courses/ertong/" class="btn btn-outline btn-sm">查看详情</a>
+            <p>4-12岁少儿基础体能训练，通过趣味运动培养运动兴趣和习惯，为未来的专项发展打好身体基础。</p>
+            <div class="course-meta">
+              <span class="meta-item">📅 30节课/期</span>
+              <span class="meta-item">👥 8-10人小班</span>
+            </div>
+            <div class="course-features">
+              <span class="cf">✅ 趣味化游戏教学</span>
+              <span class="cf">✅ 分龄分段训练</span>
+              <span class="cf">✅ 体态评估+矫正</span>
+            </div>
+            <a href="/courses/ertong/" class="btn btn-primary">查看详情 →</a>
           </div>
         </div>
-        <div class="card course-card">
-          <img src="/images/courses/shouqiu.jpg.png" alt="手球专项特训" class="course-img" />
-          <div class="card-body">
+
+        <div class="course-card card-highlight">
+          <div class="course-img-wrap">
+            <img src="/images/courses/shouqiu.jpg.png" alt="手球专项特训" class="course-img" />
+            <span class="course-tag tag-blue">专业输送</span>
+          </div>
+          <div class="course-body">
             <h3>手球专项特训</h3>
-            <p class="text-muted">专业手球技战术训练，培养团队协作。</p>
-            <a href="/courses/shouqiu/" class="btn btn-outline btn-sm">查看详情</a>
+            <p>前国家队运动员执教，专业手球技战术训练，培养团队协作能力，专业队输送，升学保障。</p>
+            <div class="course-meta">
+              <span class="meta-item">📅 20节课/期</span>
+              <span class="meta-item">👥 8-10人小班</span>
+            </div>
+            <div class="course-features">
+              <span class="cf">✅ 前国家队教练亲授</span>
+              <span class="cf">✅ 专业队选拔推荐</span>
+              <span class="cf">✅ 体育特长升学规划</span>
+            </div>
+            <a href="/courses/shouqiu/" class="btn btn-primary">查看详情 →</a>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section faq-section">
+    <div class="container">
+      <h2 class="section-title">为什么选择满分虎</h2>
+      <div class="why-grid">
+        <div class="why-item">
+          <span class="why-icon">🎯</span>
+          <h3>精准提分</h3>
+          <p>紧扣北京中考体育评分标准，针对性训练，不做无用功</p>
+        </div>
+        <div class="why-item">
+          <span class="why-icon">👨‍🏫</span>
+          <h3>专业师资</h3>
+          <p>前国家队运动员领衔，所有教练持证上岗，经验丰富</p>
+        </div>
+        <div class="why-item">
+          <span class="why-icon">📋</span>
+          <h3>个体化方案</h3>
+          <p>每个孩子入学前体测评估，定制专属训练计划</p>
+        </div>
+        <div class="why-item">
+          <span class="why-icon">📈</span>
+          <h3>追踪反馈</h3>
+          <p>每节课后训练报告，家长随时掌握孩子进步情况</p>
+        </div>
+        <div class="why-item">
+          <span class="why-icon">🏆</span>
+          <h3>升学规划</h3>
+          <p>从兴趣培养到专业输送，打通体育升学之路</p>
+        </div>
+        <div class="why-item">
+          <span class="why-icon">🤝</span>
+          <h3>小班教学</h3>
+          <p>严格控制班级人数，确保每个孩子都能被关注到</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-inner">
+        <h2>不确定孩子适合什么课程？</h2>
+        <p>免费体验课，先试试再说</p>
+        <a href="/contact/" class="btn btn-cta">预约免费体验 →</a>
       </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .page-hero { color: #fff; padding: 64px 0; text-align: center; }
-  .page-hero h1 { font-size: 2.5rem; margin-bottom: 8px; }
-  .course-card { overflow: hidden; }
-  .course-img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    display: block;
-  }
-  .course-card .card-body { padding: 20px; }
-  .course-card h3 { margin-bottom: 8px; }
-  .text-muted { color: var(--c-text-muted); font-size: .9rem; margin-bottom: 16px; }
-  .btn-sm { padding: 10px 20px; font-size: .9rem; }
+.page-hero {
+  background: linear-gradient(135deg, #FF6B35, #FF8C42);
+  color: #fff; padding: 56px 0; text-align: center;
+}
+.hero-badge {
+  display: inline-block; padding: 3px 12px; border-radius: 20px;
+  background: rgba(255,255,255,0.2); color: #fff;
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 2px; margin-bottom: 12px;
+}
+.page-hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; }
+.page-hero p { font-size: 1rem; opacity: 0.85; max-width: 500px; margin: 0 auto; }
+
+.section { padding: 80px 0; }
+.section-title { font-size: 1.6rem; text-align: center; margin-bottom: 48px; font-weight: 700; color: #1E272E; }
+.section-title::after { content: ""; display: block; width: 40px; height: 3px; background: #FF6B35; margin: 12px auto 0; border-radius: 2px; }
+
+.course-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.course-card {
+  background: #fff; border-radius: 12px; overflow: hidden;
+  border: 1px solid #eee; transition: all 0.3s ease;
+}
+.course-card:hover { border-color: #FF6B35; box-shadow: 0 8px 32px rgba(255,107,53,0.1); transform: translateY(-4px); }
+.card-highlight { border-color: #FF6B35; border-width: 2px; }
+.course-img-wrap { position: relative; height: 200px; overflow: hidden; background: #f5f5f5; }
+.course-img { width: 100%; height: 100%; object-fit: cover; }
+.course-tag {
+  position: absolute; top: 12px; left: 12px; padding: 3px 12px; border-radius: 20px;
+  background: #FF6B35; color: #fff; font-size: 0.75rem; font-weight: 600;
+}
+.tag-green { background: #44BD32; }
+.tag-blue { background: #0097E6; }
+.course-body { padding: 20px; }
+.course-body h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; color: #1E272E; }
+.course-body > p { font-size: 0.88rem; color: #555; line-height: 1.6; margin-bottom: 14px; }
+.course-meta { display: flex; gap: 16px; margin-bottom: 14px; }
+.meta-item { font-size: 0.82rem; color: #888; }
+.course-features { display: flex; flex-direction: column; gap: 4px; margin-bottom: 18px; }
+.cf { font-size: 0.82rem; color: #555; }
+.btn-primary {
+  display: inline-block; padding: 10px 24px; border-radius: 8px;
+  background: #FF6B35; color: #fff; font-weight: 600; font-size: 0.9rem;
+  border: none; cursor: pointer; transition: all .25s;
+}
+.btn-primary:hover { background: #E8581F; }
+@media (max-width: 900px) { .course-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) {
+  .course-grid { grid-template-columns: 1fr; }
+  .section { padding: 48px 0; }
+  .page-hero h1 { font-size: 1.6rem; }
+}
+
+/* Why us */
+.why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.why-item {
+  background: #fff; border-radius: 12px; padding: 28px 24px;
+  border: 1px solid #eee; text-align: center; transition: all .3s;
+}
+.why-item:hover { border-color: #FF6B35; }
+.why-icon { font-size: 2rem; display: block; margin-bottom: 12px; }
+.why-item h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: #1E272E; }
+.why-item p { font-size: 0.85rem; color: #666; line-height: 1.5; }
+@media (max-width: 768px) { .why-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .why-grid { grid-template-columns: 1fr; } }
+
+/* CTA */
+.cta-section { padding: 60px 0; }
+.cta-inner {
+  text-align: center; padding: 48px; border-radius: 16px;
+  background: linear-gradient(135deg, #FF6B35, #FF8C42); color: #fff;
+}
+.cta-inner h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; }
+.cta-inner p { font-size: 0.95rem; opacity: 0.85; margin-bottom: 20px; }
+.btn-cta {
+  display: inline-block; padding: 12px 36px; border-radius: 8px;
+  background: #fff; color: #FF6B35; font-weight: 700; font-size: 0.95rem;
+  transition: all .3s;
+}
+.btn-cta:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
 </style>
