@@ -3,13 +3,43 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
 <BaseLayout title="学员风采 - 满分虎体育">
-  <section class="page-hero" style="background:linear-gradient(135deg, var(--c-accent), #00E676);">
-    <div class="container"><h1>学员风采</h1></div>
+  <section class="page-hero">
+    <div class="container">
+      <span class="hero-badge">STUDENTS</span>
+      <h1>学员风采</h1>
+      <p>每一个孩子的进步，都是满分虎最好的名片</p>
+    </div>
   </section>
 
+  <!-- 成绩亮点 -->
+  <section class="stats-bar">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-number">10000+</span>
+          <span class="stat-label">累计服务学员</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">98%</span>
+          <span class="stat-label">中考体育满分率</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">500+</span>
+          <span class="stat-label">满分学员</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">50+</span>
+          <span class="stat-label">专业队输送人数</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 训练瞬间 -->
   <section class="section">
     <div class="container">
       <h2 class="section-title">训练瞬间</h2>
+      <p class="section-desc">记录孩子们在满分虎的每一次进步和每一个笑容</p>
       <div class="gallery-grid">
         <div class="gallery-item">
           <img src="/images/students/students-running.jpg" alt="学员操场跑步训练" loading="lazy" />
@@ -47,25 +77,33 @@ import BaseLayout from '@layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <section class="section" style="background:var(--c-surface);">
+  <!-- 学员故事 -->
+  <section class="section stories-section">
     <div class="container">
       <h2 class="section-title">学员故事</h2>
+      <p class="section-desc">真实的成长经历，给更多家庭信心</p>
       <div class="stories-grid">
         <div class="story-card">
-          <img src="/images/students/student-growth.jpg" alt="学员小雅成长故事" class="story-image" loading="lazy" />
+          <div class="story-image-wrap">
+            <img src="/images/students/student-growth.jpg" alt="学员小雅成长故事" class="story-image" loading="lazy" />
+            <span class="story-quote">"</span>
+          </div>
           <div class="story-body">
+            <span class="story-tag">小雅 · 初三学员 · 训练18个月</span>
             <h3>从体育勉强及格到中考满分，我长高了8厘米</h3>
-            <p class="story-tag">小雅 · 初三学员 · 训练18个月</p>
             <p>刚来满分虎的时候，我800米跑5分10秒，立定跳远只有1.55米，体育成绩一直在及格线附近晃。更让我爸妈担心的是，我比班里女生矮半个头，体质弱，换季就感冒。</p>
             <p>一年半的系统训练，变化远不止体育成绩——我的800米跑进了3分30秒，立定跳远达到1.90米，中考体育拿了满分。更让我惊喜的是，训练期间我长高了8厘米，感冒少了，上课注意力也比以前集中了。</p>
             <p>现在想想，当初只是想别让体育拖后腿，没想到身体素质全面提升了。整个人自信多了，走路都挺着腰板。</p>
           </div>
         </div>
         <div class="story-card">
-          <img src="/images/students/student-handball.jpg" alt="手球专业学员故事" class="story-image" loading="lazy" />
+          <div class="story-image-wrap">
+            <img src="/images/students/student-handball.jpg" alt="手球专业学员故事" class="story-image" loading="lazy" />
+            <span class="story-quote">"</span>
+          </div>
           <div class="story-body">
+            <span class="story-tag">小李 · 大二学员 · 手球专项训练6年</span>
             <h3>手球少年：体育特长让他走得更远</h3>
-            <p class="story-tag">小李 · 大二学员 · 手球专项训练6年</p>
             <p>小李从初一开始跟着满分虎训练，本来只是为了中考体育拿个好成绩。教练发现他上肢力量和爆发力突出，协调性好，建议他尝试手球专项训练。</p>
             <p>六年下来，小李不仅中考体育轻松满分，手球水平也达到了专业队选拔标准。更重要的是，长期的专业训练让他的身体素质远超同龄人——身高从入学时的1.62米长到了1.85米，作息规律了，学习效率也提高了，大学期间依然是校队主力。</p>
             <p>如今小李已经是大学校队的主力球员，体育不只是分数，更成了他人生的一张牌。满分虎的手球教练是前国家队运动员，在专业指导和升学规划方面经验丰富。对于有体育特长的孩子来说，坚持训练带来的不仅是体考分数，更是一条与众不同的发展路径。</p>
@@ -75,114 +113,129 @@ import BaseLayout from '@layouts/BaseLayout.astro';
     </div>
   </section>
 
+  <!-- 荣誉墙 -->
   <section class="section">
     <div class="container">
       <h2 class="section-title">荣誉墙</h2>
-      <div class="grid-3">
-        <div class="placeholder" style="min-height:180px;">🏆 荣誉证书/奖杯1</div>
-        <div class="placeholder" style="min-height:180px;">🏆 荣誉证书/奖杯2</div>
-        <div class="placeholder" style="min-height:180px;">🏆 荣誉证书/奖杯3</div>
+      <p class="section-desc">实力证明一切</p>
+      <div class="honor-grid">
+        <div class="honor-item">
+          <span class="honor-icon">🏅</span>
+          <strong>北京中考体育培训</strong>
+          <span>行业领军品牌</span>
+        </div>
+        <div class="honor-item">
+          <span class="honor-icon">🏆</span>
+          <strong>北京市手球协会</strong>
+          <span>青少年训练基地</span>
+        </div>
+        <div class="honor-item">
+          <span class="honor-icon">🎖️</span>
+          <strong>前国家队运动员</strong>
+          <span>教练团队资质认证</span>
+        </div>
+        <div class="honor-item">
+          <span class="honor-icon">📜</span>
+          <strong>中国体育科学学会</strong>
+          <span>会员单位</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-inner">
+        <h2>下一个满分故事，会是你的孩子吗？</h2>
+        <p>免费体验课预约中</p>
+        <a href="/contact/" class="btn btn-cta">立即预约 →</a>
       </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .page-hero { color: #fff; padding: 48px 0; text-align: center; }
-  .page-hero h1 { font-size: 2rem; }
+.page-hero {
+  background: linear-gradient(135deg, #44BD32, #00E676);
+  color: #fff; padding: 56px 0; text-align: center;
+}
+.hero-badge {
+  display: inline-block; padding: 3px 12px; border-radius: 20px;
+  background: rgba(255,255,255,0.2); color: #fff;
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 2px; margin-bottom: 12px;
+}
+.page-hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; }
+.page-hero p { font-size: 1rem; opacity: 0.85; }
 
-  .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-  }
+.stats-bar { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 32px 0; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center; }
+.stat-item { display: flex; flex-direction: column; gap: 4px; }
+.stat-number { font-size: 2rem; font-weight: 800; color: #44BD32; letter-spacing: -0.5px; }
+.stat-label { font-size: 0.9rem; color: #666; }
+@media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; } .stats-bar { padding: 24px 0; } }
 
-  .gallery-item {
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-    aspect-ratio: 1;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    transition: transform 0.2s;
-  }
+.section { padding: 80px 0; }
+.section-title { font-size: 1.6rem; text-align: center; margin-bottom: 8px; color: #1E272E; font-weight: 700; }
+.section-title::after { content: ""; display: block; width: 40px; height: 3px; background: #44BD32; margin: 12px auto 0; border-radius: 2px; }
+.section-desc { text-align: center; color: #888; font-size: 0.95rem; margin-bottom: 40px; }
+.stories-section { background: #F8F9FA; }
 
-  .gallery-item:hover {
-    transform: translateY(-4px);
-  }
+.gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.gallery-item {
+  border-radius: 12px; overflow: hidden; position: relative; aspect-ratio: 1;
+  border: 1px solid #eee; transition: all .3s;
+}
+.gallery-item:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gallery-caption {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  color: #fff; padding: 24px 12px 10px; font-size: 0.82rem; text-align: center;
+}
+@media (max-width: 768px) { .gallery-grid { grid-template-columns: repeat(2, 1fr); } }
 
-  .gallery-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
+.stories-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+.story-card {
+  background: #fff; border-radius: 16px; overflow: hidden;
+  border: 1px solid #eee; transition: all .3s;
+}
+.story-card:hover { border-color: #44BD32; box-shadow: 0 8px 32px rgba(68,189,50,0.1); }
+.story-image-wrap { position: relative; overflow: hidden; }
+.story-image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
+.story-quote {
+  position: absolute; top: 12px; left: 16px;
+  font-size: 4rem; color: rgba(255,255,255,0.3); font-family: Georgia, serif; line-height: 1;
+}
+.story-body { padding: 24px; }
+.story-tag { color: #44BD32; font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 8px; }
+.story-body h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; line-height: 1.5; color: #1E272E; }
+.story-body p { color: #555; line-height: 1.7; margin-bottom: 10px; font-size: 0.88rem; }
+.story-body p:last-child { margin-bottom: 0; }
+@media (max-width: 768px) { .stories-grid { grid-template-columns: 1fr; } }
 
-  .gallery-caption {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.7));
-    color: #fff;
-    padding: 24px 12px 10px;
-    font-size: 0.85rem;
-    text-align: center;
-  }
+.honor-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.honor-item {
+  background: #fff; border: 1px solid #eee; border-radius: 12px;
+  padding: 28px 20px; text-align: center; transition: all .3s;
+}
+.honor-item:hover { border-color: #44BD32; transform: translateY(-4px); }
+.honor-icon { font-size: 2rem; display: block; margin-bottom: 10px; }
+.honor-item strong { font-size: 0.9rem; display: block; color: #1E272E; margin-bottom: 4px; }
+.honor-item span { font-size: 0.8rem; color: #888; }
+@media (max-width: 768px) { .honor-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .honor-grid { grid-template-columns: 1fr; } }
 
-  .stories-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 32px;
-  }
-
-  .story-card {
-    background: #fff;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  }
-
-  .story-image {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    object-position: top center;
-    display: block;
-  }
-
-  .story-body {
-    padding: 24px;
-  }
-
-  .story-body h3 {
-    font-size: 1.15rem;
-    margin-bottom: 8px;
-    line-height: 1.5;
-  }
-
-  .story-tag {
-    color: var(--c-primary);
-    font-size: 0.85rem;
-    font-weight: 500;
-    margin-bottom: 12px;
-  }
-
-  .story-body p {
-    color: #555;
-    line-height: 1.7;
-    margin-bottom: 10px;
-  }
-
-  .story-body p:last-child {
-    margin-bottom: 0;
-  }
-
-  @media (max-width: 768px) {
-    .gallery-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    .stories-grid {
-      grid-template-columns: 1fr;
-    }
-  }
+.cta-section { padding: 60px 0; }
+.cta-inner {
+  text-align: center; padding: 48px; border-radius: 16px;
+  background: linear-gradient(135deg, #44BD32, #66D855); color: #fff;
+}
+.cta-inner h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; }
+.cta-inner p { font-size: 0.95rem; opacity: 0.85; margin-bottom: 20px; }
+.btn-cta {
+  display: inline-block; padding: 12px 36px; border-radius: 8px;
+  background: #fff; color: #44BD32; font-weight: 700; font-size: 0.95rem;
+  transition: all .3s;
+}
+.btn-cta:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
 </style>
