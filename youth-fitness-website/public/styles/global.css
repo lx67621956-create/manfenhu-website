@@ -1,3 +1,28 @@
+/* ===== Tailwind CSS + DaisyUI ===== */
+@import "tailwindcss";
+@import "daisyui";
+
+/* DaisyUI 主题定制 — 满分虎品牌色 */
+@plugin "daisyui/theme" {
+  name: "manfenhu";
+  default: true;
+  --color-primary: #FF6B35;
+  --color-primary-content: #ffffff;
+  --color-secondary: #0097E6;
+  --color-accent: #44BD32;
+  --color-neutral: #1E272E;
+  --color-base-100: #ffffff;
+  --color-base-200: #F5F7FA;
+  --color-base-300: #DFE6E9;
+  --color-base-content: #1E272E;
+  --color-info: #0097E6;
+  --color-success: #44BD32;
+  --color-warning: #FFB800;
+  --color-error: #FF4757;
+  --radius-box: 12px;
+  --radius-field: 8px;
+}
+
 /* ===== 设计令牌 ===== */
 :root {
   --c-primary: #FF6B35;      /* 活力橙 */
