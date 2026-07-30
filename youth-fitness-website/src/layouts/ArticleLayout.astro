@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 
-interface Props {
+export interface Props {
   title: string;
   description?: string;
   pubDate?: string;
@@ -15,7 +15,7 @@ const displayDate = pubDate || date;
 const displayImage = image || coverImage;
 ---
 
-<BaseLayout title={title + ' - 满分虎体育'}>
+<BaseLayout title={title + ' - 满分虎体育'} description={description} image={displayImage}>
   <section class="page-hero" style="background:linear-gradient(135deg, var(--c-secondary), #00B8D4);">
     <div class="container">
       <h1>{title}</h1>
@@ -33,7 +33,7 @@ const displayImage = image || coverImage;
 
   <section class="article-content">
     <div class="container">
-      <article class="article-body">
+      <article class="article-body markdown-body">
         <slot />
       </article>
       <div class="article-footer">
@@ -47,7 +47,7 @@ const displayImage = image || coverImage;
   .page-hero { color: #fff; padding: 64px 0; text-align: center; }
   .page-hero h1 { font-size: 2rem; margin-bottom: 16px; }
   .page-hero .meta { opacity: 0.9; font-size: 0.95rem; }
-  
+
   .article-hero-image {
     padding: 0 0 32px;
     aspect-ratio: 2 / 1;
@@ -66,17 +66,57 @@ const displayImage = image || coverImage;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   }
-  
+
   .article-content { padding: 48px 0 64px; }
   .article-content .container { max-width: 800px; margin: 0 auto; }
-  .article-body { line-height: 1.8; }
-  .article-body :global(p) { margin-bottom: 20px; }
-  .article-body :global(h2) { margin: 48px 0 24px; color: var(--c-primary); font-size: 1.5rem; }
-  .article-body :global(h3) { margin: 32px 0 16px; color: var(--c-text); font-size: 1.25rem; }
-  .article-body :global(ul), .article-body :global(ol) { margin: 16px 0; padding-left: 24px; }
-  .article-body :global(li) { margin-bottom: 8px; }
-  .article-body :global(img) { max-width: 100%; border-radius: 8px; margin: 24px 0; }
+
+  /* Markdown 渲染样式 — 确保 # --- ** 等语法不显示乱码 */
+  .markdown-body { line-height: 1.8; font-size: 1.05rem; color: var(--c-text); }
+  .markdown-body :global(p) { margin-bottom: 20px; }
+  .markdown-body :global(h2) {
+    margin: 48px 0 24px; color: var(--c-primary);
+    font-size: 1.5rem; font-weight: 700;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--c-border);
+  }
+  .markdown-body :global(h3) { margin: 32px 0 16px; color: var(--c-text); font-size: 1.25rem; font-weight: 600; }
+  .markdown-body :global(h4) { margin: 24px 0 12px; font-size: 1.1rem; font-weight: 600; }
+  .markdown-body :global(ul), .markdown-body :global(ol) { margin: 16px 0; padding-left: 24px; }
+  .markdown-body :global(li) { margin-bottom: 8px; }
+  .markdown-body :global(li > p) { margin-bottom: 4px; }
+  .markdown-body :global(img) { max-width: 100%; border-radius: 8px; margin: 24px 0; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .markdown-body :global(blockquote) {
+    margin: 24px 0; padding: 16px 20px;
+    border-left: 4px solid var(--c-primary);
+    background: var(--c-surface);
+    border-radius: 0 8px 8px 0;
+    color: var(--c-text-muted);
+    font-style: normal;
+  }
+  .markdown-body :global(blockquote p) { margin-bottom: 0; }
+  .markdown-body :global(hr) { margin: 40px 0; border: none; border-top: 1px solid var(--c-border); }
+  .markdown-body :global(strong) { font-weight: 600; }
+  .markdown-body :global(code) {
+    background: var(--c-surface); padding: 2px 6px;
+    border-radius: 4px; font-size: 0.9em;
+  }
+  .markdown-body :global(pre) {
+    background: var(--c-surface); padding: 16px 20px;
+    border-radius: 8px; overflow-x: auto;
+    margin: 24px 0;
+  }
+  .markdown-body :global(pre code) { background: none; padding: 0; }
+  .markdown-body :global(table) {
+    width: 100%; border-collapse: collapse; margin: 24px 0;
+  }
+  .markdown-body :global(th), .markdown-body :global(td) {
+    border: 1px solid var(--c-border); padding: 10px 14px; text-align: left;
+  }
+  .markdown-body :global(th) { background: var(--c-surface); font-weight: 600; }
+  .markdown-body :global(a) { color: var(--c-primary); }
+  .markdown-body :global(a:hover) { text-decoration: underline; }
+
   .article-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--c-border); }
-  .back-link { color: var(--c-primary); text-decoration: none; }
+  .back-link { color: var(--c-primary); text-decoration: none; font-weight: 500; }
   .back-link:hover { text-decoration: underline; }
 </style>
