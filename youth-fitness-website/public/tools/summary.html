@@ -7,279 +7,390 @@
 <style>
   :root {
     --brand: #FF6B35;
-    --brand-dark: #E8551F;
-    --brand-soft: #FFF0E8;
-    --ink: #2D2A26;
-    --ink-2: #6B6560;
-    --ink-3: #9A938C;
-    --line: #EAE3DB;
-    --bg: #FAF6F0;
+    --brand-2: #FF8A4C;
+    --brand-3: #F04E23;
+    --brand-soft: #FFF1E8;
+    --brand-softer: #FFF7F0;
+    --ink: #2B2724;
+    --ink-2: #6E655D;
+    --ink-3: #A49A90;
+    --line: #EDE3D9;
+    --bg-top: #FCF9F4;
+    --bg-bottom: #F5EDE3;
     --card: #FFFFFF;
-    --green: #3BA55D;
-    --green-soft: #E8F5EC;
-    --radius: 14px;
-    --shadow: 0 2px 10px rgba(45,42,38,.06);
+    --green: #2FA25B;
+    --green-soft: #E6F4EB;
+    --amber: #F5A623;
+    --r-lg: 18px;
+    --r-md: 14px;
+    --r-sm: 10px;
+    --shadow-card: 0 1px 2px rgba(43,39,36,.04), 0 6px 20px rgba(43,39,36,.05);
+    --shadow-lift: 0 2px 6px rgba(255,107,53,.18), 0 10px 28px rgba(255,107,53,.22);
   }
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html { font-size: 16px; }
+  html { font-size:16px; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
     color: var(--ink);
-    padding-bottom: 96px;
     min-height: 100vh;
+    padding-bottom: 104px;
   }
 
-  /* ── 顶部 ── */
+  /* ───────── 顶部 ───────── */
   header {
-    background: linear-gradient(135deg, #FF7A45 0%, var(--brand) 60%, var(--brand-dark) 100%);
-    padding: 22px 18px 26px;
-    color: #fff;
     position: relative;
+    background: linear-gradient(135deg, #FF8F52 0%, var(--brand) 48%, var(--brand-3) 100%);
+    padding: 26px 20px 40px;
+    color: #fff;
     overflow: hidden;
   }
+  header::before {
+    content: ""; position: absolute; right: -50px; top: -70px;
+    width: 190px; height: 190px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,.16) 0%, rgba(255,255,255,0) 70%);
+  }
   header::after {
-    content: "";
-    position: absolute; right: -40px; top: -40px;
-    width: 140px; height: 140px;
-    background: rgba(255,255,255,.12);
-    border-radius: 50%;
+    content: ""; position: absolute; left: -30px; bottom: -70px;
+    width: 150px; height: 150px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 70%);
   }
-  header h1 { font-size: 20px; font-weight: 800; letter-spacing: .5px; }
-  header p { font-size: 12.5px; opacity: .92; margin-top: 4px; }
+  .head-row { display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1; }
+  .brand { display:flex; align-items:center; gap:10px; }
+  .brand-logo {
+    width: 42px; height: 42px; border-radius: 13px;
+    background: rgba(255,255,255,.22);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 22px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
+  }
+  .brand h1 { font-size: 19px; font-weight: 800; letter-spacing:.5px; line-height:1.2; }
+  .brand p { font-size: 11.5px; opacity:.9; margin-top:2px; letter-spacing:.3px; }
+  .badge {
+    font-size: 10.5px; font-weight:700; letter-spacing:1px;
+    background: rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.35);
+    padding: 5px 10px; border-radius: 999px; color:#fff;
+    backdrop-filter: blur(4px);
+  }
+  .head-sub {
+    position: relative; z-index:1;
+    margin-top: 16px;
+    background: rgba(255,255,255,.16);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: var(--r-md);
+    padding: 11px 14px;
+    font-size: 12.5px; line-height:1.6; color: #FFF4EC;
+    backdrop-filter: blur(6px);
+  }
+  .head-sub b { color:#fff; }
 
-  /* ── 人数选择 ── */
+  /* ───────── 人数选择 ───────── */
   .count-bar {
-    background: var(--card);
-    margin: -14px 14px 0;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 14px 16px;
-    display: flex; align-items: center; justify-content: space-between;
     position: relative; z-index: 2;
+    margin: -18px 14px 0;
+    background: var(--card);
     border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-card);
+    padding: 15px 18px;
+    display:flex; align-items:center; justify-content:space-between;
   }
-  .count-bar .label { font-size: 15px; font-weight: 600; }
-  .count-bar .label small { display:block; font-size: 11px; color: var(--ink-3); font-weight: 400; margin-top: 2px; }
-  .stepper { display:flex; align-items:center; gap: 14px; }
+  .count-bar .label { font-size: 15px; font-weight:700; }
+  .count-bar .label small { display:block; font-size: 11px; color:var(--ink-3); font-weight:400; margin-top:3px; }
+  .stepper { display:flex; align-items:center; gap:12px; }
   .stepper button {
-    width: 36px; height: 36px; border-radius: 50%;
-    border: 1.5px solid var(--line); background: var(--card);
-    font-size: 20px; color: var(--brand); font-weight: 700;
-    cursor: pointer; line-height: 1;
+    width: 38px; height: 38px; border-radius: 50%;
+    border: none;
+    background: var(--brand-soft); color: var(--brand);
+    font-size: 21px; font-weight:800;
+    cursor:pointer; line-height:1;
+    transition: transform .12s, background .15s;
   }
-  .stepper button:active { background: var(--brand-soft); }
-  .stepper .num { font-size: 22px; font-weight: 800; min-width: 24px; text-align: center; color: var(--ink); }
+  .stepper button:active { transform: scale(.9); background: var(--brand); color:#fff; }
+  .stepper .num {
+    font-size: 24px; font-weight:800; min-width: 26px; text-align:center;
+    font-variant-numeric: tabular-nums;
+  }
 
-  /* ── 页签 ── */
+  /* ───────── 页签 ───────── */
   .tabs {
-    display: flex; gap: 8px;
-    padding: 14px 14px 0;
-    overflow-x: auto;
-    scrollbar-width: none;
+    display:flex; gap:9px;
+    padding: 16px 14px 0;
+    overflow-x:auto; scrollbar-width:none;
   }
   .tabs::-webkit-scrollbar { display:none; }
   .tab {
     flex: 0 0 auto;
-    padding: 9px 18px;
+    padding: 10px 20px;
     border-radius: 999px;
     background: var(--card);
     border: 1.5px solid var(--line);
-    font-size: 14px; font-weight: 600; color: var(--ink-2);
-    cursor: pointer;
-  }
-  .tab.active {
-    background: var(--brand); border-color: var(--brand); color: #fff;
+    font-size: 14px; font-weight:600; color: var(--ink-2);
+    cursor:pointer;
+    transition: all .18s;
   }
   .tab .dot {
-    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
-    background: var(--green); margin-right: 6px; vertical-align: 1px;
-    visibility: hidden;
+    display:inline-block; width:7px; height:7px; border-radius:50%;
+    background: var(--green); margin-right:7px; vertical-align:2px;
+    visibility:hidden;
   }
-  .tab.filled .dot { visibility: visible; }
+  .tab.filled .dot { visibility:visible; }
+  .tab.active {
+    background: linear-gradient(135deg, var(--brand-2), var(--brand-3));
+    border-color: transparent; color:#fff;
+    box-shadow: var(--shadow-lift);
+  }
 
-  /* ── 面板 ── */
-  .panel { display: none; padding: 14px; }
-  .panel.active { display: block; }
+  /* ───────── 面板 ───────── */
+  .panel { display:none; padding: 14px; animation: fadeIn .22s ease; }
+  .panel.active { display:block; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(6px);} to { opacity:1; transform:none;} }
 
   .card {
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 16px;
+    border-radius: var(--r-lg);
+    padding: 18px;
     margin-bottom: 14px;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-card);
   }
   .card h3 {
-    font-size: 15px; font-weight: 700;
-    display: flex; align-items: center; gap: 6px;
-    margin-bottom: 12px;
+    font-size: 15px; font-weight:800;
+    display:flex; align-items:center; gap:8px;
+    margin-bottom: 14px;
   }
   .card h3 .tag {
-    font-size: 10px; font-weight: 600;
+    font-size: 10px; font-weight:700;
     color: var(--brand); background: var(--brand-soft);
-    padding: 2px 8px; border-radius: 999px;
+    padding: 3px 9px; border-radius:999px;
+    letter-spacing:.4px;
   }
 
   /* 态度句 */
-  .attitude-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .attitude-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
   .attitude-opt {
-    border: 1.5px solid var(--line); border-radius: 10px;
-    padding: 10px 12px; font-size: 12.5px; line-height: 1.5;
-    color: var(--ink-2); cursor: pointer; background: var(--card);
-    transition: all .15s;
+    position:relative;
+    border:1.5px solid var(--line); border-radius: var(--r-sm);
+    padding: 11px 13px;
+    font-size: 12.5px; line-height:1.55; color:var(--ink-2);
+    cursor:pointer; background:var(--card);
+    transition: all .16s;
+    overflow:hidden;
   }
+  .attitude-opt::before {
+    content:""; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background: linear-gradient(180deg, var(--brand-2), var(--brand-3));
+    opacity:0; transition: opacity .16s;
+  }
+  .attitude-opt:active { transform: scale(.98); }
   .attitude-opt.sel {
-    border-color: var(--brand); background: var(--brand-soft); color: var(--ink);
+    border-color: var(--brand);
+    background: linear-gradient(180deg, var(--brand-softer), var(--brand-soft));
+    color: var(--ink);
     box-shadow: 0 0 0 1px var(--brand);
   }
-  .attitude-opt .mini { font-size: 10px; color: var(--ink-3); display:block; margin-top: 2px; }
-  .attitude-hint { font-size: 11px; color: var(--ink-3); margin-top: 8px; }
+  .attitude-opt.sel::before { opacity:1; }
+  .attitude-hint { font-size: 11px; color:var(--ink-3); margin-top:10px; }
   .attitude-hint b { color: var(--brand); }
 
-  /* 分类标题 */
-  .proj-cat + .proj-cat { margin-top: 14px; }
+  /* 分类 */
+  .proj-cat + .proj-cat { margin-top: 16px; }
   .cat-title {
-    font-size: 12px; font-weight: 700; color: var(--ink-3);
-    margin-bottom: 8px;
-    display: flex; align-items: center; gap: 8px;
+    display:flex; align-items:center; gap:8px;
+    font-size: 12px; font-weight:800; color:var(--ink-3);
+    letter-spacing:.06em;
+    margin-bottom: 10px;
   }
-  .cat-title::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .cat-title .cat-ico { font-size: 14px; }
+  .cat-title::after { content:""; flex:1; height:1px; background: linear-gradient(90deg, var(--line), transparent); }
 
   /* 项目网格 */
-  .proj-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .proj-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:9px; }
   .proj {
-    border: 1.5px solid var(--line); border-radius: 10px;
-    padding: 10px 8px; text-align: center;
-    font-size: 13px; font-weight: 600; color: var(--ink-2);
-    cursor: pointer; background: var(--card); position: relative;
+    position:relative;
+    border:1.5px solid var(--line); border-radius: var(--r-sm);
+    padding: 11px 8px; text-align:center;
+    font-size: 13px; font-weight:600; color:var(--ink-2);
+    cursor:pointer; background:var(--card);
+    transition: all .16s;
   }
-  .proj .ico { font-size: 20px; display: block; margin-bottom: 3px; }
+  .proj .ico { font-size: 21px; display:block; margin-bottom:4px; transition: transform .16s; }
+  .proj:active { transform: scale(.96); }
+  .proj:active .ico { transform: scale(1.1); }
   .proj.sel {
-    border-color: var(--brand); background: var(--brand-soft); color: var(--ink);
+    border-color: var(--brand);
+    background: linear-gradient(180deg, var(--brand-softer), var(--brand-soft));
+    color: var(--ink);
+    box-shadow: 0 2px 10px rgba(255,107,53,.14);
   }
-  .proj.sel::after {
-    content: "✓"; position: absolute; top: 4px; right: 7px;
-    color: var(--brand); font-weight: 800; font-size: 13px;
+  .proj.sel .ico { transform: scale(1.08); }
+  .proj .check {
+    position:absolute; top:6px; right:8px;
+    width:16px; height:16px; border-radius:50%;
+    background: var(--brand); color:#fff;
+    font-size:10px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; transform: scale(.5);
+    transition: all .18s;
   }
+  .proj.sel .check { opacity:1; transform: scale(1); }
 
-  /* 滑块区 */
-  .slider-box {
-    display: none;
-    margin-top: 12px;
-    border-top: 1px dashed var(--line);
-    padding-top: 12px;
-  }
-  .slider-box.show { display: block; }
-  .slider-row {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 8px;
-  }
-  .slider-row .pname { font-size: 13px; font-weight: 600; flex: 1; }
+  /* 滑块 */
+  .slider-box { display:none; margin-top:14px; border-top:1px dashed var(--line); padding-top:14px; }
+  .slider-box.show { display:block; }
+  .slider-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+  .slider-row + .slider-row { margin-top: 12px; }
+  .slider-row .pname { font-size: 13px; font-weight:600; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .slider-row .pval {
-    font-size: 15px; font-weight: 800; color: var(--brand);
-    background: var(--brand-soft); border-radius: 8px;
-    padding: 2px 10px; min-width: 42px; text-align: center;
+    font-size: 14px; font-weight:800; color:var(--brand);
+    background: var(--brand-soft); border-radius:8px;
+    padding: 3px 10px; min-width:44px; text-align:center;
+    font-variant-numeric: tabular-nums;
   }
   input[type=range] {
-    -webkit-appearance: none; appearance: none;
-    width: 100%; height: 6px; border-radius: 3px;
+    -webkit-appearance:none; appearance:none;
+    width:100%; height:7px; border-radius:4px;
     background: linear-gradient(to right, var(--brand) var(--fill,80%), var(--line) var(--fill,80%));
-    outline: none;
+    outline:none;
   }
   input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 24px; height: 24px; border-radius: 50%;
-    background: #fff; border: 3px solid var(--brand);
-    box-shadow: 0 1px 4px rgba(0,0,0,.18);
-    cursor: pointer;
+    -webkit-appearance:none; appearance:none;
+    width:26px; height:26px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #fff, #F6E8DC);
+    border: 3px solid var(--brand);
+    box-shadow: 0 2px 6px rgba(43,39,36,.22);
+    cursor:pointer;
+    transition: transform .12s;
   }
+  input[type=range]::-webkit-slider-thumb:active { transform: scale(1.15); }
   input[type=range]::-moz-range-thumb {
-    width: 20px; height: 20px; border-radius: 50%;
-    background: #fff; border: 3px solid var(--brand); cursor: pointer;
+    width:22px; height:22px; border-radius:50%;
+    background:#fff; border:3px solid var(--brand); cursor:pointer;
   }
-  .slider-scale { display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-3); padding-top: 4px; }
+  .slider-scale { display:flex; justify-content:space-between; font-size:10px; color:var(--ink-3); padding-top:3px; }
 
-  /* 底部生成 */
+  /* ───────── 底部操作 ───────── */
   .bottom-bar {
-    position: fixed; left: 0; right: 0; bottom: 0;
-    padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
-    background: rgba(250,246,240,.94);
-    backdrop-filter: blur(8px);
+    position:fixed; left:0; right:0; bottom:0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: rgba(252,249,244,.92);
+    backdrop-filter: blur(12px);
     border-top: 1px solid var(--line);
-    display: flex; gap: 10px; z-index: 10;
+    display:flex; gap:10px; z-index:10;
   }
   .btn {
-    flex: 1; border: none; border-radius: 12px;
-    font-size: 16px; font-weight: 700;
-    padding: 15px 0; cursor: pointer;
+    flex:1; border:none; border-radius: 14px;
+    font-size: 16px; font-weight:800;
+    padding: 15px 0; cursor:pointer;
+    transition: transform .12s, box-shadow .15s, filter .15s;
   }
-  .btn-primary { background: var(--brand); color: #fff; box-shadow: 0 4px 14px rgba(255,107,53,.35); }
-  .btn-primary:active { background: var(--brand-dark); }
-  .btn-ghost { background: var(--card); color: var(--ink-2); border: 1.5px solid var(--line); flex: 0 0 auto; padding: 15px 18px; }
+  .btn:active { transform: translateY(1px) scale(.98); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--brand-2), var(--brand-3));
+    color:#fff;
+    box-shadow: 0 8px 22px rgba(255,90,31,.35);
+  }
+  .btn-primary:active { filter: brightness(.96); box-shadow: 0 4px 12px rgba(255,90,31,.3); }
+  .btn-ghost {
+    background: var(--card); color:var(--ink-2);
+    border:1.5px solid var(--line); flex:0 0 auto; padding:15px 18px;
+  }
 
-  /* 结果区 */
-  #result { padding: 0 14px 20px; }
-  #result.hidden { display: none; }
+  /* ───────── 结果区 ───────── */
+  #result { padding: 0 14px 24px; }
+  #result.hidden { display:none; }
   .result-head {
-    display: flex; align-items: center; justify-content: space-between;
-    margin: 6px 0 12px;
+    display:flex; align-items:center; justify-content:space-between;
+    margin: 8px 0 14px;
   }
-  .result-head h2 { font-size: 17px; font-weight: 800; }
-  .result-head .tip { font-size: 11px; color: var(--ink-3); }
+  .result-head h2 { font-size: 17px; font-weight:800; display:flex; align-items:center; gap:7px; }
+  .result-head .tip { font-size: 11px; color:var(--ink-3); }
   .seg {
-    background: var(--card); border: 1px solid var(--line);
-    border-radius: var(--radius); padding: 16px;
-    margin-bottom: 12px; box-shadow: var(--shadow);
-    position: relative;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--brand);
+    border-radius: var(--r-md);
+    padding: 15px 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-card);
+    animation: fadeIn .25s ease;
   }
+  .seg-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
   .seg .no {
-    display: inline-block; background: var(--brand); color: #fff;
-    font-size: 12px; font-weight: 700;
-    padding: 2px 10px; border-radius: 999px; margin-bottom: 10px;
+    display:inline-flex; align-items:center; gap:6px;
+    background: linear-gradient(135deg, var(--brand-2), var(--brand-3));
+    color:#fff; font-size:12px; font-weight:800;
+    padding: 4px 12px; border-radius:999px;
+    box-shadow: 0 2px 8px rgba(255,107,53,.25);
   }
-  .seg-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .seg-head .no { margin-bottom: 0; }
   .copy-seg {
-    border: 1.5px solid var(--brand); background: var(--brand-soft); color: var(--brand);
-    font-size: 12px; font-weight: 700;
-    padding: 5px 14px; border-radius: 999px; cursor: pointer;
+    border:1.5px solid var(--brand); background: var(--brand-softer); color: var(--brand);
+    font-size:12px; font-weight:700;
+    padding: 6px 14px; border-radius:999px; cursor:pointer;
+    transition: all .15s;
   }
-  .copy-seg:active { background: var(--brand); color: #fff; }
-  .seg p { font-size: 14.5px; line-height: 1.85; color: var(--ink); white-space: pre-wrap; }
+  .copy-seg:active { background: var(--brand); color:#fff; transform: scale(.96); }
+  .seg p { font-size: 14.5px; line-height:1.9; color:var(--ink); white-space:pre-wrap; }
   .copy-all {
-    width: 100%; border: none; border-radius: 12px;
-    background: var(--green); color: #fff;
-    font-size: 15px; font-weight: 700; padding: 14px 0; cursor: pointer;
-    box-shadow: 0 4px 14px rgba(59,165,93,.3);
+    width:100%; border:none; border-radius:14px;
+    background: linear-gradient(135deg, #3DB866, var(--green));
+    color:#fff; font-size:15px; font-weight:800;
+    padding:15px 0; cursor:pointer;
+    box-shadow: 0 8px 22px rgba(47,162,91,.32);
+    transition: transform .12s, filter .15s;
   }
-  .copy-all:active { filter: brightness(.93); }
-  .regen { text-align: center; margin-top: 10px; font-size: 13px; color: var(--brand); cursor: pointer; font-weight: 600; }
+  .copy-all:active { transform: translateY(1px) scale(.98); filter: brightness(.95); }
+  .regen {
+    text-align:center; margin-top:12px;
+    font-size:13px; color:var(--brand); cursor:pointer; font-weight:700;
+    padding: 6px;
+  }
+  .regen:active { opacity:.6; }
 
+  /* toast */
   .toast {
-    position: fixed; left: 50%; bottom: 120px; transform: translateX(-50%);
-    background: rgba(45,42,38,.88); color: #fff;
-    padding: 9px 20px; border-radius: 999px; font-size: 13px;
-    opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 99;
+    position:fixed; left:50%; bottom:118px; transform: translateX(-50%) translateY(8px);
+    background: rgba(43,39,36,.9); color:#fff;
+    padding: 10px 22px; border-radius:999px; font-size:13px;
+    opacity:0; transition: all .25s; pointer-events:none; z-index:99;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 6px 20px rgba(43,39,36,.25);
   }
-  .toast.show { opacity: 1; }
+  .toast.show { opacity:1; transform: translateX(-50%) translateY(0); }
+
+  /* 生成中动画 */
+  .btn-primary.generating { pointer-events:none; opacity:.85; }
+  .btn-primary .spin { display:none; }
+  .btn-primary.generating .spin { display:inline-block; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>📋 课后总结生成器</h1>
-  <p>选选项 · 出文案 · 复制发家长</p>
+  <div class="head-row">
+    <div class="brand">
+      <div class="brand-logo">🐯</div>
+      <div>
+        <h1>课后总结生成器</h1>
+        <p>满分虎 · 教练专属工具</p>
+      </div>
+    </div>
+    <div class="badge">内部工具</div>
+  </div>
+  <div class="head-sub">
+    选选项 · 出文案 · 复制发家长 —— <b>1 分钟搞定一个孩子的总结</b>
+  </div>
 </header>
 
 <div class="count-bar">
   <div class="label">本次要写几个孩子？
-    <small>每人一个页签，分别选完统一生成</small>
+    <small>每人一个页签，选完统一生成</small>
   </div>
   <div class="stepper">
-    <button id="dec">−</button>
+    <button id="dec" aria-label="减少">−</button>
     <span class="num" id="countNum">1</span>
-    <button id="inc">＋</button>
+    <button id="inc" aria-label="增加">＋</button>
   </div>
 </div>
 
@@ -289,13 +400,13 @@
 
 <div class="bottom-bar">
   <button class="btn btn-ghost" id="clearAll">清空</button>
-  <button class="btn btn-primary" id="generate">✨ 生成总结</button>
+  <button class="btn btn-primary" id="generate"><span class="spin">🔄</span> ✨ 生成总结</button>
 </div>
 
 <section id="result" class="hidden">
   <div class="result-head">
     <h2>✅ 生成完成</h2>
-    <span class="tip">复制后把“1号”改成孩子名字</span>
+    <span class="tip">复制后把"1号"改成孩子名字</span>
   </div>
   <div id="resultBody"></div>
   <button class="copy-all" id="copyAll">📋 复制全部文案</button>
@@ -310,7 +421,6 @@
   "use strict";
   const DATA = window.SUMMARY_DATA;
   const PROJ_NAMES = Object.keys(DATA.projects);
-  // 项目图标
   const ICONS = {
     "50米跑":"🏃","800/1000米跑":"🏃","50×8往返跑":"🏃","800米跑":"🏃","1000米跑":"🏃",
     "立定跳远":"🦵","原地纵跳摸高":"⬆️","跳绳":"🪢",
@@ -323,12 +433,10 @@
   };
   const ico = n => ICONS[n] || "🏅";
 
-  // 状态：state[i] = { attitude: null, projects: {name: score} }
   let count = 1;
   let state = [blank()];
   function blank() { return { attitude: null, projects: {} }; }
 
-  // ── 渲染人数/页签/面板 ──
   const countNum = document.getElementById('countNum');
   const tabsEl = document.getElementById('tabs');
   const panelsEl = document.getElementById('panels');
@@ -341,17 +449,14 @@
     state = state.slice(0, n);
     render();
   }
-  function render() {
-    renderTabs();
-    renderPanels();
-  }
+  function render() { renderTabs(); renderPanels(); }
   function renderTabs() {
     tabsEl.innerHTML = "";
     for (let i = 0; i < count; i++) {
       const t = document.createElement('div');
       t.className = 'tab' + (i === 0 ? ' active' : '') + (isFilled(i) ? ' filled' : '');
       t.innerHTML = '<span class="dot"></span>' + (i + 1) + '号';
-      t.onclick = () => { switchTab(i); };
+      t.onclick = () => switchTab(i);
       tabsEl.appendChild(t);
     }
   }
@@ -375,11 +480,10 @@
     switchTab(activeTab);
   }
 
-  // ── 单个面板 ──
   function buildPanel(i) {
     const s = state[i];
     const panel = document.createElement('div');
-    panel.className = 'panel' + (i === 0 ? ' active' : '');
+    panel.className = 'panel';
 
     // 态度句
     const cardA = document.createElement('div');
@@ -387,7 +491,7 @@
     cardA.innerHTML = '<h3>🌡️ 开场状态句 <span class="tag">单选 · 可不选</span></h3>';
     const gridA = document.createElement('div');
     gridA.className = 'attitude-grid';
-    DATA.attitude.forEach((txt, idx) => {
+    DATA.attitude.forEach(txt => {
       const o = document.createElement('div');
       o.className = 'attitude-opt' + (s.attitude === txt ? ' sel' : '');
       o.textContent = txt;
@@ -415,19 +519,20 @@
       catWrap.className = 'proj-cat';
       const catTitle = document.createElement('div');
       catTitle.className = 'cat-title';
-      catTitle.textContent = cat;
+      const icoMatch = cat.match(/^(\S+)\s*(.*)$/);
+      catTitle.innerHTML = (icoMatch ? '<span class="cat-ico">' + icoMatch[1] + '</span>' + icoMatch[2] : cat);
       catWrap.appendChild(catTitle);
       const grid = document.createElement('div');
       grid.className = 'proj-grid';
       DATA.categories[cat].forEach(name => {
         const p = document.createElement('div');
         p.className = 'proj' + (s.projects[name] !== undefined ? ' sel' : '');
-        p.innerHTML = '<span class="ico">' + ico(name) + '</span>' + name;
+        p.innerHTML = '<span class="ico">' + ico(name) + '</span>' + name + '<span class="check">✓</span>';
         p.onclick = () => {
           if (s.projects[name] !== undefined) {
             delete s.projects[name];
           } else {
-            s.projects[name] = 8; // 默认完成度
+            s.projects[name] = 8;
           }
           renderPanels();
           updateTabDot(i);
@@ -445,7 +550,7 @@
     selNames.forEach(name => {
       const row = document.createElement('div');
       row.className = 'slider-row';
-      row.innerHTML = '<span class="pname">' + ico(name) + ' ' + name + '</span><span class="pval" id="val-' + i + '-' + name + '">' + s.projects[name] + '</span>';
+      row.innerHTML = '<span class="pname">' + ico(name) + ' ' + name + '</span><span class="pval">' + s.projects[name] + '</span>';
       const range = document.createElement('input');
       range.type = 'range'; range.min = 1; range.max = 10; range.value = s.projects[name];
       range.style.setProperty('--fill', ((s.projects[name] - 1) / 9 * 100) + '%');
@@ -459,7 +564,7 @@
       sliderBox.appendChild(row);
       const scale = document.createElement('div');
       scale.className = 'slider-scale';
-      scale.innerHTML = '<span>1 弱</span><span>10 强</span>';
+      scale.innerHTML = '<span>1 · 弱</span><span>10 · 强</span>';
       sliderBox.appendChild(scale);
     });
     cardP.appendChild(sliderBox);
@@ -481,7 +586,6 @@
     used.add(s);
     return s;
   }
-  // 态度句：优先用教练显式选的，但若已被其他孩子占用则换一条未用过的
   function pickAttitude(preferred) {
     if (preferred && !used.has(preferred)) {
       used.add(preferred);
@@ -505,10 +609,8 @@
     for (let i = 0; i < count; i++) {
       const s = state[i];
       const parts = [];
-      // 态度句
       const att = pickAttitude(s.attitude);
       if (att) parts.push(att);
-      // 项目句（按完成度档位抽）
       const names = Object.keys(s.projects);
       names.forEach(name => {
         const score = s.projects[name];
@@ -517,7 +619,6 @@
           parts.push(pick(proj.levels[score]));
         }
       });
-      // 回家建议：取完成度最低项目的建议
       if (names.length) {
         let worst = names[0], worstScore = s.projects[names[0]];
         names.forEach(n => { if (s.projects[n] < worstScore) { worst = n; worstScore = s.projects[n]; } });
@@ -525,7 +626,6 @@
         const a = levelAdvice(adv, worstScore);
         if (a) parts.push("🏠 " + a);
       }
-      // 结尾
       const end = pick(DATA.ending);
       if (end) parts.push(end);
       out.push({ no: i + 1, text: parts.join("\n") });
@@ -547,7 +647,7 @@
       const btn = document.createElement('button');
       btn.className = 'copy-seg';
       btn.textContent = '📋 复制这段';
-      btn.onclick = () => copyText(seg.text); // 只复制正文，自己加名字
+      btn.onclick = () => copyText(seg.text);
       head.appendChild(btn);
       const p = document.createElement('p');
       p.textContent = seg.text;
@@ -558,17 +658,20 @@
     resultEl.classList.remove('hidden');
     resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  function escapeHtml(s) {
-    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
 
-  document.getElementById('generate').onclick = () => {
-    const segs = generate();
-    if (!segs.some(x => x.text.trim())) {
-      toast('至少给一个孩子选个项目吧 😅');
-      return;
-    }
-    showResult(segs);
+  const genBtn = document.getElementById('generate');
+  genBtn.onclick = () => {
+    genBtn.classList.add('generating');
+    setTimeout(() => {
+      const segs = generate();
+      if (!segs.some(x => x.text.trim())) {
+        toast('至少给一个孩子选个项目吧 😅');
+        genBtn.classList.remove('generating');
+        return;
+      }
+      showResult(segs);
+      genBtn.classList.remove('generating');
+    }, 350);
   };
   document.getElementById('regen').onclick = () => {
     if (resultEl.classList.contains('hidden')) return;
@@ -576,8 +679,7 @@
   };
   document.getElementById('copyAll').onclick = () => {
     const segs = [...resultBody.children].map(d => d.innerText);
-    const text = segs.join("\n\n");
-    copyText(text);
+    copyText(segs.join("\n\n"));
   };
   function copyText(text) {
     const done = () => toast('已复制，去微信粘贴吧 ✅');
@@ -612,7 +714,6 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
   }
 
-  // 初始
   render();
 })();
 </script>
