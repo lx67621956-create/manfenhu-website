@@ -137,6 +137,15 @@
   .attitude-hint { font-size: 11px; color: var(--ink-3); margin-top: 8px; }
   .attitude-hint b { color: var(--brand); }
 
+  /* 分类标题 */
+  .proj-cat + .proj-cat { margin-top: 14px; }
+  .cat-title {
+    font-size: 12px; font-weight: 700; color: var(--ink-3);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .cat-title::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
   /* 项目网格 */
   .proj-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .proj {
@@ -306,6 +315,7 @@
     "50米跑":"🏃","800/1000米跑":"🏃","50×8往返跑":"🏃","800米跑":"🏃","1000米跑":"🏃",
     "立定跳远":"🦵","原地纵跳摸高":"⬆️","跳绳":"🪢",
     "引体向上":"💪","斜身引体":"💪","双杠臂屈伸":"💪","仰卧起坐":"🤸","实心球":"🏐",
+    "上肢力量":"💪","下肢力量":"🦵","核心力量":"🔥","背部力量":"🦾",
     "足球":"⚽","篮球":"🏀","排球":"🏐","乒乓球":"🏓","羽毛球":"🏸",
     "双杠组合":"🤸","技巧组合":"🤸","健身长拳":"🥋","健身南拳":"🥋",
     "100米游泳":"🏊","坐位体前屈":"🧘","肺活量":"🫁","BMI/体重管理":"⚖️",
@@ -396,28 +406,37 @@
     cardA.appendChild(hint);
     panel.appendChild(cardA);
 
-    // 项目
+    // 项目（按分类分组）
     const cardP = document.createElement('div');
     cardP.className = 'card';
     cardP.innerHTML = '<h3>🏅 今日训练项目 <span class="tag">多选 · 选完滑完成度</span></h3>';
-    const grid = document.createElement('div');
-    grid.className = 'proj-grid';
-    PROJ_NAMES.forEach(name => {
-      const p = document.createElement('div');
-      p.className = 'proj' + (s.projects[name] !== undefined ? ' sel' : '');
-      p.innerHTML = '<span class="ico">' + ico(name) + '</span>' + name;
-      p.onclick = () => {
-        if (s.projects[name] !== undefined) {
-          delete s.projects[name];
-        } else {
-          s.projects[name] = 8; // 默认完成度
-        }
-        renderPanels();
-        updateTabDot(i);
-      };
-      grid.appendChild(p);
+    Object.keys(DATA.categories).forEach(cat => {
+      const catWrap = document.createElement('div');
+      catWrap.className = 'proj-cat';
+      const catTitle = document.createElement('div');
+      catTitle.className = 'cat-title';
+      catTitle.textContent = cat;
+      catWrap.appendChild(catTitle);
+      const grid = document.createElement('div');
+      grid.className = 'proj-grid';
+      DATA.categories[cat].forEach(name => {
+        const p = document.createElement('div');
+        p.className = 'proj' + (s.projects[name] !== undefined ? ' sel' : '');
+        p.innerHTML = '<span class="ico">' + ico(name) + '</span>' + name;
+        p.onclick = () => {
+          if (s.projects[name] !== undefined) {
+            delete s.projects[name];
+          } else {
+            s.projects[name] = 8; // 默认完成度
+          }
+          renderPanels();
+          updateTabDot(i);
+        };
+        grid.appendChild(p);
+      });
+      catWrap.appendChild(grid);
+      cardP.appendChild(catWrap);
     });
-    cardP.appendChild(grid);
 
     // 滑块区
     const sliderBox = document.createElement('div');
