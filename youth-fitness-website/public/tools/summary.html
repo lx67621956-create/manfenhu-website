@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>课后总结生成器 · 满分虎</title>
+<style>
+  :root {
+    --brand: #FF6B35;
+    --brand-dark: #E8551F;
+    --brand-soft: #FFF0E8;
+    --ink: #2D2A26;
+    --ink-2: #6B6560;
+    --ink-3: #9A938C;
+    --line: #EAE3DB;
+    --bg: #FAF6F0;
+    --card: #FFFFFF;
+    --green: #3BA55D;
+    --green-soft: #E8F5EC;
+    --radius: 14px;
+    --shadow: 0 2px 10px rgba(45,42,38,.06);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { font-size: 16px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding-bottom: 96px;
+    min-height: 100vh;
+  }
+
+  /* ── 顶部 ── */
+  header {
+    background: linear-gradient(135deg, #FF7A45 0%, var(--brand) 60%, var(--brand-dark) 100%);
+    padding: 22px 18px 26px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: "";
+    position: absolute; right: -40px; top: -40px;
+    width: 140px; height: 140px;
+    background: rgba(255,255,255,.12);
+    border-radius: 50%;
+  }
+  header h1 { font-size: 20px; font-weight: 800; letter-spacing: .5px; }
+  header p { font-size: 12.5px; opacity: .92; margin-top: 4px; }
+
+  /* ── 人数选择 ── */
+  .count-bar {
+    background: var(--card);
+    margin: -14px 14px 0;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: relative; z-index: 2;
+    border: 1px solid var(--line);
+  }
+  .count-bar .label { font-size: 15px; font-weight: 600; }
+  .count-bar .label small { display:block; font-size: 11px; color: var(--ink-3); font-weight: 400; margin-top: 2px; }
+  .stepper { display:flex; align-items:center; gap: 14px; }
+  .stepper button {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1.5px solid var(--line); background: var(--card);
+    font-size: 20px; color: var(--brand); font-weight: 700;
+    cursor: pointer; line-height: 1;
+  }
+  .stepper button:active { background: var(--brand-soft); }
+  .stepper .num { font-size: 22px; font-weight: 800; min-width: 24px; text-align: center; color: var(--ink); }
+
+  /* ── 页签 ── */
+  .tabs {
+    display: flex; gap: 8px;
+    padding: 14px 14px 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab {
+    flex: 0 0 auto;
+    padding: 9px 18px;
+    border-radius: 999px;
+    background: var(--card);
+    border: 1.5px solid var(--line);
+    font-size: 14px; font-weight: 600; color: var(--ink-2);
+    cursor: pointer;
+  }
+  .tab.active {
+    background: var(--brand); border-color: var(--brand); color: #fff;
+  }
+  .tab .dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green); margin-right: 6px; vertical-align: 1px;
+    visibility: hidden;
+  }
+  .tab.filled .dot { visibility: visible; }
+
+  /* ── 面板 ── */
+  .panel { display: none; padding: 14px; }
+  .panel.active { display: block; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+  .card h3 {
+    font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 12px;
+  }
+  .card h3 .tag {
+    font-size: 10px; font-weight: 600;
+    color: var(--brand); background: var(--brand-soft);
+    padding: 2px 8px; border-radius: 999px;
+  }
+
+  /* 态度句 */
+  .attitude-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .attitude-opt {
+    border: 1.5px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; font-size: 12.5px; line-height: 1.5;
+    color: var(--ink-2); cursor: pointer; background: var(--card);
+    transition: all .15s;
+  }
+  .attitude-opt.sel {
+    border-color: var(--brand); background: var(--brand-soft); color: var(--ink);
+    box-shadow: 0 0 0 1px var(--brand);
+  }
+  .attitude-opt .mini { font-size: 10px; color: var(--ink-3); display:block; margin-top: 2px; }
+  .attitude-hint { font-size: 11px; color: var(--ink-3); margin-top: 8px; }
+  .attitude-hint b { color: var(--brand); }
+
+  /* 项目网格 */
+  .proj-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .proj {
+    border: 1.5px solid var(--line); border-radius: 10px;
+    padding: 10px 8px; text-align: center;
+    font-size: 13px; font-weight: 600; color: var(--ink-2);
+    cursor: pointer; background: var(--card); position: relative;
+  }
+  .proj .ico { font-size: 20px; display: block; margin-bottom: 3px; }
+  .proj.sel {
+    border-color: var(--brand); background: var(--brand-soft); color: var(--ink);
+  }
+  .proj.sel::after {
+    content: "✓"; position: absolute; top: 4px; right: 7px;
+    color: var(--brand); font-weight: 800; font-size: 13px;
+  }
+
+  /* 滑块区 */
+  .slider-box {
+    display: none;
+    margin-top: 12px;
+    border-top: 1px dashed var(--line);
+    padding-top: 12px;
+  }
+  .slider-box.show { display: block; }
+  .slider-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px;
+  }
+  .slider-row .pname { font-size: 13px; font-weight: 600; flex: 1; }
+  .slider-row .pval {
+    font-size: 15px; font-weight: 800; color: var(--brand);
+    background: var(--brand-soft); border-radius: 8px;
+    padding: 2px 10px; min-width: 42px; text-align: center;
+  }
+  input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 6px; border-radius: 3px;
+    background: linear-gradient(to right, var(--brand) var(--fill,80%), var(--line) var(--fill,80%));
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: #fff; border: 3px solid var(--brand);
+    box-shadow: 0 1px 4px rgba(0,0,0,.18);
+    cursor: pointer;
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; border: 3px solid var(--brand); cursor: pointer;
+  }
+  .slider-scale { display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-3); padding-top: 4px; }
+
+  /* 底部生成 */
+  .bottom-bar {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+    background: rgba(250,246,240,.94);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--line);
+    display: flex; gap: 10px; z-index: 10;
+  }
+  .btn {
+    flex: 1; border: none; border-radius: 12px;
+    font-size: 16px; font-weight: 700;
+    padding: 15px 0; cursor: pointer;
+  }
+  .btn-primary { background: var(--brand); color: #fff; box-shadow: 0 4px 14px rgba(255,107,53,.35); }
+  .btn-primary:active { background: var(--brand-dark); }
+  .btn-ghost { background: var(--card); color: var(--ink-2); border: 1.5px solid var(--line); flex: 0 0 auto; padding: 15px 18px; }
+
+  /* 结果区 */
+  #result { padding: 0 14px 20px; }
+  #result.hidden { display: none; }
+  .result-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 6px 0 12px;
+  }
+  .result-head h2 { font-size: 17px; font-weight: 800; }
+  .result-head .tip { font-size: 11px; color: var(--ink-3); }
+  .seg {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 16px;
+    margin-bottom: 12px; box-shadow: var(--shadow);
+    position: relative;
+  }
+  .seg .no {
+    display: inline-block; background: var(--brand); color: #fff;
+    font-size: 12px; font-weight: 700;
+    padding: 2px 10px; border-radius: 999px; margin-bottom: 10px;
+  }
+  .seg p { font-size: 14.5px; line-height: 1.85; color: var(--ink); white-space: pre-wrap; }
+  .copy-all {
+    width: 100%; border: none; border-radius: 12px;
+    background: var(--green); color: #fff;
+    font-size: 15px; font-weight: 700; padding: 14px 0; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(59,165,93,.3);
+  }
+  .copy-all:active { filter: brightness(.93); }
+  .regen { text-align: center; margin-top: 10px; font-size: 13px; color: var(--brand); cursor: pointer; font-weight: 600; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 120px; transform: translateX(-50%);
+    background: rgba(45,42,38,.88); color: #fff;
+    padding: 9px 20px; border-radius: 999px; font-size: 13px;
+    opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 99;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📋 课后总结生成器</h1>
+  <p>选选项 · 出文案 · 复制发家长</p>
+</header>
+
+<div class="count-bar">
+  <div class="label">本次要写几个孩子？
+    <small>每人一个页签，分别选完统一生成</small>
+  </div>
+  <div class="stepper">
+    <button id="dec">−</button>
+    <span class="num" id="countNum">1</span>
+    <button id="inc">＋</button>
+  </div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div id="panels"></div>
+
+<div class="bottom-bar">
+  <button class="btn btn-ghost" id="clearAll">清空</button>
+  <button class="btn btn-primary" id="generate">✨ 生成总结</button>
+</div>
+
+<section id="result" class="hidden">
+  <div class="result-head">
+    <h2>✅ 生成完成</h2>
+    <span class="tip">复制后把“1号”改成孩子名字</span>
+  </div>
+  <div id="resultBody"></div>
+  <button class="copy-all" id="copyAll">📋 复制全部文案</button>
+  <div class="regen" id="regen">🔄 换个说法重新生成</div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script src="data.js"></script>
+<script>
+(function () {
+  "use strict";
+  const DATA = window.SUMMARY_DATA;
+  const PROJ_NAMES = Object.keys(DATA.projects);
+  // 项目图标
+  const ICONS = {
+    "50米跑":"🏃","800/1000米跑":"🏃","50×8往返跑":"🏃","800米跑":"🏃","1000米跑":"🏃",
+    "立定跳远":"🦵","原地纵跳摸高":"⬆️","跳绳":"🪢",
+    "引体向上":"💪","斜身引体":"💪","双杠臂屈伸":"💪","仰卧起坐":"🤸","实心球":"🏐",
+    "足球":"⚽","篮球":"🏀","排球":"🏐","乒乓球":"🏓","羽毛球":"🏸",
+    "双杠组合":"🤸","技巧组合":"🤸","健身长拳":"🥋","健身南拳":"🥋",
+    "100米游泳":"🏊","坐位体前屈":"🧘","肺活量":"🫁","BMI/体重管理":"⚖️",
+    "实心球（投掷）":"🏐","跳绳（1分钟）":"🪢"
+  };
+  const ico = n => ICONS[n] || "🏅";
+
+  // 状态：state[i] = { attitude: null, projects: {name: score} }
+  let count = 1;
+  let state = [blank()];
+  function blank() { return { attitude: null, projects: {} }; }
+
+  // ── 渲染人数/页签/面板 ──
+  const countNum = document.getElementById('countNum');
+  const tabsEl = document.getElementById('tabs');
+  const panelsEl = document.getElementById('panels');
+
+  function setCount(n) {
+    n = Math.max(1, Math.min(10, n));
+    count = n;
+    countNum.textContent = n;
+    while (state.length < n) state.push(blank());
+    state = state.slice(0, n);
+    render();
+  }
+  function render() {
+    renderTabs();
+    renderPanels();
+  }
+  function renderTabs() {
+    tabsEl.innerHTML = "";
+    for (let i = 0; i < count; i++) {
+      const t = document.createElement('div');
+      t.className = 'tab' + (i === 0 ? ' active' : '') + (isFilled(i) ? ' filled' : '');
+      t.innerHTML = '<span class="dot"></span>' + (i + 1) + '号';
+      t.onclick = () => { switchTab(i); };
+      tabsEl.appendChild(t);
+    }
+  }
+  function isFilled(i) {
+    const s = state[i];
+    return s.attitude || Object.keys(s.projects).length > 0;
+  }
+  let activeTab = 0;
+  function switchTab(i) {
+    activeTab = i;
+    [...tabsEl.children].forEach((t, idx) => t.classList.toggle('active', idx === i));
+    [...panelsEl.children].forEach((p, idx) => p.classList.toggle('active', idx === i));
+  }
+  function renderPanels() {
+    panelsEl.innerHTML = "";
+    for (let i = 0; i < count; i++) {
+      const p = buildPanel(i);
+      p.classList.toggle('active', i === activeTab);
+      panelsEl.appendChild(p);
+    }
+    switchTab(activeTab);
+  }
+
+  // ── 单个面板 ──
+  function buildPanel(i) {
+    const s = state[i];
+    const panel = document.createElement('div');
+    panel.className = 'panel' + (i === 0 ? ' active' : '');
+
+    // 态度句
+    const cardA = document.createElement('div');
+    cardA.className = 'card';
+    cardA.innerHTML = '<h3>🌡️ 开场状态句 <span class="tag">单选 · 可不选</span></h3>';
+    const gridA = document.createElement('div');
+    gridA.className = 'attitude-grid';
+    DATA.attitude.forEach((txt, idx) => {
+      const o = document.createElement('div');
+      o.className = 'attitude-opt' + (s.attitude === txt ? ' sel' : '');
+      o.textContent = txt;
+      o.onclick = () => {
+        s.attitude = (s.attitude === txt) ? null : txt;
+        panel.querySelectorAll('.attitude-opt').forEach(el => el.classList.remove('sel'));
+        if (s.attitude) o.classList.add('sel');
+        updateTabDot(i);
+      };
+      gridA.appendChild(o);
+    });
+    cardA.appendChild(gridA);
+    const hint = document.createElement('div');
+    hint.className = 'attitude-hint';
+    hint.innerHTML = '💡 不选也会自动配一句，<b>必选更精准</b>';
+    cardA.appendChild(hint);
+    panel.appendChild(cardA);
+
+    // 项目
+    const cardP = document.createElement('div');
+    cardP.className = 'card';
+    cardP.innerHTML = '<h3>🏅 今日训练项目 <span class="tag">多选 · 选完滑完成度</span></h3>';
+    const grid = document.createElement('div');
+    grid.className = 'proj-grid';
+    PROJ_NAMES.forEach(name => {
+      const p = document.createElement('div');
+      p.className = 'proj' + (s.projects[name] !== undefined ? ' sel' : '');
+      p.innerHTML = '<span class="ico">' + ico(name) + '</span>' + name;
+      p.onclick = () => {
+        if (s.projects[name] !== undefined) {
+          delete s.projects[name];
+        } else {
+          s.projects[name] = 8; // 默认完成度
+        }
+        renderPanels();
+        updateTabDot(i);
+      };
+      grid.appendChild(p);
+    });
+    cardP.appendChild(grid);
+
+    // 滑块区
+    const sliderBox = document.createElement('div');
+    sliderBox.className = 'slider-box' + (Object.keys(s.projects).length ? ' show' : '');
+    const selNames = PROJ_NAMES.filter(n => s.projects[n] !== undefined);
+    selNames.forEach(name => {
+      const row = document.createElement('div');
+      row.className = 'slider-row';
+      row.innerHTML = '<span class="pname">' + ico(name) + ' ' + name + '</span><span class="pval" id="val-' + i + '-' + name + '">' + s.projects[name] + '</span>';
+      const range = document.createElement('input');
+      range.type = 'range'; range.min = 1; range.max = 10; range.value = s.projects[name];
+      range.style.setProperty('--fill', ((s.projects[name] - 1) / 9 * 100) + '%');
+      range.oninput = () => {
+        s.projects[name] = +range.value;
+        range.style.setProperty('--fill', ((s.projects[name] - 1) / 9 * 100) + '%');
+        row.querySelector('.pval').textContent = s.projects[name];
+        updateTabDot(i);
+      };
+      row.appendChild(range);
+      sliderBox.appendChild(row);
+      const scale = document.createElement('div');
+      scale.className = 'slider-scale';
+      scale.innerHTML = '<span>1 弱</span><span>10 强</span>';
+      sliderBox.appendChild(scale);
+    });
+    cardP.appendChild(sliderBox);
+    panel.appendChild(cardP);
+    return panel;
+  }
+  function updateTabDot(i) {
+    const t = tabsEl.children[i];
+    if (t) t.classList.toggle('filled', isFilled(i));
+  }
+
+  // ── 生成 ──
+  const used = new Set();
+  function pick(arr) {
+    if (!arr || !arr.length) return "";
+    const avail = arr.filter(x => !used.has(x));
+    const pool = avail.length ? avail : arr;
+    const s = pool[Math.floor(Math.random() * pool.length)];
+    used.add(s);
+    return s;
+  }
+  // 态度句：优先用教练显式选的，但若已被其他孩子占用则换一条未用过的
+  function pickAttitude(preferred) {
+    if (preferred && !used.has(preferred)) {
+      used.add(preferred);
+      return preferred;
+    }
+    const avail = DATA.attitude.filter(x => !used.has(x));
+    const pool = avail.length ? avail : DATA.attitude;
+    const s = pool[Math.floor(Math.random() * pool.length)];
+    used.add(s);
+    return s;
+  }
+  function levelAdvice(advice, score) {
+    const key = score >= 8 ? 'high' : score >= 5 ? 'mid' : 'low';
+    const a = advice ? advice[key] : null;
+    if (Array.isArray(a)) return pick(a);
+    return a || "";
+  }
+  function generate() {
+    used.clear();
+    const out = [];
+    for (let i = 0; i < count; i++) {
+      const s = state[i];
+      const parts = [];
+      // 态度句
+      const att = pickAttitude(s.attitude);
+      if (att) parts.push(att);
+      // 项目句（按完成度档位抽）
+      const names = Object.keys(s.projects);
+      names.forEach(name => {
+        const score = s.projects[name];
+        const proj = DATA.projects[name];
+        if (proj && proj.levels && proj.levels[score]) {
+          parts.push(pick(proj.levels[score]));
+        }
+      });
+      // 回家建议：取完成度最低项目的建议
+      if (names.length) {
+        let worst = names[0], worstScore = s.projects[names[0]];
+        names.forEach(n => { if (s.projects[n] < worstScore) { worst = n; worstScore = s.projects[n]; } });
+        const adv = DATA.projects[worst].advice;
+        const a = levelAdvice(adv, worstScore);
+        if (a) parts.push("🏠 " + a);
+      }
+      // 结尾
+      const end = pick(DATA.ending);
+      if (end) parts.push(end);
+      out.push({ no: i + 1, text: parts.join("\n") });
+    }
+    return out;
+  }
+
+  // ── 结果渲染 ──
+  const resultEl = document.getElementById('result');
+  const resultBody = document.getElementById('resultBody');
+  function showResult(segs) {
+    resultBody.innerHTML = "";
+    segs.forEach(seg => {
+      const d = document.createElement('div');
+      d.className = 'seg';
+      d.innerHTML = '<span class="no">' + seg.no + '号</span><p>' + escapeHtml(seg.text) + '</p>';
+      resultBody.appendChild(d);
+    });
+    resultEl.classList.remove('hidden');
+    resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  document.getElementById('generate').onclick = () => {
+    const segs = generate();
+    if (!segs.some(x => x.text.trim())) {
+      toast('至少给一个孩子选个项目吧 😅');
+      return;
+    }
+    showResult(segs);
+  };
+  document.getElementById('regen').onclick = () => {
+    if (resultEl.classList.contains('hidden')) return;
+    showResult(generate());
+  };
+  document.getElementById('copyAll').onclick = () => {
+    const segs = [...resultBody.children].map(d => d.innerText);
+    const text = segs.join("\n\n");
+    copyText(text);
+  };
+  function copyText(text) {
+    const done = () => toast('已复制，去微信粘贴吧 ✅');
+    const fallback = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); ta.remove();
+      done();
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done).catch(fallback);
+    } else {
+      fallback();
+    }
+  }
+  document.getElementById('clearAll').onclick = () => {
+    state = Array.from({ length: count }, blank);
+    used.clear();
+    resultEl.classList.add('hidden');
+    renderPanels();
+    toast('已清空');
+  };
+  document.getElementById('inc').onclick = () => setCount(count + 1);
+  document.getElementById('dec').onclick = () => setCount(count - 1);
+
+  let toastTimer;
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  // 初始
+  render();
+})();
+</script>
+</body>
+</html>
