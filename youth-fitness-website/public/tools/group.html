@@ -306,7 +306,7 @@
   // ── 状态 ──
   const state = {
     period: "morning",
-    weather: "normal",
+    weather: ["clear"],   // 可多选
     jieqi: "",
     festival: "",
     interact: false
@@ -360,17 +360,22 @@
   }
 
   const weatherGrid = document.getElementById('weatherGrid');
-  const weatherDefs = [["hot","🥵","热"],["cold","🥶","冷"],["rain","🌧️","雨"],["fog","🌫️","雾"],["normal","😊","晴"]];
+  const weatherDefs = [["hot","🥵","热"],["cold","🥶","冷"],["rain","🌧️","雨"],["snow","❄️","雪"],["wind","💨","风"],["fog","🌫️","雾"],["clear","😊","晴"]];
   weatherDefs.forEach(([key, ico, name]) => {
     const el = document.createElement('div');
-    el.className = 'weather-opt' + (state.weather === key ? ' sel' : '');
+    el.className = 'weather-opt' + (state.weather.includes(key) ? ' sel' : '');
     el.innerHTML = '<span class="w-ico">' + ico + '</span><span class="w-name">' + name + '</span>';
-    el.onclick = () => { state.weather = key; renderWeather(); };
+    el.onclick = () => {
+      const i = state.weather.indexOf(key);
+      if (i >= 0) { state.weather.splice(i, 1); } else { state.weather.push(key); }
+      if (state.weather.length === 0) state.weather.push("clear");
+      renderWeather();
+    };
     weatherGrid.appendChild(el);
   });
   function renderWeather() {
     [...weatherGrid.children].forEach((el, i) => {
-      el.classList.toggle('sel', state.weather === weatherDefs[i][0]);
+      el.classList.toggle('sel', state.weather.includes(weatherDefs[i][0]));
     });
   }
 
@@ -403,18 +408,20 @@
   function generate() {
     used.clear();
     const G = D.greeting[state.period] || [];
-    const W = D.weather[state.weather] || [];
-    const g = pick(G), w = pick(W), b = pick(D.brand);
+    const g = pick(G), b = pick(D.brand);
+
+    // 天气句：支持多选 + 组合
+    const weatherParts = pickWeather();
 
     const base = [];
     if (g) base.push(g + "\n");
-    if (w) base.push(w + "\n");
+    weatherParts.forEach(w => base.push(w + "\n"));
     if (state.jieqi && D.jieqi[state.jieqi]) base.push(pick(D.jieqi[state.jieqi]) + "\n");
     if (state.festival && D.festival[state.festival]) base.push(pick(D.festival[state.festival]) + "\n");
     base.push(b);
 
-    // 短版：问候 + 天气（1句）+ 品牌
-    const short = [g, w, b].filter(Boolean).join("\n");
+    // 短版：问候 + 天气（1-2条）+ 品牌
+    const short = [g].concat(weatherParts.slice(0, 1), [b]).filter(Boolean).join("\n");
     // 完整版：全部内容
     const full = join(base);
 
@@ -425,6 +432,39 @@
       short: interaction ? short + "\n\n" + interaction : short,
       full: interaction ? full + "\n\n" + interaction : full
     };
+  }
+
+  // 天气选择逻辑：单/多选 + 组合文案
+  function pickWeather() {
+    const sel = state.weather.slice();
+    if (!sel.length) return [];
+    const parts = [];
+    // 单个天气：直接出
+    if (sel.length === 1) {
+      const arr = D.weather[sel[0]] || [];
+      if (arr.length) parts.push(pick(arr));
+      return parts;
+    }
+    // 多选：先找组合文案（如 hot_rain）
+    const comboKey = sel.slice().sort().join('_');
+    const combo = D.combo[comboKey];
+    if (combo && combo.length) {
+      parts.push(pick(combo));
+      // 组合之外的天气（如选了热+雨+风，组合只覆盖热+雨）各补一条
+      const covered = comboKey.split('_');
+      const extra = sel.filter(k => !covered.includes(k));
+      extra.slice(0, 2).forEach(k => {
+        const arr = D.weather[k] || [];
+        if (arr.length) parts.push(pick(arr));
+      });
+    } else {
+      // 无组合文案：每个天气各出1条（最多3条）
+      sel.slice(0, 3).forEach(k => {
+        const arr = D.weather[k] || [];
+        if (arr.length) parts.push(pick(arr));
+      });
+    }
+    return parts;
   }
 
   // ── 渲染 ──
