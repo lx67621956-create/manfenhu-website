@@ -229,6 +229,14 @@
     font-size: 12px; font-weight: 700;
     padding: 2px 10px; border-radius: 999px; margin-bottom: 10px;
   }
+  .seg-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .seg-head .no { margin-bottom: 0; }
+  .copy-seg {
+    border: 1.5px solid var(--brand); background: var(--brand-soft); color: var(--brand);
+    font-size: 12px; font-weight: 700;
+    padding: 5px 14px; border-radius: 999px; cursor: pointer;
+  }
+  .copy-seg:active { background: var(--brand); color: #fff; }
   .seg p { font-size: 14.5px; line-height: 1.85; color: var(--ink); white-space: pre-wrap; }
   .copy-all {
     width: 100%; border: none; border-radius: 12px;
@@ -514,7 +522,18 @@
     segs.forEach(seg => {
       const d = document.createElement('div');
       d.className = 'seg';
-      d.innerHTML = '<span class="no">' + seg.no + '号</span><p>' + escapeHtml(seg.text) + '</p>';
+      const head = document.createElement('div');
+      head.className = 'seg-head';
+      head.innerHTML = '<span class="no">' + seg.no + '号</span>';
+      const btn = document.createElement('button');
+      btn.className = 'copy-seg';
+      btn.textContent = '📋 复制这段';
+      btn.onclick = () => copyText(seg.text); // 只复制正文，自己加名字
+      head.appendChild(btn);
+      const p = document.createElement('p');
+      p.textContent = seg.text;
+      d.appendChild(head);
+      d.appendChild(p);
       resultBody.appendChild(d);
     });
     resultEl.classList.remove('hidden');
