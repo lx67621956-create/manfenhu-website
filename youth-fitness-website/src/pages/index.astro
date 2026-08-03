@@ -49,19 +49,19 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   <section class="stats-bar">
     <div class="container">
       <div class="stats-grid">
-        <div class="stat-item">
-          <span class="stat-number">10000+</span>
+        <div class="stat-item reveal">
+          <span class="stat-number" data-target="10000" data-suffix="+">0</span>
           <span class="stat-label">累计学员</span>
         </div>
-        <div class="stat-item">
-          <span class="stat-number">98%</span>
+        <div class="stat-item reveal">
+          <span class="stat-number" data-target="98" data-suffix="%">0</span>
           <span class="stat-label">中考体育满分率</span>
         </div>
-        <div class="stat-item">
-          <span class="stat-number">10年</span>
+        <div class="stat-item reveal">
+          <span class="stat-number" data-target="10" data-suffix="年">0</span>
           <span class="stat-label">专注青少年体能</span>
         </div>
-        <div class="stat-item">
+        <div class="stat-item reveal">
           <span class="stat-number">国家级</span>
           <span class="stat-label">专业教练团队</span>
         </div>
@@ -75,7 +75,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
       <h2 class="section-title">课程体系</h2>
       <p class="section-desc">科学分龄，因材施教，三大课程覆盖从兴趣到升学的完整路径</p>
       <div class="course-grid">
-        <div class="course-card">
+        <div class="course-card reveal">
           <div class="course-img-wrap">
             <img src="/images/courses/zhongkao.jpg.png" alt="中考体育特训" class="course-img" />
             <span class="course-tag">提分冲刺</span>
@@ -87,10 +87,10 @@ import BaseLayout from '@layouts/BaseLayout.astro';
               <span class="meta-item">📅 5节课/期</span>
               <span class="meta-item">👥 2-4人小班</span>
             </div>
-            <a href="/courses/zhongkao/" class="btn btn-outline">了解详情 →</a>
+            <a href="/courses/zhongkao/" class="btn btn-outline">了解详情 <span class="btn-arrow">→</span></a>
           </div>
         </div>
-        <div class="course-card">
+        <div class="course-card reveal">
           <div class="course-img-wrap">
             <img src="/images/courses/ertong.jpg.png" alt="少儿体能训练" class="course-img" />
             <span class="course-tag tag-green">基础体能</span>
@@ -102,10 +102,10 @@ import BaseLayout from '@layouts/BaseLayout.astro';
               <span class="meta-item">📅 30节课/期</span>
               <span class="meta-item">👥 8-10人小班</span>
             </div>
-            <a href="/courses/ertong/" class="btn btn-outline">了解详情 →</a>
+            <a href="/courses/ertong/" class="btn btn-outline">了解详情 <span class="btn-arrow">→</span></a>
           </div>
         </div>
-        <div class="course-card">
+        <div class="course-card reveal">
           <div class="course-img-wrap">
             <img src="/images/courses/shouqiu.jpg.png" alt="手球专项特训" class="course-img" />
             <span class="course-tag tag-blue">专项培养</span>
@@ -117,7 +117,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
               <span class="meta-item">📅 20节课/期</span>
               <span class="meta-item">👥 8-10人小班</span>
             </div>
-            <a href="/courses/shouqiu/" class="btn btn-outline">了解详情 →</a>
+            <a href="/courses/shouqiu/" class="btn btn-outline">了解详情 <span class="btn-arrow">→</span></a>
           </div>
         </div>
       </div>
@@ -128,12 +128,12 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   <section class="section about-section">
     <div class="container">
       <div class="about-grid">
-        <div class="about-video">
+        <div class="about-video reveal">
           <div class="video-wrapper">
             <iframe src="https://player.youku.com/embed/XNjI1MjgyNTI0OA==" frameborder="0" allowfullscreen loading="lazy"></iframe>
           </div>
         </div>
-        <div class="about-content">
+        <div class="about-content reveal">
           <span class="about-badge">关于满分虎</span>
           <h2>不只提分，更要培养一生的运动习惯</h2>
           <p>满分虎是针对青少年体质健康与应试满分问题的解决方案。意在通过"提升应试分数"的方式，开启每个中国家庭对于孩子身体素质全面提升的意识；帮助每一位孩子从小建立正确的运动模式、培养终身的运动习惯。</p>
@@ -160,10 +160,12 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   <!-- CTA -->
   <section class="cta-section">
     <div class="container">
-      <div class="cta-inner">
+      <div class="cta-inner reveal">
+        <div class="cta-decoration cta-dec-1"></div>
+        <div class="cta-decoration cta-dec-2"></div>
         <h2>让孩子爱上运动，从满分虎开始</h2>
         <p>免费体验课预约中，来试试就知道</p>
-        <a href="/contact/" class="btn btn-cta">立即预约 →</a>
+        <a href="/contact/" class="btn btn-cta">立即预约 <span class="btn-arrow">→</span></a>
       </div>
     </div>
   </section>
@@ -176,25 +178,33 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 .carousel-slides { position: relative; width: 100%; height: 100%; }
 .carousel-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.8s ease; z-index: 0; }
 .carousel-slide.active { opacity: 1; z-index: 1; }
+.carousel-slide.active .carousel-overlay > * { animation: fadeUp .8s ease both; }
+.carousel-slide.active .carousel-badge { animation-delay: .1s; }
+.carousel-slide.active .carousel-title { animation-delay: .25s; }
+.carousel-slide.active .carousel-sub { animation-delay: .4s; }
+.carousel-slide.active .carousel-overlay .btn { animation-delay: .55s; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 .carousel-img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
 .carousel-overlay {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
-  background: linear-gradient(135deg, rgba(0,0,0,0.45), rgba(0,0,0,0.15));
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.55) 100%),
+    linear-gradient(135deg, rgba(0,0,0,0.35), rgba(0,0,0,0.1));
   color: #fff; padding: 24px;
 }
 .carousel-badge {
-  display: inline-block; padding: 4px 14px; border-radius: 20px;
-  background: rgba(255,107,53,0.85); color: #fff;
+  display: inline-block; padding: 5px 16px; border-radius: 20px;
+  background: rgba(255,107,53,0.9); color: #fff;
   font-size: 0.8rem; font-weight: 600; letter-spacing: 1px;
-  margin-bottom: 16px;
+  margin-bottom: 16px; box-shadow: 0 2px 8px rgba(255,107,53,0.35);
 }
 .carousel-title {
   font-size: 2.5rem; font-weight: 800; margin-bottom: 10px;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.3); letter-spacing: 2px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.45); letter-spacing: 2px;
 }
-.carousel-sub { font-size: 1.1rem; margin-bottom: 24px; opacity: 0.9; text-shadow: 0 1px 4px rgba(0,0,0,0.3); }
-.btn-lg { padding: 14px 40px; font-size: 1.05rem; border-radius: 8px; font-weight: 700; }
+.carousel-sub { font-size: 1.1rem; margin-bottom: 24px; opacity: 0.95; text-shadow: 0 1px 6px rgba(0,0,0,0.4); }
+.btn-lg { padding: 14px 40px; font-size: 1.05rem; border-radius: 8px; font-weight: 700; box-shadow: 0 4px 16px rgba(255,107,53,0.35); }
 .carousel-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 10; }
 .dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.4); cursor: pointer; transition: all .3s; }
 .dot.active { background: #FF6B35; width: 28px; border-radius: 5px; }
@@ -202,9 +212,10 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
   background: rgba(0,0,0,0.25); color: #fff; border: none;
   font-size: 1.5rem; width: 42px; height: 42px; border-radius: 50%;
-  cursor: pointer; transition: background .3s; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background .3s, transform .3s; display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
 }
-.carousel-arrow:hover { background: rgba(0,0,0,0.5); }
+.carousel-arrow:hover { background: rgba(0,0,0,0.5); transform: translateY(-50%) scale(1.1); }
 .carousel-prev { left: 16px; }
 .carousel-next { right: 16px; }
 @media (max-width: 768px) {
@@ -237,15 +248,25 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 .course-card {
   background: #fff; border-radius: 12px; overflow: hidden;
   border: 1px solid #eee; transition: all 0.3s ease;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  position: relative;
 }
-.course-card:hover { border-color: #FF6B35; box-shadow: 0 8px 32px rgba(255,107,53,0.1); transform: translateY(-4px); }
+.course-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, #FF6B35, #FFB199); z-index: 2;
+}
+.course-card:nth-child(2)::before { background: linear-gradient(90deg, #44BD32, #A8E063); }
+.course-card:nth-child(3)::before { background: linear-gradient(90deg, #0097E6, #54C8FF); }
+.course-card:hover { border-color: #FF6B35; box-shadow: 0 12px 40px rgba(255,107,53,0.15); transform: translateY(-6px); }
 .course-img-wrap { position: relative; height: 200px; overflow: hidden; background: #f5f5f5; }
-.course-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.course-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
+.course-card:hover .course-img { transform: scale(1.05); }
 .course-tag {
   position: absolute; top: 12px; left: 12px;
   padding: 3px 12px; border-radius: 20px;
   background: #FF6B35; color: #fff;
   font-size: 0.75rem; font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 .tag-green { background: #44BD32; }
 .tag-blue { background: #0097E6; }
@@ -254,6 +275,8 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 .course-body p { font-size: 0.88rem; color: #666; line-height: 1.6; margin-bottom: 14px; }
 .course-meta { display: flex; gap: 16px; margin-bottom: 16px; }
 .meta-item { font-size: 0.8rem; color: #888; }
+.btn-arrow { display: inline-block; transition: transform .3s ease; }
+.btn:hover .btn-arrow { transform: translateX(4px); }
 @media (max-width: 900px) { .course-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .course-grid { grid-template-columns: 1fr; } .section { padding: 48px 0; } }
 
@@ -280,18 +303,25 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 /* ===== CTA Section ===== */
 .cta-section { padding: 80px 0; }
 .cta-inner {
-  text-align: center; padding: 48px; border-radius: 16px;
-  background: linear-gradient(135deg, #FF6B35, #FF8C42);
-  color: #fff;
+  position: relative; overflow: hidden;
+  text-align: center; padding: 56px 48px; border-radius: 16px;
+  background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 60%, #FF9A5C 100%);
+  color: #fff; box-shadow: 0 12px 40px rgba(255,107,53,0.25);
 }
-.cta-inner h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; }
-.cta-inner p { font-size: 1rem; opacity: 0.85; margin-bottom: 24px; }
+.cta-inner h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; position: relative; z-index: 1; }
+.cta-inner p { font-size: 1rem; opacity: 0.9; margin-bottom: 24px; position: relative; z-index: 1; }
+.cta-decoration {
+  position: absolute; border-radius: 50%;
+  background: rgba(255,255,255,0.08); pointer-events: none;
+}
+.cta-dec-1 { width: 200px; height: 200px; top: -80px; right: -60px; }
+.cta-dec-2 { width: 120px; height: 120px; bottom: -50px; left: -40px; }
 .btn-cta {
   display: inline-block; padding: 14px 40px; border-radius: 8px;
   background: #fff; color: #FF6B35; font-weight: 700; font-size: 1rem;
-  transition: all .3s;
+  transition: all .3s; position: relative; z-index: 1;
 }
-.btn-cta:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+.btn-cta:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
 </style>
 
 <script>
@@ -314,6 +344,43 @@ import BaseLayout from '@layouts/BaseLayout.astro';
     dots.forEach(function(d) { d.addEventListener('click', function() { goTo(parseInt(this.dataset.slide)); resetTimer(); }); });
     if (prev) { prev.addEventListener('click', function() { prevSlide(); resetTimer(); }); }
     if (next) { next.addEventListener('click', function() { nextSlide(); resetTimer(); }); }
+  }
+
+  // 滚动淡入
+  var revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window && revealEls.length) {
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(function(el) { observer.observe(el); });
+  } else {
+    revealEls.forEach(function(el) { el.classList.add('visible'); });
+  }
+
+  // 数字计数动画
+  var counters = document.querySelectorAll('.stat-number[data-target]');
+  function animateCounter(el) {
+    var target = parseInt(el.dataset.target, 10);
+    var suffix = el.dataset.suffix || '';
+    var duration = 1400, start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var progress = Math.min((ts - start) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(target * eased).toLocaleString('en-US') + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  if ('IntersectionObserver' in window && counters.length) {
+    var cObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { animateCounter(e.target); cObs.unobserve(e.target); }
+      });
+    }, { threshold: 0.4 });
+    counters.forEach(function(el) { cObs.observe(el); });
   }
 })();
 </script>

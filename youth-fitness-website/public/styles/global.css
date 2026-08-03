@@ -103,3 +103,24 @@ ul, ol { list-style: none; }
   .section { padding: 48px 0; }
   .section-title { font-size: 1.5rem; }
 }
+
+/* ===== 动效增强 ===== */
+/* 滚动淡入 */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+/* 按钮通用 hover 增强 */
+.btn { position: relative; overflow: hidden; }
+.btn::after {
+  content: ""; position: absolute; top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.25), transparent);
+  transition: left .5s ease;
+}
+.btn:hover::after { left: 100%; }
+.btn:active { transform: translateY(0) scale(0.98); }
+
+/* 卡片通用 hover 增强 */
+.card img, .course-img { transition: transform .4s ease; }
+.card:hover img, .course-card:hover .course-img { transform: scale(1.04); }
