@@ -33,7 +33,9 @@ const slugOf = (a: any) => a.id.replace(/\.md$/, '');
 // 分享数据
 const shareUrl = new URL(`/news/${slug}/`, Astro.site).href;
 const shareText = description || (title + ' - 满分虎体育');
-const shareImage = (image || coverImage) ? new URL(image || coverImage || '', Astro.site).href : '';
+// 微信分享图：优先用 600x315 小图（微信加载快），不存在则用文章封面
+const ogImage = `/images/og/${slug}.jpg`;
+const shareImage = new URL(ogImage, Astro.site).href;
 ---
 
 <ArticleLayout
@@ -41,6 +43,7 @@ const shareImage = (image || coverImage) ? new URL(image || coverImage || '', As
   description={description}
   date={date}
   image={image || coverImage}
+  ogImage={ogImage}
 >
   <Content />
 
