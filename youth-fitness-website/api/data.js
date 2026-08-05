@@ -36,7 +36,7 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json',
           ...(process.env.KV_REST_API_TOKEN ? { Authorization: 'Bearer ' + process.env.KV_REST_API_TOKEN } : {})
         },
-        body: JSON.stringify(JSON.stringify(data))
+        body: JSON.stringify(data)
       });
     } catch {}
   }

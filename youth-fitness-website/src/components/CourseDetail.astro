@@ -1,0 +1,185 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+interface FocusItem { title: string; description: string; }
+interface DetailItem { label: string; value: string; }
+interface FaqItem { question: string; answer: string; }
+
+export interface Props {
+  title: string;
+  eyebrow: string;
+  description: string;
+  image: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  audience: string;
+  outcome: string;
+  focusItems: FocusItem[];
+  details: DetailItem[];
+  faqs: FaqItem[];
+}
+
+const {
+  title,
+  eyebrow,
+  description,
+  image,
+  imageWidth = 1600,
+  imageHeight = 852,
+  audience,
+  outcome,
+  focusItems,
+  details,
+  faqs,
+} = Astro.props;
+---
+
+<BaseLayout title={`${title}｜满分虎体育`} description={description} image={image}>
+  <section class="course-hero">
+    <img src={image} alt={title} width={imageWidth} height={imageHeight} fetchpriority="high" />
+    <div class="course-hero-shade"></div>
+    <div class="container course-hero-content">
+      <span>{eyebrow}</span>
+      <h1>{title}</h1>
+      <p>{description}</p>
+      <a href="/contact/" class="btn btn-primary btn-lg">预约免费体测</a>
+    </div>
+  </section>
+
+  <section class="section-compact course-summary">
+    <div class="container summary-grid">
+      <div><span>适合人群</span><p>{audience}</p></div>
+      <div><span>训练目标</span><p>{outcome}</p></div>
+      <div><span>开始方式</span><p>先沟通与体测，再确认训练重点和排课安排。</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-heading">
+        <span class="eyebrow">训练内容</span>
+        <h2>每个阶段，都有明确的训练重点</h2>
+        <p>课程不会只做重复练习，而是根据当前表现安排动作、体能和专项内容。</p>
+      </div>
+      <div class="focus-list">
+        {focusItems.map((item, index) => (
+          <article class="focus-item reveal">
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <div><h3>{item.title}</h3><p>{item.description}</p></div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-surface">
+    <div class="container details-layout">
+      <div class="section-heading">
+        <span class="eyebrow">课程安排</span>
+        <h2>先把重要信息说明白</h2>
+        <p>具体时间、地点和课程组合以预约沟通及当期开班情况为准。</p>
+      </div>
+      <dl class="details-list">
+        {details.map(item => <div><dt>{item.label}</dt><dd>{item.value}</dd></div>)}
+      </dl>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container process-wrap">
+      <div class="section-heading center">
+        <span class="eyebrow">训练流程</span>
+        <h2>从第一次体测到阶段复盘</h2>
+      </div>
+      <ol class="process-grid">
+        <li><span>01</span><h3>沟通目标</h3><p>了解年龄、基础和当前需求。</p></li>
+        <li><span>02</span><h3>基础体测</h3><p>记录项目表现与动作情况。</p></li>
+        <li><span>03</span><h3>分阶段训练</h3><p>按重点安排训练内容与节奏。</p></li>
+        <li><span>04</span><h3>复测调整</h3><p>对照记录调整后续训练方向。</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section-warm">
+    <div class="container narrow">
+      <div class="section-heading center"><span class="eyebrow">常见问题</span><h2>预约前需要了解</h2></div>
+      <div class="faq-list">
+        {faqs.map(item => <details><summary>{item.question}</summary><p>{item.answer}</p></details>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section-compact">
+    <div class="container cta-band">
+      <div><h2>先了解孩子当前水平</h2><p>预约一次基础体测，再确认课程是否合适。</p></div>
+      <a href="/contact/" class="btn btn-primary btn-lg">预约免费体测</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .course-hero { position: relative; min-height: 480px; display: flex; align-items: end; overflow: hidden; background: #111b21; }
+  .course-hero > img, .course-hero-shade { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .course-hero > img { object-fit: cover; object-position: center; }
+  .course-hero-shade { background: rgba(10,18,23,.62); }
+  .course-hero-content { position: relative; z-index: 1; padding-block: 72px; color: #fff; }
+  .course-hero-content > span { display: block; margin-bottom: 12px; font-size: 14px; font-weight: 700; }
+  .course-hero h1 { max-width: 760px; margin-bottom: 16px; color: #fff; font-size: 46px; }
+  .course-hero p { max-width: 700px; margin-bottom: 26px; color: #edf1f3; font-size: 18px; }
+
+  .course-summary { border-bottom: 1px solid var(--c-border); }
+  .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .summary-grid > div { padding: 10px 32px; border-right: 1px solid var(--c-border); }
+  .summary-grid > div:first-child { border-left: 1px solid var(--c-border); }
+  .summary-grid span { color: var(--c-primary-dark); font-size: 13px; font-weight: 800; }
+  .summary-grid p { margin: 6px 0 0; color: var(--c-text-muted); }
+
+  .focus-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--c-border); }
+  .focus-item { display: grid; grid-template-columns: 50px 1fr; gap: 18px; padding: 30px 28px 30px 0; border-bottom: 1px solid var(--c-border); }
+  .focus-item:nth-child(odd) { padding-right: 40px; border-right: 1px solid var(--c-border); }
+  .focus-item:nth-child(even) { padding-left: 40px; }
+  .focus-item > span { color: var(--c-primary); font-size: 14px; font-weight: 800; }
+  .focus-item h3 { margin-bottom: 8px; font-size: 20px; }
+  .focus-item p { margin-bottom: 0; color: var(--c-text-muted); }
+
+  .details-layout { display: grid; grid-template-columns: .8fr 1.2fr; gap: 72px; align-items: start; }
+  .details-list { margin: 0; border-top: 1px solid var(--c-border); }
+  .details-list > div { display: grid; grid-template-columns: 140px 1fr; gap: 24px; padding: 19px 0; border-bottom: 1px solid var(--c-border); }
+  .details-list dt { color: var(--c-text-muted); font-size: 14px; }
+  .details-list dd { margin: 0; color: var(--c-ink); font-weight: 700; }
+
+  .process-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 0; border-top: 1px solid var(--c-border); list-style: none; }
+  .process-grid li { padding: 28px 24px; border-right: 1px solid var(--c-border); }
+  .process-grid li:first-child { border-left: 1px solid var(--c-border); }
+  .process-grid span { color: var(--c-primary); font-size: 13px; font-weight: 800; }
+  .process-grid h3 { margin: 18px 0 8px; font-size: 19px; }
+  .process-grid p { margin-bottom: 0; color: var(--c-text-muted); font-size: 14px; }
+
+  .faq-list { border-top: 1px solid var(--c-border); }
+  .faq-list details { border-bottom: 1px solid var(--c-border); }
+  .faq-list summary { position: relative; padding: 20px 44px 20px 0; color: var(--c-ink); font-weight: 700; cursor: pointer; list-style: none; }
+  .faq-list summary::after { content: "+"; position: absolute; right: 4px; color: var(--c-primary); font-size: 22px; }
+  .faq-list details[open] summary::after { content: "-"; }
+  .faq-list p { padding: 0 44px 20px 0; color: var(--c-text-muted); }
+
+  @media (max-width: 900px) {
+    .summary-grid { grid-template-columns: 1fr; }
+    .summary-grid > div, .summary-grid > div:first-child { padding: 18px 0; border: 0; border-bottom: 1px solid var(--c-border); }
+    .details-layout { grid-template-columns: 1fr; gap: 28px; }
+    .process-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .process-grid li:nth-child(3) { border-left: 1px solid var(--c-border); border-top: 1px solid var(--c-border); }
+    .process-grid li:nth-child(4) { border-top: 1px solid var(--c-border); }
+  }
+
+  @media (max-width: 680px) {
+    .course-hero { min-height: 450px; }
+    .course-hero-content { padding-block: 52px; }
+    .course-hero h1 { font-size: 34px; }
+    .course-hero p { font-size: 16px; }
+    .focus-list { grid-template-columns: 1fr; }
+    .focus-item, .focus-item:nth-child(odd), .focus-item:nth-child(even) { padding: 22px 0; border-right: 0; }
+    .details-list > div { grid-template-columns: 1fr; gap: 4px; }
+    .process-grid { grid-template-columns: 1fr; }
+    .process-grid li, .process-grid li:first-child, .process-grid li:nth-child(3), .process-grid li:nth-child(4) { border: 0; border-bottom: 1px solid var(--c-border); }
+  }
+</style>

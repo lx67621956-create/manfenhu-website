@@ -1,0 +1,38 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import NewsList from '@components/NewsList.astro';
+
+export async function getStaticPaths() {
+  const all = await getCollection('news');
+  all.sort((a, b) => b.data.date.localeCompare(a.data.date));
+  const PER_PAGE = 12;
+  const totalPages = Math.ceil(all.length / PER_PAGE);
+
+  return Array.from({ length: totalPages - 1 }, (_, i) => {
+    const page = i + 2;
+    const start = (page - 1) * PER_PAGE;
+    return {
+      params: { page: String(page) },
+      props: { pageArticles: all.slice(start, start + PER_PAGE), currentPage: page, totalPages },
+    };
+  });
+}
+
+const { pageArticles, currentPage, totalPages } = Astro.props;
+---
+
+<BaseLayout
+  title={`北京中考体育备考指南｜第${currentPage}页｜满分虎体育`}
+  description="满分虎体育整理的北京中考体育、项目训练和青少年运动指南。"
+>
+  <section class="page-hero">
+    <div class="container page-hero-inner">
+      <span class="eyebrow">备考指南</span>
+      <h1>更多训练与备考内容</h1>
+      <p>第 {currentPage} 页</p>
+    </div>
+  </section>
+
+  <NewsList {pageArticles} {currentPage} {totalPages} />
+</BaseLayout>

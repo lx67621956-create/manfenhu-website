@@ -2,34 +2,39 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="训练环境 - 青少年体能培训机构">
-  <section class="page-hero" style="background:linear-gradient(135deg, #57606F, #8397A7);">
-    <div class="container"><h1>训练环境</h1></div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <h2 class="section-title">场地照片</h2>
-      <div class="grid-3">
-        <div class="placeholder" style="min-height:200px;">📷 场地照片1</div>
-        <div class="placeholder" style="min-height:200px;">📷 场地照片2</div>
-        <div class="placeholder" style="min-height:200px;">📷 场地照片3</div>
-        <div class="placeholder" style="min-height:200px;">📷 场地照片4</div>
-        <div class="placeholder" style="min-height:200px;">📷 场地照片5</div>
-        <div class="placeholder" style="min-height:200px;">📷 场地照片6</div>
-      </div>
+<BaseLayout
+  title="训练地点与时段｜满分虎体育"
+  description="满分虎体育训练地点和时段根据课程项目、训练目标与预约情况安排，咨询时确认具体场地。"
+  noindex={true}
+>
+  <section class="page-hero">
+    <div class="container page-hero-inner">
+      <span class="eyebrow">训练地点与时段</span>
+      <h1>按项目与时段安排训练场地</h1>
+      <p>不同项目对场地要求不同，具体地点会在确认课程、时间和训练目标后发给家长。</p>
     </div>
   </section>
 
-  <section class="section" style="background:var(--c-surface);">
-    <div class="container">
-      <h2 class="section-title">训练视频</h2>
-      <div class="placeholder" style="min-height:360px;">🎬 训练视频位置（建议上传至视频平台后嵌入链接）</div>
+  <section class="section">
+    <div class="container location-grid">
+      <article class="info-card"><span class="eyebrow">中考体育</span><h2>以项目训练条件为先</h2><p>跑、跳、投及球类项目分别确认适合的训练条件，优先匹配距离和时间都方便的安排。</p></article>
+      <article class="info-card"><span class="eyebrow">少儿体能</span><h2>以安全与动线为先</h2><p>根据年龄段和训练内容安排空间，首次预约会说明集合、装备和到场注意事项。</p></article>
+      <article class="info-card"><span class="eyebrow">手球专项</span><h2>以专项练习空间为先</h2><p>结合传接、移动、投掷和对抗训练需要，预约时确认适用场地与训练时段。</p></article>
+    </div>
+  </section>
+
+  <section class="section section-surface">
+    <div class="container cta-band">
+      <div><h2>想先确认离家近的训练安排？</h2><p>告诉我们所在区域、孩子年龄和目标项目，先咨询可预约时段。</p></div>
+      <a href="/contact/" class="btn btn-primary btn-lg">咨询训练地点</a>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .page-hero { color: #fff; padding: 48px 0; text-align: center; }
-  .page-hero h1 { font-size: 2rem; }
+  .location-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .info-card { padding: 28px; border: 1px solid var(--c-border); border-radius: var(--radius-md); background: #fff; }
+  .info-card h2 { margin: 12px 0 10px; font-size: 22px; }
+  .info-card p { margin: 0; color: var(--c-text-muted); }
+  @media (max-width: 760px) { .location-grid { grid-template-columns: 1fr; } }
 </style>

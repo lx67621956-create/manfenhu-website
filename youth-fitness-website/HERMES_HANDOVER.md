@@ -9,7 +9,7 @@
 | 项目 | 内容 |
 |------|------|
 | 网站 | `www.manfenhu.com` |
-| 源码路径 | `C:\Users\lx676\manfenhu-website\youth-fitness-website` |
+| 源码路径 | `D:\manfenhu-website\youth-fitness-website` |
 | GitHub | `https://github.com/lx67621956-create/manfenhu-website` |
 | Git 仓库目录 | `youth-fitness-website/` |
 | 技术栈 | Astro 5.7.12 + Vercel 静态部署 |
@@ -30,7 +30,7 @@
 ```python
 # 在项目目录创建 build_runner.py
 import subprocess, os
-proj = r"C:\Users\lx676\manfenhu-website\youth-fitness-website"
+proj = r"D:\manfenhu-website\youth-fitness-website"
 npm = r"D:\QClaw\v0.2.28.587\resources\openclaw\config\bin\node\npm.cmd"
 subprocess.run([npm, "run", "build"], cwd=proj)
 ```
@@ -39,14 +39,14 @@ subprocess.run([npm, "run", "build"], cwd=proj)
 **方法 B：用 .bat 文件构建**
 ```batch
 @echo off
-cd /d C:\Users\lx676\manfenhu-website\youth-fitness-website
+cd /d D:\manfenhu-website\youth-fitness-website
 npm run build
 ```
 直接运行 `build.bat` 或在 cmd 中执行。
 
 **方法 C：用 cmd /c 运行**
 ```cmd
-cmd /c "cd /d C:\Users\lx676\manfenhu-website\youth-fitness-website && npm run build"
+cmd /c "cd /d D:\manfenhu-website\youth-fitness-website && npm run build"
 ```
 
 ---
@@ -58,7 +58,7 @@ cmd /c "cd /d C:\Users\lx676\manfenhu-website\youth-fitness-website && npm run b
 **提交单个文件的 Python 脚本（git_push.py）：**
 ```python
 import subprocess, os
-proj = r"C:\Users\lx676\manfenhu-website\youth-fitness-website"
+proj = r"D:\manfenhu-website\youth-fitness-website"
 git = r"D:\APP MAKER\Git\cmd\git.exe"
 os.chdir(proj)
 
@@ -78,7 +78,7 @@ for cmd in cmds:
 
 **方式 A（推荐）：从父目录手动部署（绕过 rootDirectory 问题）**
 ```cmd
-cd C:\Users\lx676\manfenhu-website
+cd D:\manfenhu-website
 vercel --prod --yes
 ```
 
@@ -243,7 +243,7 @@ A: 检查文章是否传了 `coverImage` 或 `image` prop，路径是否为 `/im
 A: 正文必须用 HTML 标签，不能用 Markdown 语法。检查文章文件里的正文部分。
 
 ### Q: Vercel 部署没触发
-A: Git 推送后 Vercel 有时会因 rootDirectory 路径匹配问题跳过自动部署。手动执行 `vercel --prod --yes`（从 `C:\Users\lx676\manfenhu-website` 目录运行）。
+A: Git 推送后 Vercel 有时会因 rootDirectory 路径匹配问题跳过自动部署。手动执行 `vercel --prod --yes`（从 `D:\manfenhu-website` 目录运行）。
 
 ### Q: Git push 失败（rejected）
 A: 远程有更新，先 pull 再 push：`git pull origin master --rebase` 或 `git stash` → `git pull` → `git stash pop`。

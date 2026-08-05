@@ -1,386 +1,306 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const articles = await getCollection('news');
+articles.sort((a, b) => b.data.date.localeCompare(a.data.date));
+const latestArticles = articles.slice(0, 3);
 ---
 
-<BaseLayout title="满分虎中考体育 — 青少年体能培训专家">
-  <!-- 轮播图 -->
-  <section class="hero-banner">
-    <div class="carousel">
-      <div class="carousel-slides">
-        <div class="carousel-slide active" data-index="0">
-          <img src="/images/banner-zhongkao.jpg" alt="专注青少年体质提升" class="carousel-img" />
-          <div class="carousel-overlay">
-            <span class="carousel-badge">2026中考体育</span>
-            <h2 class="carousel-title">专注青少年体质提升</h2>
-            <p class="carousel-sub">科学训练，为成长加分</p>
-            <a href="/courses/" class="btn btn-primary btn-lg">了解课程</a>
-          </div>
+<BaseLayout
+  title="满分虎体育｜北京中考体育与青少年体能训练"
+  description="满分虎体育提供北京中考体育、少儿体能和手球专项训练咨询。从体测评估开始，为孩子制定更有针对性的训练方案。"
+  image="/images/banner-zhongkao.webp"
+>
+  <section class="home-hero">
+    <img class="home-hero-image" src="/images/banner-zhongkao.webp" alt="青少年进行中考体育专项训练" width="1792" height="1024" fetchpriority="high" />
+    <div class="home-hero-shade"></div>
+    <div class="container home-hero-content">
+      <div class="home-hero-copy">
+        <span class="hero-kicker">中考体育 · 少儿体能 · 手球专项</span>
+        <h1>北京中考体育专项训练</h1>
+        <p>从一次体测开始，找准孩子当前基础、薄弱项目与训练重点，让每一步训练都有目标。</p>
+        <div class="hero-actions">
+          <a href="/contact/" class="btn btn-primary btn-lg">预约免费体测</a>
+          <a href="/courses/" class="btn btn-secondary btn-lg">查看课程方案</a>
         </div>
-        <div class="carousel-slide" data-index="1">
-          <img src="/images/banner-handball.jpg" alt="中考体育提分个体化训练" class="carousel-img" />
-          <div class="carousel-overlay">
-            <span class="carousel-badge">个体化训练</span>
-            <h2 class="carousel-title">中考体育提分·个体化训练</h2>
-            <p class="carousel-sub">每个孩子都值得一份专属训练方案</p>
-            <a href="/courses/zhongkao/" class="btn btn-primary btn-lg">了解详情</a>
-          </div>
-        </div>
-        <div class="carousel-slide" data-index="2">
-          <img src="/images/banner-fitness.jpg" alt="手球专业运动员输送" class="carousel-img" />
-          <div class="carousel-overlay">
-            <span class="carousel-badge">专业输送</span>
-            <h2 class="carousel-title">手球专业运动员输送</h2>
-            <p class="carousel-sub">从兴趣到专业，打通体育升学之路</p>
-            <a href="/courses/shouqiu/" class="btn btn-primary btn-lg">了解详情</a>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-dots">
-        <span class="dot active" data-slide="0"></span>
-        <span class="dot" data-slide="1"></span>
-        <span class="dot" data-slide="2"></span>
-      </div>
-      <button class="carousel-arrow carousel-prev" aria-label="上一张">&#10094;</button>
-      <button class="carousel-arrow carousel-next" aria-label="下一张">&#10095;</button>
-    </div>
-  </section>
-
-  <!-- 数据统计 -->
-  <section class="stats-bar">
-    <div class="container">
-      <div class="stats-grid">
-        <div class="stat-item reveal">
-          <span class="stat-number" data-target="10000" data-suffix="+">0</span>
-          <span class="stat-label">累计学员</span>
-        </div>
-        <div class="stat-item reveal">
-          <span class="stat-number" data-target="98" data-suffix="%">0</span>
-          <span class="stat-label">中考体育满分率</span>
-        </div>
-        <div class="stat-item reveal">
-          <span class="stat-number" data-target="10" data-suffix="年">0</span>
-          <span class="stat-label">专注青少年体能</span>
-        </div>
-        <div class="stat-item reveal">
-          <span class="stat-number">国家级</span>
-          <span class="stat-label">专业教练团队</span>
-        </div>
+        <span class="hero-note">北京市服务 · 训练安排以预约确认为准</span>
       </div>
     </div>
   </section>
 
-  <!-- 课程体系 -->
-  <section class="section">
+  <section class="trust-strip" aria-label="训练服务特点">
+    <div class="container trust-grid">
+      <div><strong>先体测</strong><span>了解当前基础</span></div>
+      <div><strong>定目标</strong><span>明确训练重点</span></div>
+      <div><strong>分阶段</strong><span>逐步提升能力</span></div>
+      <div><strong>再复测</strong><span>用记录观察变化</span></div>
+    </div>
+  </section>
+
+  <section class="section audience-section">
     <div class="container">
-      <h2 class="section-title">课程体系</h2>
-      <p class="section-desc">科学分龄，因材施教，三大课程覆盖从兴趣到升学的完整路径</p>
+      <div class="section-heading">
+        <span class="eyebrow">从孩子当前阶段出发</span>
+        <h2>先选对方向，再开始训练</h2>
+        <p>不同年龄、目标和运动基础，需要不同的训练节奏。</p>
+      </div>
+      <div class="audience-grid">
+        <a class="audience-item reveal" href="/courses/zhongkao/">
+          <span class="audience-index">01</span>
+          <div><strong>新初二 / 新初三</strong><h3>中考体育备考</h3><p>体测评估、项目分析、动作训练与阶段复测。</p></div>
+          <span class="audience-link">查看方案</span>
+        </a>
+        <a class="audience-item reveal" href="/courses/ertong/">
+          <span class="audience-index">02</span>
+          <div><strong>4-12岁儿童</strong><h3>基础体能培养</h3><p>围绕力量、速度、协调、灵敏与运动兴趣打好基础。</p></div>
+          <span class="audience-link">查看方案</span>
+        </a>
+        <a class="audience-item reveal" href="/courses/shouqiu/">
+          <span class="audience-index">03</span>
+          <div><strong>专项兴趣与进阶</strong><h3>手球专项训练</h3><p>发展专项技术、体能基础、比赛意识与团队协作。</p></div>
+          <span class="audience-link">查看方案</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-surface">
+    <div class="container">
+      <div class="section-heading center">
+        <span class="eyebrow">课程服务</span>
+        <h2>三条训练路径，对应不同成长目标</h2>
+        <p>课程详情以孩子的体测结果、年龄和开班安排为准。</p>
+      </div>
       <div class="course-grid">
-        <div class="course-card reveal">
-          <div class="course-img-wrap">
-            <img src="/images/courses/zhongkao.jpg.png" alt="中考体育特训" class="course-img" />
-            <span class="course-tag">提分冲刺</span>
-          </div>
+        <article class="course-card card card-hover reveal">
+          <a href="/courses/zhongkao/" class="course-media"><img src="/images/courses/zhongkao.webp" alt="中考体育专项训练" width="1600" height="852" loading="lazy" /></a>
           <div class="course-body">
+            <span class="course-label">考试目标</span>
             <h3>中考体育特训</h3>
-            <p>针对北京中考体育测试项目，从800米到引体向上，专项提分训练，每期都能看到提升后的自己。</p>
-            <div class="course-meta">
-              <span class="meta-item">📅 5节课/期</span>
-              <span class="meta-item">👥 2-4人小班</span>
-            </div>
-            <a href="/courses/zhongkao/" class="btn btn-outline">了解详情 <span class="btn-arrow">→</span></a>
+            <p>围绕孩子的当前得分、选考项目与薄弱动作，制定分阶段训练重点。</p>
+            <ul><li>入学体测与项目分析</li><li>动作纠正与专项训练</li><li>阶段复测与训练反馈</li></ul>
+            <a class="text-link" href="/courses/zhongkao/">了解中考课程</a>
           </div>
-        </div>
-        <div class="course-card reveal">
-          <div class="course-img-wrap">
-            <img src="/images/courses/ertong.jpg.png" alt="少儿体能训练" class="course-img" />
-            <span class="course-tag tag-green">基础体能</span>
-          </div>
+        </article>
+        <article class="course-card card card-hover reveal">
+          <a href="/courses/ertong/" class="course-media"><img src="/images/courses/ertong.webp" alt="少儿体能训练" width="1600" height="852" loading="lazy" /></a>
           <div class="course-body">
+            <span class="course-label course-label-green">成长基础</span>
             <h3>少儿体能训练</h3>
-            <p>4-12岁少儿基础体能训练，通过趣味运动培养运动兴趣和习惯。</p>
-            <div class="course-meta">
-              <span class="meta-item">📅 30节课/期</span>
-              <span class="meta-item">👥 8-10人小班</span>
-            </div>
-            <a href="/courses/ertong/" class="btn btn-outline">了解详情 <span class="btn-arrow">→</span></a>
+            <p>通过适龄运动任务和游戏化训练，帮助孩子建立动作基础与运动习惯。</p>
+            <ul><li>分龄训练内容</li><li>协调、灵敏与力量基础</li><li>关注运动兴趣和参与感</li></ul>
+            <a class="text-link" href="/courses/ertong/">了解少儿课程</a>
           </div>
-        </div>
-        <div class="course-card reveal">
-          <div class="course-img-wrap">
-            <img src="/images/courses/shouqiu.jpg.png" alt="手球专项特训" class="course-img" />
-            <span class="course-tag tag-blue">专项培养</span>
-          </div>
+        </article>
+        <article class="course-card card card-hover reveal">
+          <a href="/courses/shouqiu/" class="course-media"><img src="/images/courses/shouqiu.webp" alt="青少年手球专项训练" width="1600" height="849" loading="lazy" /></a>
           <div class="course-body">
-            <h3>手球专项特训</h3>
-            <p>前国家队运动员执教，专业手球技战术训练，培养团队协作能力，专业队输送，升学保障。</p>
-            <div class="course-meta">
-              <span class="meta-item">📅 20节课/期</span>
-              <span class="meta-item">👥 8-10人小班</span>
-            </div>
-            <a href="/courses/shouqiu/" class="btn btn-outline">了解详情 <span class="btn-arrow">→</span></a>
+            <span class="course-label course-label-blue">专项发展</span>
+            <h3>手球专项训练</h3>
+            <p>从基础动作到专项配合，逐步提升技术、体能和比赛理解。</p>
+            <ul><li>基础技术与脚步</li><li>专项体能与对抗意识</li><li>团队配合与比赛实践</li></ul>
+            <a class="text-link" href="/courses/shouqiu/">了解手球课程</a>
           </div>
-        </div>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- 关于我们 -->
+  <section class="section method-section">
+    <div class="container method-layout">
+      <div class="section-heading">
+        <span class="eyebrow">训练方法</span>
+        <h2>把“练得多”变成“练得更清楚”</h2>
+        <p>家长可以知道孩子为什么练、这一阶段练什么、下一步该怎么调整。</p>
+        <a href="/contact/" class="btn btn-outline method-cta">预约一次体测</a>
+      </div>
+      <ol class="method-steps">
+        <li><span>01</span><div><h3>初始体测</h3><p>记录当前项目表现和动作情况。</p></div></li>
+        <li><span>02</span><div><h3>目标拆解</h3><p>确定优先训练项目和阶段目标。</p></div></li>
+        <li><span>03</span><div><h3>专项训练</h3><p>围绕动作、体能和稳定性持续训练。</p></div></li>
+        <li><span>04</span><div><h3>阶段复测</h3><p>对照记录复盘，再调整后续计划。</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section-warm training-section">
+    <div class="container">
+      <div class="section-heading">
+        <span class="eyebrow">训练现场</span>
+        <h2>看得见的训练内容</h2>
+        <p>耐力、力量、球类和动作基础，都需要在真实训练中逐步建立。</p>
+      </div>
+      <div class="training-grid">
+        <figure><img src="/images/students/students-running.jpg" alt="学员进行耐力跑训练" loading="lazy" /><figcaption><strong>耐力与节奏</strong><span>800米 / 1000米训练</span></figcaption></figure>
+        <figure><img src="/images/students/students-standing-jump.jpg" alt="学员进行立定跳远动作训练" loading="lazy" /><figcaption><strong>力量与动作</strong><span>起跳、腾空与落地</span></figcaption></figure>
+        <figure><img src="/images/students/students-volleyball.jpg" alt="学员进行排球垫球训练" loading="lazy" /><figcaption><strong>球类与稳定性</strong><span>动作控制与连续完成</span></figcaption></figure>
+      </div>
+      <a href="/students/" class="text-link training-more">查看更多训练与案例</a>
+    </div>
+  </section>
+
   <section class="section about-section">
-    <div class="container">
-      <div class="about-grid">
-        <div class="about-video reveal">
-          <div class="video-wrapper">
-            <iframe src="https://player.youku.com/embed/XNjI1MjgyNTI0OA==" frameborder="0" allowfullscreen loading="lazy"></iframe>
-          </div>
-        </div>
-        <div class="about-content reveal">
-          <span class="about-badge">关于满分虎</span>
-          <h2>不只提分，更要培养一生的运动习惯</h2>
-          <p>满分虎是针对青少年体质健康与应试满分问题的解决方案。意在通过"提升应试分数"的方式，开启每个中国家庭对于孩子身体素质全面提升的意识；帮助每一位孩子从小建立正确的运动模式、培养终身的运动习惯。</p>
-          <div class="about-features">
-            <div class="about-feature">
-              <span class="feature-icon">✓</span>
-              <span>前国家队运动员教练团队</span>
-            </div>
-            <div class="about-feature">
-              <span class="feature-icon">✓</span>
-              <span>个体化训练方案定制</span>
-            </div>
-            <div class="about-feature">
-              <span class="feature-icon">✓</span>
-              <span>从兴趣培养到专业输送</span>
-            </div>
-          </div>
-          <a href="/contact/" class="btn btn-primary">预约免费体验 →</a>
-        </div>
+    <div class="container about-layout">
+      <div class="about-video">
+        <iframe src="https://player.youku.com/embed/XNjI1MjgyNTI0OA==" title="满分虎体育训练介绍" loading="lazy" allowfullscreen></iframe>
+      </div>
+      <div class="about-copy">
+        <span class="eyebrow">关于满分虎</span>
+        <h2>不只关注一次考试，也关注长期运动能力</h2>
+        <p>我们希望先用清晰的目标帮助孩子进入训练，再通过持续的运动体验，逐步建立动作基础、身体能力与运动习惯。</p>
+        <ul class="feature-list"><li>根据当前基础安排训练重点</li><li>重视动作质量与训练安全</li><li>通过阶段记录与家长保持沟通</li></ul>
       </div>
     </div>
   </section>
 
-  <!-- CTA -->
-  <section class="cta-section">
+  <section class="section section-surface">
     <div class="container">
-      <div class="cta-inner reveal">
-        <div class="cta-decoration cta-dec-1"></div>
-        <div class="cta-decoration cta-dec-2"></div>
-        <h2>让孩子爱上运动，从满分虎开始</h2>
-        <p>免费体验课预约中，来试试就知道</p>
-        <a href="/contact/" class="btn btn-cta">立即预约 <span class="btn-arrow">→</span></a>
+      <div class="section-heading">
+        <span class="eyebrow">备考指南</span>
+        <h2>先把政策和训练方法看明白</h2>
+        <p>围绕北京中考体育项目、训练安排和常见问题持续更新。</p>
       </div>
+      <div class="latest-grid">
+        {latestArticles.map(article => {
+          const slug = article.id.replace(/\.md$/, '');
+          const image = article.data.image || article.data.coverImage || '/images/og-default.png';
+          return (
+            <article class="latest-item card card-hover">
+              <a href={`/news/${slug}`}><img src={image} alt={article.data.title} loading="lazy" /></a>
+              <div><span>{article.data.category || '备考指南'} · {article.data.date}</span><h3><a href={`/news/${slug}`}>{article.data.title}</a></h3><a class="text-link" href={`/news/${slug}`}>阅读全文</a></div>
+            </article>
+          );
+        })}
+      </div>
+      <a href="/news/" class="btn btn-outline all-news">查看全部备考内容</a>
+    </div>
+  </section>
+
+  <section class="section faq-section">
+    <div class="container narrow">
+      <div class="section-heading center"><span class="eyebrow">常见问题</span><h2>预约前，家长通常会问</h2></div>
+      <div class="faq-list">
+        <details><summary>第一次到店会直接开始上课吗？</summary><p>建议先进行基础沟通和体测，了解孩子当前项目表现，再确认更合适的训练安排。</p></details>
+        <details><summary>还没有确定选考项目，可以咨询吗？</summary><p>可以。咨询时可结合孩子的年级、身体基础和现有项目表现，梳理需要优先了解的方向。</p></details>
+        <details><summary>训练地点和开课时间怎么确认？</summary><p>提交预约后，工作人员会根据课程类型和近期排课说明可选时间与训练地点。</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-compact">
+    <div class="container cta-band">
+      <div><h2>不知道孩子该从哪里开始？</h2><p>先做一次基础体测，再决定训练项目和节奏。</p></div>
+      <a href="/contact/" class="btn btn-primary btn-lg">预约免费体测</a>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-/* ===== Hero Banner ===== */
-.hero-banner { position: relative; max-width: 1200px; margin: 0 auto; border-radius: 0 0 12px 12px; overflow: hidden; }
-.carousel { position: relative; width: 100%; height: 420px; overflow: hidden; background: #222; }
-.carousel-slides { position: relative; width: 100%; height: 100%; }
-.carousel-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.8s ease; z-index: 0; }
-.carousel-slide.active { opacity: 1; z-index: 1; }
-.carousel-slide.active .carousel-overlay > * { animation: fadeUp .8s ease both; }
-.carousel-slide.active .carousel-badge { animation-delay: .1s; }
-.carousel-slide.active .carousel-title { animation-delay: .25s; }
-.carousel-slide.active .carousel-sub { animation-delay: .4s; }
-.carousel-slide.active .carousel-overlay .btn { animation-delay: .55s; }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-.carousel-img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
-.carousel-overlay {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.55) 100%),
-    linear-gradient(135deg, rgba(0,0,0,0.35), rgba(0,0,0,0.1));
-  color: #fff; padding: 24px;
-}
-.carousel-badge {
-  display: inline-block; padding: 5px 16px; border-radius: 20px;
-  background: rgba(255,107,53,0.9); color: #fff;
-  font-size: 0.8rem; font-weight: 600; letter-spacing: 1px;
-  margin-bottom: 16px; box-shadow: 0 2px 8px rgba(255,107,53,0.35);
-}
-.carousel-title {
-  font-size: 2.5rem; font-weight: 800; margin-bottom: 10px;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.45); letter-spacing: 2px;
-}
-.carousel-sub { font-size: 1.1rem; margin-bottom: 24px; opacity: 0.95; text-shadow: 0 1px 6px rgba(0,0,0,0.4); }
-.btn-lg { padding: 14px 40px; font-size: 1.05rem; border-radius: 8px; font-weight: 700; box-shadow: 0 4px 16px rgba(255,107,53,0.35); }
-.carousel-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 10; }
-.dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.4); cursor: pointer; transition: all .3s; }
-.dot.active { background: #FF6B35; width: 28px; border-radius: 5px; }
-.carousel-arrow {
-  position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
-  background: rgba(0,0,0,0.25); color: #fff; border: none;
-  font-size: 1.5rem; width: 42px; height: 42px; border-radius: 50%;
-  cursor: pointer; transition: background .3s, transform .3s; display: flex; align-items: center; justify-content: center;
-  backdrop-filter: blur(4px);
-}
-.carousel-arrow:hover { background: rgba(0,0,0,0.5); transform: translateY(-50%) scale(1.1); }
-.carousel-prev { left: 16px; }
-.carousel-next { right: 16px; }
-@media (max-width: 768px) {
-  .carousel { height: 280px; }
-  .carousel-title { font-size: 1.5rem; }
-  .carousel-sub { font-size: 0.95rem; }
-  .carousel-arrow { width: 32px; height: 32px; font-size: 1.1rem; }
-  .hero-banner { border-radius: 0; }
-}
+  .home-hero { position: relative; height: clamp(600px, 50vw, 820px); display: flex; align-items: flex-end; overflow: hidden; background: #e1d0c4; }
+  .home-hero-image, .home-hero-shade { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .home-hero-image { object-fit: contain; object-position: center; }
+  .home-hero-shade { background: linear-gradient(90deg, rgba(10,18,23,.08) 0%, rgba(10,18,23,.22) 44%, rgba(10,18,23,.82) 100%); }
+  .home-hero-content { position: relative; z-index: 1; display: flex; justify-content: flex-end; padding-block: 48px 52px; color: #fff; }
+  .home-hero-copy { width: min(100%, 610px); }
+  .hero-kicker { display: block; margin-bottom: 18px; font-size: 14px; font-weight: 700; }
+  .home-hero h1 { max-width: 720px; margin-bottom: 18px; color: #fff; font-size: 48px; }
+  .home-hero p { max-width: 650px; margin-bottom: 28px; color: #edf1f3; font-size: 19px; }
+  .hero-actions { display: flex; gap: 12px; }
+  .hero-note { display: block; margin-top: 18px; color: #d5dde1; font-size: 13px; }
 
-/* ===== Stats Bar ===== */
-.stats-bar { background: #fff; border-bottom: 1px solid #e8e8e8; padding: 32px 0; }
-.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center; }
-.stat-item { display: flex; flex-direction: column; gap: 4px; }
-.stat-number { font-size: 2rem; font-weight: 800; color: #FF6B35; letter-spacing: -0.5px; }
-.stat-label { font-size: 0.9rem; color: #666; }
-@media (max-width: 768px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
-  .stats-bar { padding: 24px 0; }
-}
+  .trust-strip { border-bottom: 1px solid var(--c-border); background: #fff; }
+  .trust-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .trust-grid > div { display: grid; gap: 2px; padding: 22px 28px; border-right: 1px solid var(--c-border); }
+  .trust-grid > div:first-child { border-left: 1px solid var(--c-border); }
+  .trust-grid strong { color: var(--c-ink); font-size: 17px; }
+  .trust-grid span { color: var(--c-text-muted); font-size: 13px; }
 
-/* ===== Section ===== */
-.section { padding: 80px 0; }
-.section-title { font-size: 1.8rem; text-align: center; margin-bottom: 8px; color: #1E272E; font-weight: 700; }
-.section-title::after { content: ""; display: block; width: 40px; height: 3px; background: #FF6B35; margin: 12px auto 0; border-radius: 2px; }
-.section-desc { text-align: center; color: #888; font-size: 1rem; margin-bottom: 48px; }
+  .audience-grid { display: grid; border-top: 1px solid var(--c-border); }
+  .audience-item { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; align-items: center; gap: 24px; padding: 28px 8px; border-bottom: 1px solid var(--c-border); }
+  .audience-item:hover .audience-link { color: var(--c-primary-dark); }
+  .audience-index { color: var(--c-primary); font-size: 15px; font-weight: 800; }
+  .audience-item strong { color: var(--c-text-muted); font-size: 13px; }
+  .audience-item h3 { margin: 4px 0 5px; font-size: 22px; }
+  .audience-item p { margin-bottom: 0; color: var(--c-text-muted); }
+  .audience-link { font-weight: 700; }
 
-/* ===== Course Cards ===== */
-.course-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-.course-card {
-  background: #fff; border-radius: 12px; overflow: hidden;
-  border: 1px solid #eee; transition: all 0.3s ease;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  position: relative;
-}
-.course-card::before {
-  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-  background: linear-gradient(90deg, #FF6B35, #FFB199); z-index: 2;
-}
-.course-card:nth-child(2)::before { background: linear-gradient(90deg, #44BD32, #A8E063); }
-.course-card:nth-child(3)::before { background: linear-gradient(90deg, #0097E6, #54C8FF); }
-.course-card:hover { border-color: #FF6B35; box-shadow: 0 12px 40px rgba(255,107,53,0.15); transform: translateY(-6px); }
-.course-img-wrap { position: relative; height: 200px; overflow: hidden; background: #f5f5f5; }
-.course-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
-.course-card:hover .course-img { transform: scale(1.05); }
-.course-tag {
-  position: absolute; top: 12px; left: 12px;
-  padding: 3px 12px; border-radius: 20px;
-  background: #FF6B35; color: #fff;
-  font-size: 0.75rem; font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-.tag-green { background: #44BD32; }
-.tag-blue { background: #0097E6; }
-.course-body { padding: 20px; }
-.course-body h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; color: #1E272E; }
-.course-body p { font-size: 0.88rem; color: #666; line-height: 1.6; margin-bottom: 14px; }
-.course-meta { display: flex; gap: 16px; margin-bottom: 16px; }
-.meta-item { font-size: 0.8rem; color: #888; }
-.btn-arrow { display: inline-block; transition: transform .3s ease; }
-.btn:hover .btn-arrow { transform: translateX(4px); }
-@media (max-width: 900px) { .course-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px) { .course-grid { grid-template-columns: 1fr; } .section { padding: 48px 0; } }
+  .course-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .course-media { display: block; aspect-ratio: 16 / 9; overflow: hidden; background: #e8ecee; }
+  .course-media img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+  .course-card:hover .course-media img { transform: scale(1.025); }
+  .course-body { padding: 26px; }
+  .course-label { display: inline-block; margin-bottom: 12px; color: var(--c-primary-dark); font-size: 12px; font-weight: 800; }
+  .course-label-green { color: var(--c-green); }
+  .course-label-blue { color: var(--c-blue); }
+  .course-body h3 { margin-bottom: 10px; font-size: 22px; }
+  .course-body p { margin-bottom: 18px; color: var(--c-text-muted); }
+  .course-body ul { display: grid; gap: 7px; margin: 0 0 22px; padding: 0; list-style: none; font-size: 14px; }
+  .course-body li::before { content: ""; display: inline-block; width: 6px; height: 6px; margin: 0 9px 2px 0; border-radius: 50%; background: var(--c-primary); }
 
-/* ===== About Section ===== */
-.about-section { background: #F8F9FA; }
-.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
-.about-badge {
-  display: inline-block; padding: 3px 12px; border-radius: 20px;
-  background: #FF6B35; color: #fff; font-size: 0.78rem; font-weight: 600; margin-bottom: 12px;
-}
-.about-content h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 16px; line-height: 1.4; color: #1E272E; }
-.about-content > p { font-size: 0.9rem; color: #555; line-height: 1.7; margin-bottom: 20px; }
-.about-features { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-.about-feature { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: #444; }
-.feature-icon { color: #44BD32; font-weight: 700; font-size: 1rem; }
-@media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; gap: 32px; } }
+  .method-layout { display: grid; grid-template-columns: .85fr 1.15fr; gap: 80px; align-items: start; }
+  .method-cta { width: fit-content; margin-top: 10px; }
+  .method-steps { display: grid; margin: 0; padding: 0; border-top: 1px solid var(--c-border); list-style: none; }
+  .method-steps li { display: grid; grid-template-columns: 56px 1fr; gap: 18px; padding: 22px 0; border-bottom: 1px solid var(--c-border); }
+  .method-steps > li > span { color: var(--c-primary); font-size: 14px; font-weight: 800; }
+  .method-steps h3 { margin-bottom: 5px; font-size: 19px; }
+  .method-steps p { margin-bottom: 0; color: var(--c-text-muted); font-size: 15px; }
 
-.video-wrapper {
-  position: relative; width: 100%; aspect-ratio: 16 / 9;
-  border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-}
-.video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+  .training-grid { display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 16px; }
+  .training-grid figure { position: relative; min-height: 320px; margin: 0; overflow: hidden; border-radius: var(--radius-md); background: #dfe5e8; }
+  .training-grid img { width: 100%; height: 100%; object-fit: cover; }
+  .training-grid figcaption { position: absolute; right: 0; bottom: 0; left: 0; display: grid; padding: 34px 18px 16px; background: rgba(10,18,23,.72); color: #fff; }
+  .training-grid figcaption span { color: #dce3e6; font-size: 13px; }
+  .training-more { display: inline-block; margin-top: 22px; }
 
-/* ===== CTA Section ===== */
-.cta-section { padding: 80px 0; }
-.cta-inner {
-  position: relative; overflow: hidden;
-  text-align: center; padding: 56px 48px; border-radius: 16px;
-  background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 60%, #FF9A5C 100%);
-  color: #fff; box-shadow: 0 12px 40px rgba(255,107,53,0.25);
-}
-.cta-inner h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; position: relative; z-index: 1; }
-.cta-inner p { font-size: 1rem; opacity: 0.9; margin-bottom: 24px; position: relative; z-index: 1; }
-.cta-decoration {
-  position: absolute; border-radius: 50%;
-  background: rgba(255,255,255,0.08); pointer-events: none;
-}
-.cta-dec-1 { width: 200px; height: 200px; top: -80px; right: -60px; }
-.cta-dec-2 { width: 120px; height: 120px; bottom: -50px; left: -40px; }
-.btn-cta {
-  display: inline-block; padding: 14px 40px; border-radius: 8px;
-  background: #fff; color: #FF6B35; font-weight: 700; font-size: 1rem;
-  transition: all .3s; position: relative; z-index: 1;
-}
-.btn-cta:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+  .about-layout { display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center; }
+  .about-video { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-md); background: #111; }
+  .about-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .about-copy h2 { margin-bottom: 18px; font-size: 30px; }
+  .about-copy p { color: var(--c-text-muted); }
+
+  .latest-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .latest-item > a { display: block; aspect-ratio: 16 / 9; overflow: hidden; background: #e7ecee; }
+  .latest-item img { width: 100%; height: 100%; object-fit: cover; }
+  .latest-item > div { padding: 22px; }
+  .latest-item span { color: var(--c-text-muted); font-size: 12px; }
+  .latest-item h3 { margin: 9px 0 16px; font-size: 18px; }
+  .all-news { margin-top: 28px; }
+
+  .faq-list { border-top: 1px solid var(--c-border); }
+  .faq-list details { border-bottom: 1px solid var(--c-border); }
+  .faq-list summary { position: relative; padding: 20px 44px 20px 0; color: var(--c-ink); font-weight: 700; cursor: pointer; list-style: none; }
+  .faq-list summary::after { content: "+"; position: absolute; top: 17px; right: 4px; color: var(--c-primary); font-size: 24px; }
+  .faq-list details[open] summary::after { content: "-"; }
+  .faq-list p { padding: 0 44px 20px 0; color: var(--c-text-muted); }
+
+  @media (max-width: 900px) {
+    .home-hero { height: 68vw; min-height: 560px; max-height: 620px; }
+    .home-hero h1 { font-size: 42px; }
+    .home-hero-copy { width: min(100%, 560px); }
+    .course-grid, .latest-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .course-card:last-child, .latest-item:last-child { grid-column: 1 / -1; }
+    .method-layout, .about-layout { grid-template-columns: 1fr; gap: 40px; }
+    .training-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .training-grid figure:first-child { grid-column: 1 / -1; }
+  }
+
+  @media (max-width: 680px) {
+    .home-hero { display: block; height: auto; min-height: 0; max-height: none; padding-top: 57.1429vw; background: #10181d; }
+    .home-hero-image { bottom: auto; height: 57.1429vw; background: #e1d0c4; }
+    .home-hero-shade { display: none; }
+    .home-hero-content { padding-block: 32px 40px; }
+    .home-hero-copy { width: 100%; }
+    .home-hero h1 { font-size: 34px; }
+    .home-hero p { font-size: 17px; }
+    .hero-actions { flex-direction: column; align-items: stretch; }
+    .trust-grid { grid-template-columns: repeat(2, 1fr); }
+    .trust-grid > div { padding: 16px; border-bottom: 1px solid var(--c-border); }
+    .trust-grid > div:nth-child(odd) { border-left: 1px solid var(--c-border); }
+    .audience-item { grid-template-columns: 40px minmax(0, 1fr); gap: 12px; }
+    .audience-link { grid-column: 2; font-size: 14px; }
+    .course-grid, .latest-grid, .training-grid { grid-template-columns: 1fr; }
+    .course-card:last-child, .latest-item:last-child, .training-grid figure:first-child { grid-column: auto; }
+    .training-grid figure { min-height: 280px; }
+  }
 </style>
-
-<script>
-(function() {
-  var slides = document.querySelectorAll('.carousel-slide');
-  var dots = document.querySelectorAll('.dot');
-  var prev = document.querySelector('.carousel-prev');
-  var next = document.querySelector('.carousel-next');
-  var current = 0, timer;
-  function goTo(index) {
-    slides.forEach(function(s, i) { s.classList.toggle('active', i === index); });
-    dots.forEach(function(d, i) { d.classList.toggle('active', i === index); });
-    current = index;
-  }
-  function nextSlide() { goTo((current + 1) % slides.length); }
-  function prevSlide() { goTo((current - 1 + slides.length) % slides.length); }
-  function resetTimer() { clearInterval(timer); timer = setInterval(nextSlide, 5000); }
-  if (slides.length) {
-    goTo(0); timer = setInterval(nextSlide, 5000);
-    dots.forEach(function(d) { d.addEventListener('click', function() { goTo(parseInt(this.dataset.slide)); resetTimer(); }); });
-    if (prev) { prev.addEventListener('click', function() { prevSlide(); resetTimer(); }); }
-    if (next) { next.addEventListener('click', function() { nextSlide(); resetTimer(); }); }
-  }
-
-  // 滚动淡入
-  var revealEls = document.querySelectorAll('.reveal');
-  if ('IntersectionObserver' in window && revealEls.length) {
-    var observer = new IntersectionObserver(function(entries) {
-      entries.forEach(function(e) {
-        if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
-      });
-    }, { threshold: 0.12 });
-    revealEls.forEach(function(el) { observer.observe(el); });
-  } else {
-    revealEls.forEach(function(el) { el.classList.add('visible'); });
-  }
-
-  // 数字计数动画
-  var counters = document.querySelectorAll('.stat-number[data-target]');
-  function animateCounter(el) {
-    var target = parseInt(el.dataset.target, 10);
-    var suffix = el.dataset.suffix || '';
-    var duration = 1400, start = null;
-    function step(ts) {
-      if (!start) start = ts;
-      var progress = Math.min((ts - start) / duration, 1);
-      var eased = 1 - Math.pow(1 - progress, 3);
-      el.textContent = Math.round(target * eased).toLocaleString('en-US') + suffix;
-      if (progress < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-  if ('IntersectionObserver' in window && counters.length) {
-    var cObs = new IntersectionObserver(function(entries) {
-      entries.forEach(function(e) {
-        if (e.isIntersecting) { animateCounter(e.target); cObs.unobserve(e.target); }
-      });
-    }, { threshold: 0.4 });
-    counters.forEach(function(el) { cObs.observe(el); });
-  }
-})();
-</script>

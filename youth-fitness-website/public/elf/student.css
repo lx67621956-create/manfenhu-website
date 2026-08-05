@@ -125,7 +125,9 @@ body{background:#F5F0EB;font-family:var(--font);color:var(--pkdark);margin:0;pad
 .bc2{display:flex;justify-content:center;gap:10px;margin-bottom:6px;font-size:12px}
 .bb{width:100%;padding:12px;border:2px solid var(--pkdark);border-radius:10px;background:white;color:var(--pkred);font-size:15px;font-weight:800;cursor:pointer;font-family:var(--font);box-shadow:3px 3px 0 var(--pkdark);margin-bottom:8px;transition:all .1s}
 .bb:disabled{opacity:0.4;cursor:not-allowed}
-.ba{background-color:#87CEEB;background-image:url(/images/ui/arena_bg.png),linear-gradient(180deg,#87CEEB,#E0F0FF);background-repeat:no-repeat,no-repeat;background-position:center,center;background-size:100% auto,cover;border:3px solid var(--pkdark);border-radius:18px;overflow:hidden;min-height:150px;flex:1;display:flex;flex-direction:column;box-shadow:0 8px 30px rgba(0,0,0,0.1);position:relative}
+.ba{background-color:#3a6b2a;border:3px solid var(--pkdark);border-radius:18px;overflow:hidden;min-height:150px;flex:1;display:flex;flex-direction:column;box-shadow:0 8px 30px rgba(0,0,0,0.1);position:relative}
+.ba-scene{flex:1;display:flex;flex-direction:column;background-image:url(/images/ui/arena_bg.png);background-repeat:no-repeat;background-position:center center;background-size:cover;position:relative;min-height:80px}
+.ba-scene::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.2) 0%,transparent 25%,transparent 75%,rgba(0,0,0,0.08) 100%);pointer-events:none;z-index:1;border-radius:0 0 16px 16px}
 .bh{display:flex;padding:10px 12px;gap:6px;background:linear-gradient(135deg,rgba(0,0,0,0.7),rgba(0,0,0,0.5));position:relative;z-index:2;color:white}
 .bhs{flex:1}
 .bhs .bn{font-size:14px;font-weight:900;text-shadow:0 1px 3px rgba(0,0,0,0.3)}
@@ -137,11 +139,12 @@ body{background:#F5F0EB;font-family:var(--font);color:var(--pkdark);margin:0;pad
 .bhf[style*="30%"],.bhf[style*="20%"],.bhf[style*="10%"]{background:#F44!important}
 .bht{font-size:8px;color:rgba(255,255,255,0.7);margin-top:1px}
 .bf{display:flex;justify-content:space-around;align-items:center;padding:14px 10px 10px;min-height:80px;flex:1;position:relative;z-index:2}
+.bf:not(.bf-active){opacity:0;pointer-events:none;min-height:0;padding:0;margin:0;overflow:hidden;max-height:0}
 .bfp{text-align:center}
 .bfp .be{width:64px;height:64px;object-fit:contain;background:rgba(0,0,0,0.05);border-radius:8px;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.2));transition:all .2s;font-size:38px;display:block}
 .bfp .bfn{font-size:9px;color:var(--text2);margin-top:1px;font-weight:600}
 .bl{position:relative;z-index:2;padding:8px 12px 10px;max-height:120px;overflow-y:auto;background:linear-gradient(180deg,rgba(255,255,255,0.9),white);border-top:2px solid var(--pkdark)}.bl::-webkit-scrollbar{display:none;width:0}
-.blog{position:relative;z-index:2;padding:8px 12px 10px;max-height:140px;overflow-y:auto;background:white;border-top:3px solid var(--pkdark);border-radius:0 0 16px 16px}
+.blog{position:relative;z-index:2;padding:6px 12px 4px;max-height:50px;overflow-y:auto;background:white;border-top:3px solid var(--pkdark);border-radius:0 0 16px 16px}
 .blog .bli{padding:3px 0;font-size:10px;color:var(--text2);animation:slideIn .2s ease-out}
 .blog .bli.info{color:var(--pkdark);font-weight:700}
 .blog .bli.dg{color:var(--pkblue)}
@@ -249,6 +252,8 @@ body,.app{min-height:100vh}
 /* ===== 战斗伤害数字浮动 ===== */
 .dmg-num{position:fixed;pointer-events:none;z-index:9999;font-size:28px;font-weight:900;animation:dmgFloat 1s ease-out forwards;text-shadow:0 2px 4px rgba(0,0,0,0.3)}
 @keyframes dmgFloat{0%{opacity:1;transform:translateY(0) scale(1)}50%{opacity:1;transform:translateY(-30px) scale(1.2)}100%{opacity:0;transform:translateY(-60px) scale(0.8)}}
+.dmg-blocked{font-size:14px;font-weight:700;color:#48D1CC;text-align:center;animation:dmgBlocked 1.2s ease-out forwards;text-shadow:0 1px 3px rgba(0,0,0,0.3);margin-top:-2px}
+@keyframes dmgBlocked{0%{opacity:1;transform:translateY(0) scale(.8)}50%{opacity:1;transform:translateY(-15px) scale(1.1)}100%{opacity:0;transform:translateY(-35px) scale(.9)}}
 .dmg-heal{color:#3C2}
 .dmg-normal{color:#FFD700}
 .dmg-critical{color:#F40;font-size:36px}

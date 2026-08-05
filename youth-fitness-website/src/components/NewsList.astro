@@ -1,0 +1,87 @@
+---
+export interface Props {
+  title?: string;
+  pageArticles: any[];
+  currentPage: number;
+  totalPages: number;
+  basePath?: string;
+}
+
+const { pageArticles, currentPage, totalPages, basePath = '/news' } = Astro.props;
+const prevPage = currentPage > 1 ? currentPage - 1 : null;
+const nextPage = currentPage < totalPages ? currentPage + 1 : null;
+---
+
+<section class="section news-section">
+  <div class="container">
+    <div class="news-grid">
+      {pageArticles.map((article: any, index: number) => {
+        const { title, date, description, image, coverImage, category } = article.data;
+        const slug = article.id.replace(/\.md$/, '');
+        return (
+          <article class:list={["news-card", "card", "card-hover", { featured: currentPage === 1 && index === 0 }]}>
+            <a href={`/news/${slug}`} class="news-image">
+              <img src={image || coverImage || '/images/og-default.png'} alt={title} loading={index < 2 ? 'eager' : 'lazy'} />
+            </a>
+            <div class="news-content">
+              <div class="news-meta">
+                {category && <span>{category}</span>}
+                <time datetime={date}>{date}</time>
+              </div>
+              <h2><a href={`/news/${slug}`}>{title}</a></h2>
+              {description && <p>{description}</p>}
+              <a href={`/news/${slug}`} class="text-link">阅读全文</a>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+
+    {totalPages > 1 && (
+      <nav class="pagination" aria-label="资讯分页">
+        {prevPage ? <a href={prevPage === 1 ? basePath : `${basePath}/page/${prevPage}/`}>上一页</a> : <span aria-disabled="true">上一页</span>}
+        <div class="page-numbers">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+            page === currentPage
+              ? <span class="active" aria-current="page">{page}</span>
+              : <a href={page === 1 ? basePath : `${basePath}/page/${page}/`}>{page}</a>
+          ))}
+        </div>
+        {nextPage ? <a href={`${basePath}/page/${nextPage}/`}>下一页</a> : <span aria-disabled="true">下一页</span>}
+      </nav>
+    )}
+  </div>
+</section>
+
+<style>
+  .news-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .news-card.featured { grid-column: span 2; }
+  .news-image { display: block; aspect-ratio: 16 / 9; overflow: hidden; background: var(--c-surface); }
+  .news-image img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
+  .news-card:hover .news-image img { transform: scale(1.025); }
+  .news-content { padding: 24px; }
+  .news-meta { display: flex; gap: 10px; margin-bottom: 10px; color: var(--c-text-muted); font-size: 12px; }
+  .news-meta span { color: var(--c-primary-dark); font-weight: 800; }
+  .news-content h2 { margin-bottom: 10px; font-size: 19px; }
+  .featured .news-content h2 { font-size: 24px; }
+  .news-content h2 a:hover { color: var(--c-primary-dark); }
+  .news-content p { display: -webkit-box; margin-bottom: 18px; color: var(--c-text-muted); font-size: 14px; line-height: 1.7; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+
+  .pagination { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 48px; }
+  .pagination > a, .pagination > span, .page-numbers a, .page-numbers span { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; height: 40px; padding: 0 12px; border: 1px solid var(--c-border); border-radius: 6px; font-size: 14px; }
+  .pagination > span { color: var(--c-text-muted); opacity: .45; }
+  .page-numbers { display: flex; gap: 5px; }
+  .page-numbers .active { border-color: var(--c-primary); background: var(--c-primary); color: #fff; font-weight: 800; }
+  .pagination a:hover { border-color: var(--c-primary); color: var(--c-primary-dark); }
+
+  @media (max-width: 900px) {
+    .news-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 680px) {
+    .news-grid { grid-template-columns: 1fr; }
+    .news-card.featured { grid-column: auto; }
+    .featured .news-content h2 { font-size: 21px; }
+    .pagination { flex-wrap: wrap; }
+    .page-numbers { order: 3; width: 100%; justify-content: center; overflow-x: auto; }
+  }
+</style>

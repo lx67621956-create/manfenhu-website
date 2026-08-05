@@ -13,115 +13,99 @@ export interface Props {
 const { title, description, pubDate, date, image, coverImage } = Astro.props;
 const displayDate = pubDate || date;
 const displayImage = image || coverImage;
+const publishedTime = displayDate ? new Date(displayDate) : undefined;
 ---
 
-<BaseLayout title={title + ' - 满分虎体育'} description={description} image={displayImage}>
-  <section class="page-hero" style="background:linear-gradient(135deg, var(--c-secondary), #00B8D4);">
-    <div class="container">
+<BaseLayout
+  title={`${title}｜满分虎体育`}
+  description={description}
+  image={displayImage}
+  article={true}
+  publishedTime={publishedTime}
+  modifiedTime={publishedTime}
+>
+  <header class="article-header">
+    <div class="container article-header-inner">
+      <a class="article-kicker" href="/news/">备考指南</a>
       <h1>{title}</h1>
-      {displayDate && <p class="meta">{displayDate}</p>}
+      <div class="article-meta">
+        {displayDate && <time datetime={displayDate}>更新于 {displayDate}</time>}
+        <span>满分虎体育</span>
+      </div>
     </div>
-  </section>
+  </header>
 
   {displayImage && (
-    <section class="article-hero-image">
-      <div class="container">
-        <img src={displayImage} alt={title} loading="lazy" />
-      </div>
-    </section>
+    <div class="article-cover container narrow">
+      <img src={displayImage} alt={title} width="1200" height="675" />
+    </div>
   )}
 
+  <div class="policy-note container narrow">
+    <strong>阅读提示</strong>
+    <span>考试政策和评分标准可能调整，涉及报考与考试安排时，请同时核对北京教育考试院最新通知。</span>
+  </div>
+
   <section class="article-content">
-    <div class="container">
+    <div class="container narrow">
       <article class="article-body markdown-body">
         <slot />
       </article>
+      <aside class="article-cta">
+        <div><strong>需要结合孩子情况判断？</strong><p>预约一次基础体测，了解当前项目表现和训练重点。</p></div>
+        <a href="/contact/" class="btn btn-primary">预约免费体测</a>
+      </aside>
       <div class="article-footer">
-        <a href="/news" class="back-link">← 返回资讯列表</a>
+        <a href="/news/" class="text-link">返回备考指南</a>
       </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .page-hero { color: #fff; padding: 64px 0; text-align: center; }
-  .page-hero h1 { font-size: 2rem; margin-bottom: 16px; }
-  .page-hero .meta { opacity: 0.9; font-size: 0.95rem; }
-
-  .article-hero-image {
-    padding: 0 0 32px;
-    max-height: 500px;
-    overflow: hidden;
-    background: #f0f0f0;
-  }
-  .article-hero-image .container {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  .article-hero-image img {
-    width: 100%;
-    max-height: 500px;
-    object-fit: contain;
-    object-position: center top;
-    background: #f0f0f0;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  }
-  @media (max-width: 600px) {
-    .article-hero-image { max-height: none; padding: 0 0 16px; }
-    .article-hero-image img { max-height: none; object-fit: cover; aspect-ratio: 4/3; }
-  }
-
-  .article-content { padding: 48px 0 64px; }
-  .article-content .container { max-width: 800px; margin: 0 auto; }
-
-  /* Markdown 渲染样式 — 确保 # --- ** 等语法不显示乱码 */
-  .markdown-body { line-height: 1.8; font-size: 1.05rem; color: var(--c-text); }
-  .markdown-body :global(p) { margin-bottom: 20px; }
-  .markdown-body :global(h2) {
-    margin: 48px 0 24px; color: var(--c-primary);
-    font-size: 1.5rem; font-weight: 700;
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--c-border);
-  }
-  .markdown-body :global(h3) { margin: 32px 0 16px; color: var(--c-text); font-size: 1.25rem; font-weight: 600; }
-  .markdown-body :global(h4) { margin: 24px 0 12px; font-size: 1.1rem; font-weight: 600; }
-  .markdown-body :global(ul), .markdown-body :global(ol) { margin: 16px 0; padding-left: 24px; }
-  .markdown-body :global(li) { margin-bottom: 8px; }
-  .markdown-body :global(li > p) { margin-bottom: 4px; }
-  .markdown-body :global(img) { max-width: 100%; border-radius: 8px; margin: 24px 0; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-  .markdown-body :global(blockquote) {
-    margin: 24px 0; padding: 16px 20px;
-    border-left: 4px solid var(--c-primary);
-    background: var(--c-surface);
-    border-radius: 0 8px 8px 0;
-    color: var(--c-text-muted);
-    font-style: normal;
-  }
+  .article-header { padding: 68px 0 48px; background: var(--c-surface-warm); }
+  .article-header-inner { max-width: 900px; }
+  .article-kicker { color: var(--c-primary-dark); font-size: 13px; font-weight: 800; }
+  .article-header h1 { max-width: 860px; margin: 14px 0 20px; font-size: 40px; }
+  .article-meta { display: flex; gap: 18px; color: var(--c-text-muted); font-size: 13px; }
+  .article-cover { margin-top: 40px; }
+  .article-cover img { width: 100%; max-height: 520px; object-fit: cover; border-radius: var(--radius-md); background: var(--c-surface); }
+  .policy-note { display: grid; grid-template-columns: 90px 1fr; gap: 16px; margin-top: 24px; padding: 15px 18px; border-left: 3px solid var(--c-primary); background: var(--c-primary-soft); font-size: 13px; }
+  .policy-note strong { color: var(--c-ink); }
+  .policy-note span { color: var(--c-text-muted); }
+  .article-content { padding: 44px 0 72px; }
+  .markdown-body { color: var(--c-text); font-size: 17px; line-height: 1.9; }
+  .markdown-body :global(p) { margin-bottom: 22px; }
+  .markdown-body :global(h2) { margin: 50px 0 22px; padding-bottom: 10px; border-bottom: 1px solid var(--c-border); color: var(--c-ink); font-size: 28px; }
+  .markdown-body :global(h3) { margin: 34px 0 16px; color: var(--c-ink); font-size: 22px; }
+  .markdown-body :global(h4) { margin: 26px 0 12px; font-size: 18px; }
+  .markdown-body :global(ul), .markdown-body :global(ol) { margin: 18px 0 24px; padding-left: 26px; }
+  .markdown-body :global(li) { margin-bottom: 9px; }
+  .markdown-body :global(img) { max-width: 100%; height: auto; margin: 28px 0; border-radius: var(--radius-md); }
+  .markdown-body :global(blockquote) { margin: 28px 0; padding: 18px 20px; border-left: 3px solid var(--c-primary); background: var(--c-surface); color: var(--c-text-muted); }
   .markdown-body :global(blockquote p) { margin-bottom: 0; }
-  .markdown-body :global(hr) { margin: 40px 0; border: none; border-top: 1px solid var(--c-border); }
-  .markdown-body :global(strong) { font-weight: 600; }
-  .markdown-body :global(code) {
-    background: var(--c-surface); padding: 2px 6px;
-    border-radius: 4px; font-size: 0.9em;
-  }
-  .markdown-body :global(pre) {
-    background: var(--c-surface); padding: 16px 20px;
-    border-radius: 8px; overflow-x: auto;
-    margin: 24px 0;
-  }
-  .markdown-body :global(pre code) { background: none; padding: 0; }
-  .markdown-body :global(table) {
-    width: 100%; border-collapse: collapse; margin: 24px 0;
-  }
-  .markdown-body :global(th), .markdown-body :global(td) {
-    border: 1px solid var(--c-border); padding: 10px 14px; text-align: left;
-  }
-  .markdown-body :global(th) { background: var(--c-surface); font-weight: 600; }
-  .markdown-body :global(a) { color: var(--c-primary); }
-  .markdown-body :global(a:hover) { text-decoration: underline; }
+  .markdown-body :global(hr) { margin: 44px 0; border: 0; border-top: 1px solid var(--c-border); }
+  .markdown-body :global(strong) { color: var(--c-ink); font-weight: 750; }
+  .markdown-body :global(code) { padding: 2px 6px; border-radius: 4px; background: var(--c-surface); font-size: .9em; }
+  .markdown-body :global(pre) { margin: 24px 0; padding: 18px 20px; border-radius: var(--radius-md); background: var(--c-surface); overflow-x: auto; }
+  .markdown-body :global(table) { display: block; width: 100%; margin: 26px 0; border-collapse: collapse; overflow-x: auto; }
+  .markdown-body :global(th), .markdown-body :global(td) { min-width: 120px; padding: 10px 12px; border: 1px solid var(--c-border); text-align: left; }
+  .markdown-body :global(th) { background: var(--c-surface); }
+  .markdown-body :global(a) { color: var(--c-primary-dark); text-decoration: underline; text-underline-offset: 3px; }
+  .article-cta { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 24px; margin-top: 48px; padding: 28px 30px; border: 1px solid var(--c-border); border-radius: var(--radius-md); background: var(--c-surface); }
+  .article-cta strong { color: var(--c-ink); font-size: 18px; }
+  .article-cta p { margin: 4px 0 0; color: var(--c-text-muted); }
+  .article-footer { margin-top: 32px; padding-top: 22px; border-top: 1px solid var(--c-border); }
 
-  .article-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--c-border); }
-  .back-link { color: var(--c-primary); text-decoration: none; font-weight: 500; }
-  .back-link:hover { text-decoration: underline; }
+  @media (max-width: 680px) {
+    .article-header { padding: 50px 0 36px; }
+    .article-header h1 { font-size: 31px; }
+    .article-cover { margin-top: 20px; }
+    .article-cover img { aspect-ratio: 4 / 3; }
+    .policy-note { grid-template-columns: 1fr; gap: 4px; }
+    .article-content { padding-top: 34px; }
+    .markdown-body { font-size: 16px; }
+    .markdown-body :global(h2) { font-size: 24px; }
+    .article-cta { grid-template-columns: 1fr; padding: 24px 20px; }
+  }
 </style>

@@ -3,12 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>精灵世界</title>
   <link rel="manifest" href="/elf/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="精灵世界">
 
-  <link rel="stylesheet" href="/elf/student.css">
+  <link rel="stylesheet" href="/elf/student.css?v=20260630">
 </head>
 <body>
 <div class="app" id="app">
@@ -38,13 +42,15 @@
         <div class="bhv">⚔️</div>
         <div class="bhs"><div class="bn" id="bhN2">—</div><div class="bp" id="bhP2">—</div><div class="bhp"><div class="bhf" id="bhH2"></div></div><div class="bht" id="bhT2">HP</div></div>
       </div>
-      <div class="bf">
-        <div class="bfp"><img class="be" id="bfE1" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="bfn" id="bfN1">—</div></div>
-        <div class="battle-vs">VS</div>
-        <div class="bfp"><img class="be" id="bfE2" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="bfn" id="bfN2">—</div></div>
+      <div class="ba-scene">
+        <div class="bf">
+          <div class="bfp"><img class="be" id="bfE1" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="bfn" id="bfN1">—</div></div>
+          <div class="battle-vs">VS</div>
+          <div class="bfp"><img class="be" id="bfE2" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="bfn" id="bfN2">—</div></div>
+        </div>
+        <div class="blog" id="battleLog"></div>
+        <div class="brs" id="battleResult"><div class="bri" id="brT">🏆</div><div class="brt2" id="brTx"></div><div class="brd2" id="brD"></div><div class="brd2 reward-text" id="brReward"></div><button id="battleAgain" class="bb mt8 battle-again">⚔️ 再来一局</button></div>
       </div>
-      <div class="blog" id="battleLog"></div>
-      <div class="brs" id="battleResult"><div class="bri" id="brT">🏆</div><div class="brt2" id="brTx"></div><div class="brd2" id="brD"></div><div class="brd2 reward-text" id="brReward"></div><button id="battleAgain" class="bb mt8 battle-again">⚔️ 再来一局</button></div>
     </div>
     <div class="bsu" id="battleSetup"></div>
     <div class="bms"><button class="bmb active" data-md="1v1">1 VS 1</button><button class="bmb" data-md="3v3">3 VS 3</button></div>
@@ -70,6 +76,7 @@
 <div class="toast" id="toast"></div>
 
 
-  <script src="/elf/student.js"></script>
+  <script src="/elf/zzfx.js?v=20260630"></script>
+  <script src="/elf/student.js?v=20260630"></script>
 </body>
 </html>

@@ -2,68 +2,48 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="师资团队 - 青少年体能培训机构">
-  <section class="page-hero" style="background:linear-gradient(135deg, var(--c-primary), #FF8C42);">
-    <div class="container"><h1>师资团队</h1></div>
+<BaseLayout
+  title="教练与服务安排｜满分虎体育"
+  description="了解满分虎体育的教练匹配和训练服务安排。具体教练、项目和时间根据孩子情况与预约时段确认。"
+  noindex={true}
+>
+  <section class="page-hero">
+    <div class="container page-hero-inner">
+      <span class="eyebrow">教练与服务安排</span>
+      <h1>先了解孩子，再匹配训练方式</h1>
+      <p>教练安排会结合训练项目、年龄、基础和预约时段确认，避免用一套固定介绍覆盖不同需求。</p>
+    </div>
   </section>
 
   <section class="section">
-    <div class="container">
-      <h2 class="section-title">教练团队</h2>
-      <div class="grid-4">
-        <div class="card coach-card">
-          <div class="placeholder" style="min-height:200px;">👤 教练照片1</div>
-          <div class="card-body">
-            <h3>教练姓名</h3>
-            <p class="text-muted">职称/资质待填写</p>
-            <p class="text-muted">简介待填写...</p>
-          </div>
-        </div>
-        <div class="card coach-card">
-          <div class="placeholder" style="min-height:200px;">👤 教练照片2</div>
-          <div class="card-body">
-            <h3>教练姓名</h3>
-            <p class="text-muted">职称/资质待填写</p>
-            <p class="text-muted">简介待填写...</p>
-          </div>
-        </div>
-        <div class="card coach-card">
-          <div class="placeholder" style="min-height:200px;">👤 教练照片3</div>
-          <div class="card-body">
-            <h3>教练姓名</h3>
-            <p class="text-muted">职称/资质待填写</p>
-            <p class="text-muted">简介待填写...</p>
-          </div>
-        </div>
-        <div class="card coach-card">
-          <div class="placeholder" style="min-height:200px;">👤 教练照片4</div>
-          <div class="card-body">
-            <h3>教练姓名</h3>
-            <p class="text-muted">职称/资质待填写</p>
-            <p class="text-muted">简介待填写...</p>
-          </div>
-        </div>
+    <div class="container split-section">
+      <div>
+        <span class="eyebrow">预约时确认</span>
+        <h2>每次训练都围绕当前目标展开</h2>
+        <p>首次沟通时，我们会先了解孩子的年龄、学校阶段、目标项目和既往运动情况，再安排合适的教练与训练内容。</p>
+      </div>
+      <div class="info-list">
+        <div><strong>项目匹配</strong><span>中考体育、少儿体能或手球专项</span></div>
+        <div><strong>阶段匹配</strong><span>入门、强化、复测或长期专项</span></div>
+        <div><strong>时间匹配</strong><span>根据可预约时段确认训练安排</span></div>
       </div>
     </div>
   </section>
 
-  <section class="section" style="background:var(--c-surface);">
-    <div class="container">
-      <h2 class="section-title">资质荣誉</h2>
-      <div class="grid-4">
-        <div class="placeholder" style="min-height:120px;">🏆 资质证书1</div>
-        <div class="placeholder" style="min-height:120px;">🏆 资质证书2</div>
-        <div class="placeholder" style="min-height:120px;">🏆 资质证书3</div>
-        <div class="placeholder" style="min-height:120px;">🏆 资质证书4</div>
-      </div>
+  <section class="section section-surface">
+    <div class="container cta-band">
+      <div><h2>想了解适合孩子的教练安排？</h2><p>留下年龄、目标项目和方便训练的时间，我们会先给出建议。</p></div>
+      <a href="/contact/" class="btn btn-primary btn-lg">咨询教练安排</a>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .page-hero { color: #fff; padding: 48px 0; text-align: center; }
-  .page-hero h1 { font-size: 2rem; }
-  .coach-card .card-body { padding: 16px; text-align: center; }
-  .coach-card h3 { margin-bottom: 4px; }
-  .text-muted { color: var(--c-text-muted); font-size: .9rem; }
+  .split-section { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .split-section h2 { max-width: 520px; margin: 12px 0 16px; }
+  .split-section p { max-width: 560px; color: var(--c-text-muted); }
+  .info-list { display: grid; gap: 12px; }
+  .info-list > div { display: grid; gap: 5px; padding: 18px 20px; border: 1px solid var(--c-border); border-radius: var(--radius-md); background: #fff; }
+  .info-list span { color: var(--c-text-muted); font-size: 14px; }
+  @media (max-width: 720px) { .split-section { grid-template-columns: 1fr; gap: 28px; } }
 </style>

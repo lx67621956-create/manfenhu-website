@@ -1,3 +1,6 @@
+/* === 自动更新系统 === */
+(function(){var V='20260630.3',k='elf_ver';try{var o=localStorage.getItem(k);if(o&&o!==V){if('caches'in window)caches.keys().then(function(ns){ns.forEach(function(n){caches.delete(n)})});localStorage.removeItem(k);localStorage.setItem(k,V);location.reload(true)}else if(!o)localStorage.setItem(k,V)}catch(e){}})();
+
 var PE=['🐱','🐶','🐰','🐻','🦊','🐼','🐧','🦉','🐹','🐿','️','🐉','🦅','🦄','🦁','🧚','🧝','🧜','‍','♀','️','☃','️','🦊','🦌','🔥','💧','🪨','🌪','️','⚡','❄','️','👻','🌟','🌿','⭐'];
 var PN=["紫瞳三眼喵","独眼马铃薯","蘑菇精","方块眼仔","独眼紫翅蝎","黑白团子","像素企鹅","绿泥怪","长耳独角狗","破壳蛋","独眼五角星","小火人","彩虹水母","甜甜圈","帽子雪人","毒眼苔石","绿肉虫","云团子","松果塔","梅花鹿","双生樱桃","刺球炸弹","磁铁怪","珍珠贝壳眼","恐怖狗娃娃","凤凰宝宝","幽灵飘飘","绿锥仙人","眼镜钥匙","笑脸包子"];
 
@@ -22,7 +25,7 @@ function init(){
 
 function rb(n){var p=st.people[n];if(!p)return null;var s=new Set(p.petSlots);(p.pendingBoxes||[]).forEach(function(i){s.add(i)});if(s.size>=TP)return null;var a=[];for(var i=0;i<TP;i++)if(!s.has(i))a.push(i);return a.length?a[Math.floor(Math.random()*a.length)]:null;}
 function td(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
-function sv(){localStorage.setItem("checkin_pets",JSON.stringify(st));try{var x=new XMLHttpRequest();x.open("POST","/api/data",true);x.setRequestHeader("Content-Type","application/json");x.send(JSON.stringify(st))}catch(e){}}
+function sv(){st._sync=Date.now();localStorage.setItem("checkin_pets",JSON.stringify(st));try{var x=new XMLHttpRequest();x.open("POST","/api/data",true);x.setRequestHeader("Content-Type","application/json");x.send(JSON.stringify(st))}catch(e){}}
 function xfl(l){return 30+l*7;}
 function sts(p){var hrs=(Date.now()-(p.lastTimestamp||Date.now()))/3600000,hu=Math.max(0,Math.min(100,Math.round(p.hunger-hrs*8))),ha=Math.max(0,Math.min(100,Math.round(p.happiness-(hu<40?hrs*6:hrs*2))));return{h:hu,ha:ha};}
 function toast(m){var e=document.getElementById("toast");e.textContent=m;e.classList.add("show");clearTimeout(window.tm);window.tm=setTimeout(function(){e.classList.remove("show")},3000);}
@@ -141,7 +144,7 @@ function syncAPI(){
   x.onload=function(){
     if(x.status===200){
       try{
-        var d=JSON.parse(x.responseText);
+        var d=JSON.parse(x.responseText);if(typeof d==="string")d=JSON.parse(d);
         if(d&&d.people&&Object.keys(d.people).length>0){
           mergeWithAPI(d);
         }else{
