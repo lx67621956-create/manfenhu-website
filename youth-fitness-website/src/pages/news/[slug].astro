@@ -182,12 +182,9 @@ const shareImage = (image || coverImage) ? new URL(image || coverImage || '', As
   }
 </style>
 
-<script is:inline>
-  // 分享功能：Web Share API 优先，复制链接降级
+<script is:inline define:vars={{ url: shareUrl, text: shareText, image: shareImage }}>
+  // 分享功能：Web Share API 优先，复制链接降级（url/text/image 由 Astro define:vars 注入）
   (function () {
-    var url = <JSON.stringify(shareUrl)>;
-    var text = <JSON.stringify(shareText)>;
-    var image = <JSON.stringify(shareImage)>;
     var toast = document.getElementById('share-toast');
 
     function showToast(msg) {
