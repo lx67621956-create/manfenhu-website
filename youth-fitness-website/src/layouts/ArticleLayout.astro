@@ -8,9 +8,10 @@ export interface Props {
   date?: string;
   image?: string;
   coverImage?: string;
+  ogImage?: string;
 }
 
-const { title, description, pubDate, date, image, coverImage } = Astro.props;
+const { title, description, pubDate, date, image, coverImage, ogImage } = Astro.props;
 const displayDate = pubDate || date;
 const displayImage = image || coverImage;
 const publishedTime = displayDate ? new Date(displayDate) : undefined;
@@ -19,7 +20,7 @@ const publishedTime = displayDate ? new Date(displayDate) : undefined;
 <BaseLayout
   title={`${title}｜满分虎体育`}
   description={description}
-  image={displayImage}
+  image={ogImage || displayImage}
   article={true}
   publishedTime={publishedTime}
   modifiedTime={publishedTime}
