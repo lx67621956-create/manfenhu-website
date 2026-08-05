@@ -1,0 +1,9 @@
+# 满分虎体育 robots.txt
+# https://www.manfenhu.com
+
+User-agent: *
+Allow: /
+
+# 禁止抓取后台/管理页面
+Disallow: /elf/
+Disallow: /elf/admin/
