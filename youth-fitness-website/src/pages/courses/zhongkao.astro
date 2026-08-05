@@ -1,47 +1,32 @@
 ---
-import BaseLayout from '@layouts/BaseLayout.astro';
+import CourseDetail from '@components/CourseDetail.astro';
+
+const focusItems = [
+  { title: '当前表现评估', description: '了解孩子在耐力、力量、动作控制和球类项目中的当前表现。' },
+  { title: '耐力与节奏训练', description: '围绕800米、1000米等内容建立配速、呼吸和持续运动能力。' },
+  { title: '力量与动作训练', description: '针对引体、仰卧起坐、跳绳、跳远等项目拆解关键动作。' },
+  { title: '球类与运动能力', description: '结合选考方向练习技术动作、连续完成能力与临场稳定性。' },
+];
+const details = [
+  { label: '课程形式', value: '小班或个体化训练安排' },
+  { label: '训练周期', value: '根据年级、当前基础和目标阶段确定' },
+  { label: '训练反馈', value: '阶段复测与训练重点反馈' },
+  { label: '地点时间', value: '预约后根据当期开班情况确认' },
+];
+const faqs = [
+  { question: '孩子现在成绩不稳定，适合直接报课吗？', answer: '建议先做基础体测，确认问题来自体能、动作还是临场稳定性，再决定训练重点。' },
+  { question: '还没有确定选考项目怎么办？', answer: '可以先梳理孩子现有项目表现和兴趣方向，再结合学校安排了解更适合重点准备的项目。' },
+  { question: '临近考试才开始训练来得及吗？', answer: '需要根据剩余时间和当前基础判断。越临近考试，越应优先处理影响得分最明显的问题，并控制训练风险。' },
+];
 ---
-
-<BaseLayout title="中考体育特训 - 青少年体能培训机构">
-  <section class="page-hero" style="background:linear-gradient(135deg, var(--c-primary), #FF8C42);">
-    <div class="container"><h1>中考体育特训</h1></div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="grid-2" style="align-items:start;">
-        <img src="/images/courses/zhongkao.jpg.png" alt="中考体育特训" class="course-hero-img" />
-        <div class="course-content">
-          <h2 style="margin-bottom:16px;">精准提分，决胜中考</h2>
-          <p class="course-intro">
-            我们深知中考体育的一分一毫都至关重要。为此，我们开设了超小班特训课程，严格控制在 8-10 人，确保每位学员都能得到教练的全程关注。课程完全针对中考体育测试项目设计，每节课 120 分钟，我们将根据您孩子的具体情况和薄弱环节，量身定制训练计划，进行高效、精准的专项提分训练，助力孩子在中考体育中取得优异成绩。
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container" style="text-align:center;">
-      <h2 style="margin-bottom:24px;">预约免费体验课</h2>
-      <a href="/contact/" class="btn btn-primary">立即预约</a>
-    </div>
-  </section>
-</BaseLayout>
-
-<style>
-  .page-hero { color: #fff; padding: 48px 0; text-align: center; }
-  .page-hero h1 { font-size: 2rem; }
-  .course-hero-img {
-    width: 100%;
-    max-width: 500px;
-    height: auto;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  }
-  .course-intro {
-    color: var(--c-text-muted);
-    font-size: 1.1rem;
-    line-height: 1.8;
-  }
-</style>
+<CourseDetail
+  title="中考体育特训"
+  eyebrow="北京中考体育训练"
+  description="从当前得分和动作表现出发，明确薄弱项目，用分阶段训练提升完成质量与稳定性。"
+  image="/images/courses/zhongkao.webp"
+  audience="正在准备北京初中学考体育现场考试，需要梳理项目和训练重点的学生。"
+  outcome="提升基础体能、动作质量和项目稳定性，减少无目标的重复训练。"
+  {focusItems}
+  {details}
+  {faqs}
+/>

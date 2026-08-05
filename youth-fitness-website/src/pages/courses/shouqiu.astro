@@ -1,47 +1,33 @@
 ---
-import BaseLayout from '@layouts/BaseLayout.astro';
+import CourseDetail from '@components/CourseDetail.astro';
+
+const focusItems = [
+  { title: '基础脚步与控球', description: '练习移动、传接球和基础控球，建立稳定的专项动作。' },
+  { title: '投掷与进攻技术', description: '逐步学习投掷动作、跑动配合和基础进攻选择。' },
+  { title: '专项体能', description: '围绕速度、变向、力量和持续对抗发展专项身体能力。' },
+  { title: '团队与比赛理解', description: '在训练和对抗中学习空间、配合、规则和团队沟通。' },
+];
+const details = [
+  { label: '课程形式', value: '按年龄和基础分组训练' },
+  { label: '训练内容', value: '基础技术、专项体能、配合与规则' },
+  { label: '进阶安排', value: '根据训练表现和阶段目标沟通' },
+  { label: '地点时间', value: '预约后根据当期开班情况确认' },
+];
+const faqs = [
+  { question: '没有接触过手球，可以参加吗？', answer: '可以从基础动作开始。首次体验会先了解孩子的运动基础和对手球的兴趣。' },
+  { question: '手球训练只适合想走专业路线的孩子吗？', answer: '不是。手球也可以作为综合运动项目，帮助孩子发展跑动、投掷、反应和团队协作。' },
+  { question: '是否会参加比赛？', answer: '比赛或交流安排取决于年龄、训练阶段和当期计划，具体以教练沟通为准。' },
+];
 ---
-
-<BaseLayout title="手球专项特训 - 青少年体能培训机构">
-  <section class="page-hero" style="background:linear-gradient(135deg, var(--c-accent), #00E676);">
-    <div class="container"><h1>手球专项特训</h1></div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="grid-2" style="align-items:start;">
-        <img src="/images/courses/shouqiu.jpg.png" alt="手球专项特训" class="course-hero-img" />
-        <div class="course-content">
-          <h2 style="margin-bottom:16px;">专业启航，成就未来</h2>
-          <p class="course-intro">
-            渴望让孩子接受专业的体育训练，并拥有更广阔的发展空间？我们的手球专项特训是您的不二之选。由国家队教练亲自执教，提供最高水平的专业技战术培训。课程不仅注重个人技术提升，更强调团队协作精神的培养。每节课 90 分钟，学员将有机会参与北京市乃至全国性的专业比赛，更有机会被选送成为专业运动员，为未来的升学和职业发展开辟一条全新的道路。
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container" style="text-align:center;">
-      <h2 style="margin-bottom:24px;">预约免费体验课</h2>
-      <a href="/contact/" class="btn btn-primary">立即预约</a>
-    </div>
-  </section>
-</BaseLayout>
-
-<style>
-  .page-hero { color: #fff; padding: 48px 0; text-align: center; }
-  .page-hero h1 { font-size: 2rem; }
-  .course-hero-img {
-    width: 100%;
-    max-width: 500px;
-    height: auto;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  }
-  .course-intro {
-    color: var(--c-text-muted);
-    font-size: 1.1rem;
-    line-height: 1.8;
-  }
-</style>
+<CourseDetail
+  title="手球专项训练"
+  eyebrow="青少年专项运动"
+  description="从基础技术和专项体能开始，逐步发展比赛理解、团队配合与持续训练能力。"
+  image="/images/courses/shouqiu.webp"
+  imageHeight={849}
+  audience="对手球感兴趣，或希望通过团队项目发展专项运动能力的青少年。"
+  outcome="建立专项技术基础，提升移动、投掷、反应与团队协作能力。"
+  {focusItems}
+  {details}
+  {faqs}
+/>

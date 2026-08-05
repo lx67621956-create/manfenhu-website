@@ -1,47 +1,32 @@
 ---
-import BaseLayout from '@layouts/BaseLayout.astro';
+import CourseDetail from '@components/CourseDetail.astro';
+
+const focusItems = [
+  { title: '动作基础观察', description: '观察跑、跳、投、爬等基础动作，为训练安排提供参考。' },
+  { title: '协调与灵敏', description: '通过方向变化、节奏和反应任务提升身体控制能力。' },
+  { title: '力量与耐力基础', description: '采用适龄、循序渐进的方式发展基础身体能力。' },
+  { title: '运动兴趣培养', description: '通过多样化任务提高参与感，让孩子愿意持续运动。' },
+];
+const details = [
+  { label: '适合年龄', value: '4-12岁儿童' },
+  { label: '课程形式', value: '分龄小班训练' },
+  { label: '训练内容', value: '基础动作、协调、灵敏、力量与耐力' },
+  { label: '地点时间', value: '预约后根据年龄和当期开班情况确认' },
+];
+const faqs = [
+  { question: '孩子不爱运动，也能参加吗？', answer: '可以。训练会从孩子能够完成的任务开始，通过适龄内容逐步建立参与感。' },
+  { question: '少儿体能是不是只做跑跳？', answer: '不只是跑跳，还会涉及平衡、协调、反应、力量基础和多种动作组合。' },
+  { question: '第一次体验需要准备什么？', answer: '穿适合运动的服装和鞋即可；如孩子有伤病或运动限制，请在预约时提前说明。' },
+];
 ---
-
-<BaseLayout title="少儿体能训练 - 青少年体能培训机构">
-  <section class="page-hero" style="background:linear-gradient(135deg, var(--c-secondary), #00B8D4);">
-    <div class="container"><h1>少儿体能训练</h1></div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="grid-2" style="align-items:start;">
-        <img src="/images/courses/ertong.jpg.png" alt="少儿体能训练" class="course-hero-img" />
-        <div class="course-content">
-          <h2 style="margin-bottom:16px;">快乐运动，健康成长</h2>
-          <p class="course-intro">
-            针对 4-12 岁儿童的身心发展特点，我们推出了充满趣味的少儿体能训练课程。采用小班教学模式，注重个体化指导，让每个孩子都能在轻松愉快的氛围中运动。每节课 90 分钟，我们通过丰富多彩的游戏和活动，进行基础体能训练，不仅能增强孩子的体质，更能有效培养他们的运动兴趣和良好习惯，引导青少年爱上体育，为健康人生打下坚实基础。
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container" style="text-align:center;">
-      <h2 style="margin-bottom:24px;">预约免费体验课</h2>
-      <a href="/contact/" class="btn btn-primary">立即预约</a>
-    </div>
-  </section>
-</BaseLayout>
-
-<style>
-  .page-hero { color: #fff; padding: 48px 0; text-align: center; }
-  .page-hero h1 { font-size: 2rem; }
-  .course-hero-img {
-    width: 100%;
-    max-width: 500px;
-    height: auto;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  }
-  .course-intro {
-    color: var(--c-text-muted);
-    font-size: 1.1rem;
-    line-height: 1.8;
-  }
-</style>
+<CourseDetail
+  title="少儿体能训练"
+  eyebrow="4-12岁运动基础"
+  description="用适龄、循序渐进的训练内容，帮助孩子发展基础动作能力并建立运动兴趣。"
+  image="/images/courses/ertong.webp"
+  audience="希望改善运动基础、身体协调和日常运动习惯的4-12岁儿童。"
+  outcome="建立更扎实的动作基础，提升参与运动的信心和持续性。"
+  {focusItems}
+  {details}
+  {faqs}
+/>

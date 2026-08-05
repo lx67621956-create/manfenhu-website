@@ -1,0 +1,74 @@
+
+> youth-fitness-website@1.0.0 dev
+> astro dev --host 127.0.0.1 --port 4321
+
+[2m13:07:20[22m [34m[types][39m Generated [2m1ms[22m
+[2m13:07:20[22m [34m[content][39m Syncing content
+[2m13:07:21[22m [34m[content][39m Synced content
+[2m13:07:21[22m [34m[vite][39m Re-optimizing dependencies because vite config has changed
+
+[42m[1m astro [22m[49m [32mv5.18.1[39m [2mready in[22m 1452 [2mms[22m
+
+[2m┃[22m Local    [36mhttp://127.0.0.1:4321/[39m
+
+[2m13:07:21[22m [32mwatching for file changes...[39m
+
+[43m[30m update [39m[49m [33m▶ New version of Astro available: 7.1.6[39m
+  Run [36mnpx @astrojs/upgrade[39m to update
+
+[2m13:30:06[22m [34m[200][39m / [2m267ms[22m
+[2m13:31:04[22m [34m[200][39m / [2m5ms[22m
+[2m13:31:50[22m [34m[200][39m /courses/ [2m4ms[22m
+[2m13:31:50[22m [34m[200][39m /courses/zhongkao/ [2m14ms[22m
+[2m13:31:50[22m [34m[200][39m /courses/ertong/ [2m2ms[22m
+[2m13:31:50[22m [34m[200][39m /courses/shouqiu/ [2m2ms[22m
+[2m13:31:50[22m [34m[200][39m /students/ [2m8ms[22m
+[2m13:31:50[22m [34m[200][39m /news/ [2m21ms[22m
+[2m13:31:51[22m [34m[200][39m /contact/ [2m15ms[22m
+[2m13:31:51[22m [34m[200][39m /team/ [2m3ms[22m
+[2m13:31:51[22m [34m[200][39m /venue/ [2m2ms[22m
+[2m13:34:34[22m [34m[200][39m /venue/ [2m7ms[22m
+[33m[1m13:35:44[22m [WARN] [glob-loader][39m Duplicate id "zhongkao-jump" found in D:\manfenhu-website\youth-fitness-website\src\content\news\zhongkao-jump.md. Later items with the same id will overwrite earlier ones.
+[2m13:35:44[22m [34m[glob-loader][39m Reloaded data from [32mzhongkao-jump.md[39m
+[33m[1m13:35:44[22m [WARN] [glob-loader][39m Duplicate id "zhongkao-sprint" found in D:\manfenhu-website\youth-fitness-website\src\content\news\zhongkao-sprint.md. Later items with the same id will overwrite earlier ones.
+[2m13:35:44[22m [34m[glob-loader][39m Reloaded data from [32mzhongkao-sprint.md[39m
+[2m13:35:44[22m [34m[glob-loader][39m Reloaded data from [32mexam-scoring-guide.md[39m
+[2m13:35:44[22m [34m[glob-loader][39m Reloaded data from [32mprocess-evaluation.md[39m
+[2m13:35:45[22m [34m[200][39m /venue/ [2m6ms[22m
+[2m13:37:21[22m [34m[200][39m /news/process-evaluation/ [2m22ms[22m
+[2m13:37:32[22m [34m[200][39m / [2m4ms[22m
+[2m13:38:01[22m [34m[200][39m / [2m2ms[22m
+[2m13:38:43[22m [34m[200][39m / [2m3ms[22m
+[2m13:55:26[22m [34m[200][39m / [2m5ms[22m
+[2m13:55:37[22m [34m[200][39m / [2m4ms[22m
+[2m14:00:48[22m [34m[200][39m /students/ [2m2ms[22m
+[2m14:10:30[22m [34m[200][39m /news/ [2m4ms[22m
+[2m14:11:40[22m [34m[200][39m /contact/ [2m2ms[22m
+[2m14:12:06[22m [34m[200][39m /contact/ [2m2ms[22m
+[2m14:16:10[22m [34m[watch][39m /src/pages/students/index.astro?astro&type=style&index=0&lang.css
+[2m14:16:10[22m [34m[watch][39m /src/pages/index.astro?astro&type=style&index=0&lang.css
+[2m14:16:10[22m [34m[watch][39m src/layouts/BaseLayout.astro
+[2m14:16:10[22m [34m[200][39m /contact/ [2m11ms[22m
+[2m14:16:37[22m [34m[watch][39m /src/pages/students/index.astro?astro&type=style&index=0&lang.css
+[2m14:16:37[22m [34m[200][39m /contact/ [2m2ms[22m
+[2m14:17:55[22m [34m[200][39m / [2m5ms[22m
+[2m14:18:29[22m [34m[200][39m /students/ [2m3ms[22m
+[2m14:18:54[22m [34m[200][39m /news/ [2m3ms[22m
+[2m14:19:24[22m [34m[200][39m / [2m3ms[22m
+[2m14:19:24[22m [34m[200][39m /students/ [2m2ms[22m
+[2m14:19:24[22m [34m[200][39m /news/ [2m3ms[22m
+[2m14:19:24[22m [34m[200][39m /contact/ [2m2ms[22m
+[2m14:19:24[22m [34m[200][39m / [2m3ms[22m
+[2m14:36:01[22m [34m[200][39m / [2m3ms[22m
+[2m14:36:09[22m [34m[200][39m /courses/ [2m2ms[22m
+[2m14:36:11[22m [34m[200][39m / [2m3ms[22m
+[2m14:36:12[22m [34m[200][39m /contact/ [2m2ms[22m
+[2m14:36:19[22m [34m[200][39m / [2m3ms[22m
+[2m14:36:27[22m [34m[200][39m /students/ [2m2ms[22m
+[2m14:42:25[22m [34m[200][39m / [2m4ms[22m
+[2m14:42:30[22m [34m[200][39m /courses/zhongkao/ [2m2ms[22m
+[2m15:42:50[22m [34m[200][39m / [2m3ms[22m
+[2m15:50:54[22m [34m[watch][39m /src/pages/index.astro?astro&type=style&index=0&lang.css
+[2m15:50:54[22m [34m[watch][39m src/pages/index.astro
+[2m15:52:10[22m [34m[200][39m / [2m20ms[22m
+[2m15:52:45[22m [34m[200][39m / [2m2ms[22m

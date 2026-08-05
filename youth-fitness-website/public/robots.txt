@@ -7,3 +7,6 @@ Allow: /
 # 禁止抓取后台/管理页面
 Disallow: /elf/
 Disallow: /elf/admin/
+Disallow: /tools/
+
+Sitemap: https://www.manfenhu.com/sitemap-index.xml
