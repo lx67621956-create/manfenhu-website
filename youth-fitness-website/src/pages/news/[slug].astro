@@ -29,6 +29,11 @@ const idx = sorted.findIndex(a => a.id === article.id);
 const prev = idx > 0 ? sorted[idx - 1] : null;
 const next = idx < sorted.length - 1 ? sorted[idx + 1] : null;
 const slugOf = (a: any) => a.id.replace(/\.md$/, '');
+
+// 分享数据
+const shareUrl = new URL(`/news/${slug}/`, Astro.site).href;
+const shareText = description || (title + ' - 满分虎体育');
+const shareImage = (image || coverImage) ? new URL(image || coverImage || '', Astro.site).href : '';
 ---
 
 <ArticleLayout
@@ -38,6 +43,20 @@ const slugOf = (a: any) => a.id.replace(/\.md$/, '');
   image={image || coverImage}
 >
   <Content />
+
+  <!-- 分享操作栏 -->
+  <div class="share-bar">
+    <span class="share-hint">觉得有用？分享给更多家长</span>
+    <div class="share-actions">
+      <button class="share-btn share-btn-wechat" id="share-wechat" type="button">
+        <span class="share-icon">💬</span>分享到微信
+      </button>
+      <button class="share-btn share-btn-more" id="share-more" type="button">
+        <span class="share-icon">🔗</span>复制链接
+      </button>
+    </div>
+  </div>
+  <div class="share-toast" id="share-toast" role="status" aria-live="polite"></div>
 
   <!-- 上一篇/下一篇 -->
   <nav class="article-pager">
@@ -77,6 +96,43 @@ const slugOf = (a: any) => a.id.replace(/\.md$/, '');
 </ArticleLayout>
 
 <style>
+  /* 分享操作栏 */
+  .share-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    margin: 36px 0 0; padding: 16px 20px;
+    border: 1px solid var(--c-border); border-radius: var(--radius-md);
+    background: var(--c-surface);
+  }
+  .share-hint { font-size: 14px; color: var(--c-text-muted); }
+  .share-actions { display: flex; gap: 10px; }
+  .share-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 18px; border-radius: 8px; border: 1px solid var(--c-border);
+    background: #fff; color: var(--c-ink); font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all .2s;
+  }
+  .share-btn:hover { border-color: var(--c-primary); color: var(--c-primary-dark); box-shadow: 0 2px 8px rgba(255,107,53,0.12); }
+  .share-btn:active { transform: scale(0.97); }
+  .share-btn-wechat { background: #07C160; border-color: #07C160; color: #fff; }
+  .share-btn-wechat:hover { background: #06AD56; border-color: #06AD56; color: #fff; }
+  .share-icon { font-size: 15px; line-height: 1; }
+
+  /* 轻提示 */
+  .share-toast {
+    position: fixed; left: 50%; bottom: 80px; transform: translateX(-50%) translateY(10px);
+    padding: 10px 20px; border-radius: 8px;
+    background: rgba(30, 39, 46, 0.92); color: #fff; font-size: 14px;
+    opacity: 0; pointer-events: none; transition: all .25s; z-index: 999;
+  }
+  .share-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 680px) {
+    .share-bar { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px; }
+    .share-hint { text-align: center; }
+    .share-actions { justify-content: center; }
+    .share-btn { flex: 1; justify-content: center; }
+  }
+
   /* 上一篇/下一篇 */
   .article-pager {
     display: flex; justify-content: space-between; gap: 16px;
@@ -125,3 +181,60 @@ const slugOf = (a: any) => a.id.replace(/\.md$/, '');
     .pager-link { max-width: 100%; }
   }
 </style>
+
+<script is:inline>
+  // 分享功能：Web Share API 优先，复制链接降级
+  (function () {
+    var url = <JSON.stringify(shareUrl)>;
+    var text = <JSON.stringify(shareText)>;
+    var image = <JSON.stringify(shareImage)>;
+    var toast = document.getElementById('share-toast');
+
+    function showToast(msg) {
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(function () { toast.classList.remove('show'); }, 2200);
+    }
+
+    // 复制链接（含图片可选参数，旧浏览器忽略）
+    function copyLink() {
+      var done = function () { showToast('链接已复制，去微信粘贴即可分享'); };
+      var fail = function () { showToast('复制失败，请长按地址栏手动复制'); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(done, fail);
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) { fail(); }
+        document.body.removeChild(ta);
+      }
+    }
+
+    // 分享到微信按钮：微信内提示复制；微信外尝试系统分享
+    var btnWx = document.getElementById('share-wechat');
+    var btnCopy = document.getElementById('share-more');
+    var isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+
+    if (btnWx) {
+      btnWx.addEventListener('click', function () {
+        if (isWeChat) {
+          // 微信内：JS-SDK 不可用时引导用户用右上角菜单分享
+          showToast('请点右上角「···」分享给好友或群聊');
+        } else if (navigator.share) {
+          navigator.share({ title: text, text: text, url: url }).catch(function () {});
+        } else {
+          copyLink();
+        }
+      });
+    }
+    if (btnCopy) {
+      btnCopy.addEventListener('click', copyLink);
+    }
+  })();
+</script>
