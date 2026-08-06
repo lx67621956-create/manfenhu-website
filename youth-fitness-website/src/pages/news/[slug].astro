@@ -44,6 +44,9 @@ const shareImage = new URL(ogImage, Astro.site).href;
   date={date}
   image={image || coverImage}
   ogImage={ogImage}
+  ogImageWidth={600}
+  ogImageHeight={315}
+  ogImageType="image/jpeg"
 >
   <Content />
 

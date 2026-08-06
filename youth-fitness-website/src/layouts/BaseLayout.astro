@@ -3,6 +3,9 @@ export interface Props {
   title: string;
   description?: string;
   image?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  imageType?: string;
   article?: boolean;
   publishedTime?: Date;
   modifiedTime?: Date;
@@ -14,6 +17,9 @@ const {
   title,
   description = "满分虎体育专注北京中考体育、少儿体能与手球专项训练，提供体测评估和针对性训练方案。",
   image = "/images/og-default.png",
+  imageWidth,
+  imageHeight,
+  imageType,
   article = false,
   publishedTime,
   modifiedTime,
@@ -36,13 +42,22 @@ const isActive = (href: string) => href === "/" ? currentPath === "/" : currentP
   <title>{title}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={canonicalURL} />
+  <meta itemprop="name" content={title} />
+  <meta itemprop="description" content={description} />
+  <meta itemprop="image" content={imageURL} />
+  <link rel="image_src" href={imageURL} />
   {noindex && <meta name="robots" content="noindex,nofollow" />}
 
+  <meta property="og:site_name" content="满分虎体育" />
   <meta property="og:type" content={article ? "article" : "website"} />
   <meta property="og:url" content={canonicalURL} />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:image" content={imageURL} />
+  <meta property="og:image:secure_url" content={imageURL} />
+  {imageType && <meta property="og:image:type" content={imageType} />}
+  {imageWidth && <meta property="og:image:width" content={imageWidth} />}
+  {imageHeight && <meta property="og:image:height" content={imageHeight} />}
   <meta property="og:locale" content="zh_CN" />
   {article && publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
   {article && modifiedTime && <meta property="article:modified_time" content={modifiedTime.toISOString()} />}
