@@ -9,9 +9,23 @@ export interface Props {
   image?: string;
   coverImage?: string;
   ogImage?: string;
+  ogImageWidth?: number;
+  ogImageHeight?: number;
+  ogImageType?: string;
 }
 
-const { title, description, pubDate, date, image, coverImage, ogImage } = Astro.props;
+const {
+  title,
+  description,
+  pubDate,
+  date,
+  image,
+  coverImage,
+  ogImage,
+  ogImageWidth,
+  ogImageHeight,
+  ogImageType,
+} = Astro.props;
 const displayDate = pubDate || date;
 const displayImage = image || coverImage;
 const publishedTime = displayDate ? new Date(displayDate) : undefined;
@@ -21,6 +35,9 @@ const publishedTime = displayDate ? new Date(displayDate) : undefined;
   title={`${title}｜满分虎体育`}
   description={description}
   image={ogImage || displayImage}
+  imageWidth={ogImageWidth}
+  imageHeight={ogImageHeight}
+  imageType={ogImageType}
   article={true}
   publishedTime={publishedTime}
   modifiedTime={publishedTime}
