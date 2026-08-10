@@ -1,5 +1,7 @@
 {
-  "rootDirectory": "youth-fitness-website",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist"
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 60
+    }
+  }
 }
