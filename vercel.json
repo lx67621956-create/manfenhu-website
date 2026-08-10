@@ -1,5 +1,0 @@
-{
-  "rootDirectory": "youth-fitness-website",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist"
-}

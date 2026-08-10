@@ -613,8 +613,8 @@
     fetch('/api/agnes-image?prompt=' + encodeURIComponent(buildPrompt()))
       .then(r => r.json())
       .then(j => {
-        if (j.url) {
-          makePoster(lastResult.short, link, j.url, (dataUrl) => {
+        if (j.dataUrl) {
+          makePoster(lastResult.short, link, j.dataUrl, (dataUrl) => {
             aiBtn.textContent = '✨ 换一张 AI 背景';
             showPoster(dataUrl);
           });
