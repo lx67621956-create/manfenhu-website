@@ -323,8 +323,9 @@
       <input id="posterLink" type="url" placeholder="扫码链接（官网报名页）">
     </div>
     <button class="poster-btn" id="posterBtn">🖼️ 生成海报</button>
+    <button class="poster-btn" id="aiBtn" style="margin-top:8px;background:linear-gradient(135deg,#7B5CFF,#5B3DF5);box-shadow:0 6px 18px rgba(91,61,245,.3);">✨ AI 背景海报（生成更精美）</button>
     <div class="poster-preview" id="posterPreview"></div>
-    <div class="poster-hint">💡 生成后长按图片保存，发到家长群</div>
+    <div class="poster-hint">💡 生成后长按图片保存，发到家长群 · AI 背景需等 10-30 秒</div>
   </div>
 </section>
 
@@ -595,119 +596,198 @@
     const link = (linkInput.value || DEFAULT_LINK).trim();
     if (!/^https?:\/\//.test(link)) { toast('链接要以 http 开头哦'); return; }
     document.getElementById('posterBtn').textContent = '⏳ 生成中…';
-    makePoster(lastResult.short, link, (dataUrl) => {
-      const prev = document.getElementById('posterPreview');
-      prev.innerHTML = '<img src="' + dataUrl + '" alt="海报" onclick="window.open(this.src)">';
+    makePoster(lastResult.short, link, null, (dataUrl) => {
       document.getElementById('posterBtn').textContent = '🖼️ 重新生成海报';
-      toast('海报生成好啦，长按保存 ✅');
+      showPoster(dataUrl);
     });
   };
 
-  // 绘制海报（1080×1620）
-  function makePoster(text, link, done) {
+  // AI 背景海报
+  const aiBtn = document.getElementById('aiBtn');
+  aiBtn.onclick = () => {
+    if (!lastResult) { toast('先生成内容，再生成海报 😅'); return; }
+    const link = (linkInput.value || DEFAULT_LINK).trim();
+    if (!/^https?:\/\//.test(link)) { toast('链接要以 http 开头哦'); return; }
+    aiBtn.textContent = '⏳ AI 正在画背景…（10-30秒）';
+    aiBtn.disabled = true;
+    fetch('/api/agnes-image?prompt=' + encodeURIComponent(buildPrompt()))
+      .then(r => r.json())
+      .then(j => {
+        if (j.url) {
+          makePoster(lastResult.short, link, j.url, (dataUrl) => {
+            aiBtn.textContent = '✨ 换一张 AI 背景';
+            showPoster(dataUrl);
+          });
+        } else {
+          toast('AI 生图失败，用普通海报吧');
+          makePoster(lastResult.short, link, null, (dataUrl) => {
+            aiBtn.textContent = '✨ AI 背景海报';
+            showPoster(dataUrl);
+          });
+        }
+        aiBtn.disabled = false;
+      })
+      .catch(() => {
+        aiBtn.textContent = '✨ AI 背景海报';
+        aiBtn.disabled = false;
+        toast('网络异常，已用普通海报');
+        makePoster(lastResult.short, link, null, (dataUrl) => { showPoster(dataUrl); });
+      });
+  };
+  function showPoster(dataUrl) {
+    const prev = document.getElementById('posterPreview');
+    prev.innerHTML = '<img src="' + dataUrl + '" alt="海报">';
+    toast('海报生成好啦，长按保存 ✅');
+  }
+  // AI prompt：按时段/天气/节气生成背景描述
+  function buildPrompt() {
+    const periodMap = { morning: 'morning sunshine', noon: 'bright midday', night: 'night with stars' };
+    const weatherMap = { hot: 'hot summer day', cold: 'cold winter day', rain: 'rainy day', snow: 'snowy day', wind: 'windy day', fog: 'soft foggy morning', clear: 'sunny clear day' };
+    const parts = [
+      'cute cartoon illustration for kids fitness poster background',
+      'children exercising, running, jumping rope, playing ball, happy and energetic',
+      'warm orange and cream color tones, flat design, soft rounded shapes',
+      'no text, no words, no letters, no watermark'
+    ];
+    if (state.period && periodMap[state.period]) parts.push(periodMap[state.period]);
+    if (state.weather.length && weatherMap[state.weather[0]]) parts.push(weatherMap[state.weather[0]]);
+    if (state.jieqi) parts.push(state.jieqi + ' solar term seasonal atmosphere');
+    return parts.join(', ');
+  }
+
+  // 绘制海报（1080×1620）；bgUrl 可选：有则用 AI 背景图+蒙层
+  function makePoster(text, link, bgUrl, done) {
     const W = 1080, H = 1620;
     const c = document.createElement('canvas');
     c.width = W; c.height = H;
     const ctx = c.getContext('2d');
 
-    // 背景渐变
-    const bg = ctx.createLinearGradient(0, 0, W, H);
-    bg.addColorStop(0, '#FF8F52');
-    bg.addColorStop(0.55, '#FF6B35');
-    bg.addColorStop(1, '#F04E23');
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, W, H);
+    const drawBase = () => {
+      if (bgUrl) {
+        // 背景图 cover + 橙色蒙层
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          const scale = Math.max(W / img.width, H / img.height);
+          const iw = img.width * scale, ih = img.height * scale;
+          ctx.drawImage(img, (W - iw) / 2, (H - ih) / 2, iw, ih);
+          const mask = ctx.createLinearGradient(0, 0, 0, H);
+          mask.addColorStop(0, 'rgba(240,78,35,0.25)');
+          mask.addColorStop(0.5, 'rgba(240,78,35,0.42)');
+          mask.addColorStop(1, 'rgba(200,52,20,0.55)');
+          ctx.fillStyle = mask;
+          ctx.fillRect(0, 0, W, H);
+          drawContent();
+        };
+        img.onerror = () => { drawGradient(); drawContent(); };
+        img.src = bgUrl;
+      } else {
+        drawGradient();
+        drawContent();
+      }
+    };
+    const drawGradient = () => {
+      const bg = ctx.createLinearGradient(0, 0, W, H);
+      bg.addColorStop(0, '#FF8F52');
+      bg.addColorStop(0.55, '#FF6B35');
+      bg.addColorStop(1, '#F04E23');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+      // 装饰圆
+      ctx.globalAlpha = 0.10;
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath(); ctx.arc(930, 220, 160, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(120, 1380, 200, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 0.07;
+      ctx.beginPath(); ctx.arc(180, 300, 90, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(900, 1200, 110, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+    };
 
-    // 装饰圆
-    ctx.globalAlpha = 0.10;
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath(); ctx.arc(930, 220, 160, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(120, 1380, 200, 0, Math.PI * 2); ctx.fill();
-    ctx.globalAlpha = 0.07;
-    ctx.beginPath(); ctx.arc(180, 300, 90, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(900, 1200, 110, 0, Math.PI * 2); ctx.fill();
-    ctx.globalAlpha = 1;
+    const drawContent = () => {
+      // 顶部品牌区
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(255,255,255,.95)';
+      ctx.font = '800 52px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillText('🐯 满分虎 · 体能训练', W / 2, 180);
+      ctx.fillStyle = 'rgba(255,255,255,.85)';
+      ctx.font = '400 30px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillText('青少年科学运动 健康成长', W / 2, 238);
 
-    // 顶部品牌区
-    ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(255,255,255,.95)';
-    ctx.font = '800 52px "PingFang SC","Microsoft YaHei",sans-serif';
-    ctx.fillText('🐯 满分虎 · 体能训练', W / 2, 180);
-    ctx.fillStyle = 'rgba(255,255,255,.85)';
-    ctx.font = '400 30px "PingFang SC","Microsoft YaHei",sans-serif';
-    ctx.fillText('青少年科学运动 健康成长', W / 2, 238);
+      // 分隔线
+      ctx.strokeStyle = 'rgba(255,255,255,.45)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(200, 300); ctx.lineTo(W - 200, 300); ctx.stroke();
 
-    // 分隔线
-    ctx.strokeStyle = 'rgba(255,255,255,.45)';
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(200, 300); ctx.lineTo(W - 200, 300); ctx.stroke();
+      // 问候语文案（自动换行）
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '500 44px "PingFang SC","Microsoft YaHei",sans-serif';
+      const lines = wrapText(ctx, text, W - 160, 48);
+      const maxLines = 13;
+      const shown = lines.slice(0, maxLines);
+      let y = 420;
+      shown.forEach(l => {
+        ctx.fillText(l, W / 2, y);
+        y += 72;
+      });
+      if (lines.length > maxLines) {
+        ctx.font = '500 34px "PingFang SC","Microsoft YaHei",sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,.75)';
+        ctx.fillText('……', W / 2, y);
+      }
 
-    // 问候语文案（自动换行）
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '500 44px "PingFang SC","Microsoft YaHei",sans-serif';
-    const lines = wrapText(ctx, text, W - 160, 48);
-    const maxLines = 13;
-    const shown = lines.slice(0, maxLines);
-    let y = 420;
-    shown.forEach(l => {
-      ctx.fillText(l, W / 2, y);
-      y += 72;
-    });
-    if (lines.length > maxLines) {
-      ctx.font = '500 34px "PingFang SC","Microsoft YaHei",sans-serif';
-      ctx.fillStyle = 'rgba(255,255,255,.75)';
-      ctx.fillText('……', W / 2, y);
-    }
+      // 二维码区（白底圆角）
+      const qrSize = 380;
+      const qrX = (W - qrSize) / 2;
+      const qrY = H - 640;
+      roundRect(ctx, qrX - 30, qrY - 30, qrSize + 60, qrSize + 60, 36);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
 
-    // 二维码区（白底圆角）
-    const qrSize = 380;
-    const qrX = (W - qrSize) / 2;
-    const qrY = H - 640;
-    roundRect(ctx, qrX - 30, qrY - 30, qrSize + 60, qrSize + 60, 36);
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fill();
+      // 底部文字
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '700 38px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillText('扫码咨询 · 报名体验', W / 2, H - 130);
+      ctx.fillStyle = 'rgba(255,255,255,.8)';
+      ctx.font = '400 28px "PingFang SC","Microsoft YaHei",sans-serif';
+      let host = 'www.manfenhu.com';
+      try { host = new URL(link).hostname.replace('www.', ''); } catch (e) {}
+      ctx.fillText(host, W / 2, H - 82);
 
-    // 底部文字
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '700 38px "PingFang SC","Microsoft YaHei",sans-serif';
-    ctx.fillText('扫码咨询 · 报名体验', W / 2, H - 130);
-    ctx.fillStyle = 'rgba(255,255,255,.8)';
-    ctx.font = '400 28px "PingFang SC","Microsoft YaHei",sans-serif';
-    let host = 'www.manfenhu.com';
-    try { host = new URL(link).hostname.replace('www.', ''); } catch (e) {}
-    ctx.fillText(host, W / 2, H - 82);
-
-    // 二维码（本地库 qrcode-generator，异步加载图片后合成）
-    if (typeof qrcode === 'undefined') {
-      ctx.fillStyle = '#000';
-      ctx.font = '400 30px sans-serif';
-      ctx.fillText('二维码加载失败，请检查网络', W / 2, qrY + qrSize / 2);
-      done(c.toDataURL('image/png'));
-      return;
-    }
-    try {
-      const qr = qrcode(0, 'M');
-      qr.addData(link);
-      qr.make();
-      const dataUrl = qr.createDataURL(6, 14);
-      const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, qrX, qrY, qrSize, qrSize);
+      // 二维码（本地库 qrcode-generator）
+      if (typeof qrcode === 'undefined') {
+        ctx.fillStyle = '#000';
+        ctx.font = '400 30px sans-serif';
+        ctx.fillText('二维码加载失败，请检查网络', W / 2, qrY + qrSize / 2);
         done(c.toDataURL('image/png'));
-      };
-      img.onerror = () => {
+        return;
+      }
+      try {
+        const qr = qrcode(0, 'M');
+        qr.addData(link);
+        qr.make();
+        const dataUrl = qr.createDataURL(6, 14);
+        const img = new Image();
+        img.onload = () => {
+          ctx.drawImage(img, qrX, qrY, qrSize, qrSize);
+          done(c.toDataURL('image/png'));
+        };
+        img.onerror = () => {
+          ctx.fillStyle = '#888';
+          ctx.font = '400 30px sans-serif';
+          ctx.fillText('二维码生成失败', W / 2, qrY + qrSize / 2);
+          done(c.toDataURL('image/png'));
+        };
+        img.src = dataUrl;
+      } catch (e) {
         ctx.fillStyle = '#888';
         ctx.font = '400 30px sans-serif';
         ctx.fillText('二维码生成失败', W / 2, qrY + qrSize / 2);
         done(c.toDataURL('image/png'));
-      };
-      img.src = dataUrl;
-    } catch (e) {
-      ctx.fillStyle = '#888';
-      ctx.font = '400 30px sans-serif';
-      ctx.fillText('二维码生成失败', W / 2, qrY + qrSize / 2);
-      done(c.toDataURL('image/png'));
-    }
+      }
+    };
+
+    drawBase();
   }
   function wrapText(ctx, text, maxWidth, fontSize) {
     ctx.font = '500 ' + fontSize + 'px "PingFang SC","Microsoft YaHei",sans-serif';
