@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="robots" content="noindex,nofollow">
 <title>课后总结生成器 · 满分虎</title>
 <style>
   :root {
@@ -111,6 +110,25 @@
   .stepper .num {
     font-size: 24px; font-weight:800; min-width: 26px; text-align:center;
     font-variant-numeric: tabular-nums;
+  }
+
+  /* 性别选择 */
+  .gender-bar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 12px 18px 0;
+  }
+  .gender-bar .g-label { font-size: 13px; font-weight:700; color: var(--ink-2); }
+  .g-opts { display:flex; gap:8px; }
+  .g-opt {
+    padding: 8px 20px; border-radius: 999px;
+    border: 1.5px solid var(--line); background: var(--card);
+    font-size: 13.5px; font-weight:700; color: var(--ink-2);
+    cursor:pointer; transition: all .15s;
+  }
+  .g-opt.sel {
+    background: linear-gradient(135deg, var(--brand-2), var(--brand-3));
+    border-color: transparent; color: #fff;
+    box-shadow: var(--shadow-lift);
   }
 
   /* ───────── 页签 ───────── */
@@ -241,7 +259,10 @@
   .slider-box.show { display:block; }
   .slider-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
   .slider-row + .slider-row { margin-top: 12px; }
-  .slider-row .pname { font-size: 13px; font-weight:600; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .slider-row .pname {
+    font-size: 14.5px; font-weight: 800; flex: 1;
+    white-space: normal; line-height: 1.45; color: var(--ink);
+  }
   .slider-row .pval {
     font-size: 14px; font-weight:800; color:var(--brand);
     background: var(--brand-soft); border-radius:8px;
@@ -395,6 +416,14 @@
   </div>
 </div>
 
+<div class="gender-bar">
+  <span class="g-label">孩子性别</span>
+  <div class="g-opts">
+    <div class="g-opt sel" id="genderMale">👦 男生</div>
+    <div class="g-opt" id="genderFemale">👧 女生</div>
+  </div>
+</div>
+
 <div class="tabs" id="tabs"></div>
 
 <div id="panels"></div>
@@ -437,6 +466,36 @@
   let count = 1;
   let state = [blank()];
   function blank() { return { attitude: null, projects: {} }; }
+
+  // 性别相关项目映射：男/女各自显示的专属项目
+  const GENDER_RULES = {
+    male:   { hide: ["800米跑", "斜身引体（女）"] },
+    female: { hide: ["1000米跑", "引体向上（男）", "双杠臂屈伸（男）"] }
+  };
+  let gender = "male";
+
+  // 项目可见性（按性别过滤）
+  function isVisible(name) {
+    const hide = GENDER_RULES[gender] ? GENDER_RULES[gender].hide : [];
+    return !hide.includes(name);
+  }
+  // 切换性别：清掉被隐藏项目的选择
+  function switchGender(g) {
+    gender = g;
+    document.getElementById('genderMale').classList.toggle('sel', g === 'male');
+    document.getElementById('genderFemale').classList.toggle('sel', g === 'female');
+    const hide = GENDER_RULES[g].hide;
+    state.forEach(s => {
+      hide.forEach(n => { if (s.projects[n] !== undefined) delete s.projects[n]; });
+    });
+    renderPanels();
+    updateAllDots();
+  }
+  function updateAllDots() {
+    [...tabsEl.children].forEach((t, i) => t.classList.toggle('filled', isFilled(i)));
+  }
+  document.getElementById('genderMale').onclick = () => switchGender('male');
+  document.getElementById('genderFemale').onclick = () => switchGender('female');
 
   const countNum = document.getElementById('countNum');
   const tabsEl = document.getElementById('tabs');
@@ -526,6 +585,7 @@
       const grid = document.createElement('div');
       grid.className = 'proj-grid';
       DATA.categories[cat].forEach(name => {
+        if (!isVisible(name)) return; // 按性别过滤
         const p = document.createElement('div');
         p.className = 'proj' + (s.projects[name] !== undefined ? ' sel' : '');
         p.innerHTML = '<span class="ico">' + ico(name) + '</span>' + name + '<span class="check">✓</span>';
