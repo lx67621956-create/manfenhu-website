@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="robots" content="noindex,nofollow">
 <title>家长群内容生成器 · 满分虎</title>
 <style>
   :root {
@@ -211,6 +210,33 @@
   }
   .regen { text-align:center; margin-top:12px; font-size:13px; color:var(--brand); cursor:pointer; font-weight:700; }
 
+  /* 海报 */
+  .poster-box {
+    background: var(--card); border:1px solid var(--line);
+    border-radius: var(--r-lg); padding:16px; margin-bottom:14px;
+    box-shadow: var(--shadow-card);
+  }
+  .poster-box h3 { font-size:15px; font-weight:800; margin-bottom:12px; }
+  .link-row { display:flex; gap:8px; margin-bottom:12px; }
+  .link-row input {
+    flex:1; border:1.5px solid var(--line); border-radius: var(--r-sm);
+    padding:10px 12px; font-size:13px; color:var(--ink);
+    background: var(--card);
+  }
+  .poster-btn {
+    width:100%; border:none; border-radius:12px;
+    background: linear-gradient(135deg, var(--brand-2), var(--brand-3));
+    color:#fff; font-size:15px; font-weight:800; padding:14px 0; cursor:pointer;
+    box-shadow: 0 6px 18px rgba(255,90,31,.3);
+  }
+  .poster-btn:active { transform: scale(.98); }
+  .poster-preview { margin-top:14px; text-align:center; }
+  .poster-preview img {
+    width:100%; max-width:360px; border-radius:14px;
+    box-shadow: var(--shadow-card);
+  }
+  .poster-hint { font-size:11px; color:var(--ink-3); margin-top:10px; text-align:center; }
+
   .toast {
     position:fixed; left:50%; bottom:118px; transform: translateX(-50%) translateY(8px);
     background: rgba(43,39,36,.9); color:#fff;
@@ -290,10 +316,21 @@
   <div id="resultBody"></div>
   <button class="copy-all" id="copyAll">📋 复制全部</button>
   <div class="regen" id="regen">🔄 换个说法重新生成</div>
+
+  <div class="poster-box">
+    <h3>🖼️ 生成海报（发群更吸睛）</h3>
+    <div class="link-row">
+      <input id="posterLink" type="url" placeholder="扫码链接（官网报名页）">
+    </div>
+    <button class="poster-btn" id="posterBtn">🖼️ 生成海报</button>
+    <div class="poster-preview" id="posterPreview"></div>
+    <div class="poster-hint">💡 生成后长按图片保存，发到家长群</div>
+  </div>
 </section>
 
 <div class="toast" id="toast"></div>
 
+<script src="qrcode.min.js"></script>
 <script src="group_data.js"></script>
 <script>
 (function () {
@@ -471,7 +508,9 @@
   // ── 渲染 ──
   const resultEl = document.getElementById('result');
   const resultBody = document.getElementById('resultBody');
+  let lastResult = null;
   function showResult(r) {
+    lastResult = r;
     resultBody.innerHTML = "";
     const segs = [["短版", r.short], ["完整版", r.full]];
     segs.forEach(([label, text]) => {
@@ -539,6 +578,165 @@
     t.textContent = msg; t.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  // ── 海报生成 ──
+  const linkInput = document.getElementById('posterLink');
+  const DEFAULT_LINK = 'https://www.manfenhu.com';
+  try {
+    linkInput.value = localStorage.getItem('posterLink') || DEFAULT_LINK;
+  } catch (e) { linkInput.value = DEFAULT_LINK; }
+  linkInput.onchange = () => {
+    try { localStorage.setItem('posterLink', linkInput.value); } catch (e) {}
+  };
+
+  document.getElementById('posterBtn').onclick = () => {
+    if (!lastResult) { toast('先生成内容，再生成海报 😅'); return; }
+    const link = (linkInput.value || DEFAULT_LINK).trim();
+    if (!/^https?:\/\//.test(link)) { toast('链接要以 http 开头哦'); return; }
+    document.getElementById('posterBtn').textContent = '⏳ 生成中…';
+    makePoster(lastResult.short, link, (dataUrl) => {
+      const prev = document.getElementById('posterPreview');
+      prev.innerHTML = '<img src="' + dataUrl + '" alt="海报" onclick="window.open(this.src)">';
+      document.getElementById('posterBtn').textContent = '🖼️ 重新生成海报';
+      toast('海报生成好啦，长按保存 ✅');
+    });
+  };
+
+  // 绘制海报（1080×1620）
+  function makePoster(text, link, done) {
+    const W = 1080, H = 1620;
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const ctx = c.getContext('2d');
+
+    // 背景渐变
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, '#FF8F52');
+    bg.addColorStop(0.55, '#FF6B35');
+    bg.addColorStop(1, '#F04E23');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // 装饰圆
+    ctx.globalAlpha = 0.10;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.arc(930, 220, 160, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(120, 1380, 200, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 0.07;
+    ctx.beginPath(); ctx.arc(180, 300, 90, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(900, 1200, 110, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // 顶部品牌区
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,.95)';
+    ctx.font = '800 52px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillText('🐯 满分虎 · 体能训练', W / 2, 180);
+    ctx.fillStyle = 'rgba(255,255,255,.85)';
+    ctx.font = '400 30px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillText('青少年科学运动 健康成长', W / 2, 238);
+
+    // 分隔线
+    ctx.strokeStyle = 'rgba(255,255,255,.45)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(200, 300); ctx.lineTo(W - 200, 300); ctx.stroke();
+
+    // 问候语文案（自动换行）
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '500 44px "PingFang SC","Microsoft YaHei",sans-serif';
+    const lines = wrapText(ctx, text, W - 160, 48);
+    const maxLines = 13;
+    const shown = lines.slice(0, maxLines);
+    let y = 420;
+    shown.forEach(l => {
+      ctx.fillText(l, W / 2, y);
+      y += 72;
+    });
+    if (lines.length > maxLines) {
+      ctx.font = '500 34px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,.75)';
+      ctx.fillText('……', W / 2, y);
+    }
+
+    // 二维码区（白底圆角）
+    const qrSize = 380;
+    const qrX = (W - qrSize) / 2;
+    const qrY = H - 640;
+    roundRect(ctx, qrX - 30, qrY - 30, qrSize + 60, qrSize + 60, 36);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fill();
+
+    // 底部文字
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '700 38px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillText('扫码咨询 · 报名体验', W / 2, H - 130);
+    ctx.fillStyle = 'rgba(255,255,255,.8)';
+    ctx.font = '400 28px "PingFang SC","Microsoft YaHei",sans-serif';
+    let host = 'www.manfenhu.com';
+    try { host = new URL(link).hostname.replace('www.', ''); } catch (e) {}
+    ctx.fillText(host, W / 2, H - 82);
+
+    // 二维码（本地库 qrcode-generator，异步加载图片后合成）
+    if (typeof qrcode === 'undefined') {
+      ctx.fillStyle = '#000';
+      ctx.font = '400 30px sans-serif';
+      ctx.fillText('二维码加载失败，请检查网络', W / 2, qrY + qrSize / 2);
+      done(c.toDataURL('image/png'));
+      return;
+    }
+    try {
+      const qr = qrcode(0, 'M');
+      qr.addData(link);
+      qr.make();
+      const dataUrl = qr.createDataURL(6, 14);
+      const img = new Image();
+      img.onload = () => {
+        ctx.drawImage(img, qrX, qrY, qrSize, qrSize);
+        done(c.toDataURL('image/png'));
+      };
+      img.onerror = () => {
+        ctx.fillStyle = '#888';
+        ctx.font = '400 30px sans-serif';
+        ctx.fillText('二维码生成失败', W / 2, qrY + qrSize / 2);
+        done(c.toDataURL('image/png'));
+      };
+      img.src = dataUrl;
+    } catch (e) {
+      ctx.fillStyle = '#888';
+      ctx.font = '400 30px sans-serif';
+      ctx.fillText('二维码生成失败', W / 2, qrY + qrSize / 2);
+      done(c.toDataURL('image/png'));
+    }
+  }
+  function wrapText(ctx, text, maxWidth, fontSize) {
+    ctx.font = '500 ' + fontSize + 'px "PingFang SC","Microsoft YaHei",sans-serif';
+    const lines = [];
+    const paras = text.split('\n');
+    paras.forEach(para => {
+      if (!para) { lines.push(''); return; }
+      let line = '';
+      for (const ch of para) {
+        const test = line + ch;
+        if (ctx.measureText(test).width > maxWidth && line) {
+          lines.push(line);
+          line = ch;
+        } else {
+          line = test;
+        }
+      }
+      if (line) lines.push(line);
+    });
+    return lines;
+  }
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
   }
 
   renderToday();
