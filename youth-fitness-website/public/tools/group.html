@@ -236,6 +236,13 @@
     box-shadow: var(--shadow-card);
   }
   .poster-hint { font-size:11px; color:var(--ink-3); margin-top:10px; text-align:center; }
+  .poster-dl {
+    display:block; margin:12px auto 0; width:100%; max-width:360px;
+    padding:12px 0; text-align:center;
+    background: var(--card); border:1.5px solid var(--brand); color: var(--brand);
+    border-radius:12px; font-size:14px; font-weight:800; text-decoration:none;
+  }
+  .poster-dl:active { transform: scale(.98); }
 
   .toast {
     position:fixed; left:50%; bottom:118px; transform: translateX(-50%) translateY(8px);
@@ -325,7 +332,8 @@
     <button class="poster-btn" id="posterBtn">🖼️ 生成海报</button>
     <button class="poster-btn" id="aiBtn" style="margin-top:8px;background:linear-gradient(135deg,#7B5CFF,#5B3DF5);box-shadow:0 6px 18px rgba(91,61,245,.3);">✨ AI 背景海报（生成更精美）</button>
     <div class="poster-preview" id="posterPreview"></div>
-    <div class="poster-hint">💡 生成后长按图片保存，发到家长群 · AI 背景需等 10-30 秒</div>
+    <a class="poster-dl" id="posterDl" download="满分虎海报.png" style="display:none;">💾 保存图片</a>
+    <div class="poster-hint">💡 手机上长按图片保存 · AI 背景需等 10-30 秒</div>
   </div>
 </section>
 
@@ -594,10 +602,13 @@
   document.getElementById('posterBtn').onclick = () => {
     if (!lastResult) { toast('先生成内容，再生成海报 😅'); return; }
     const link = (linkInput.value || DEFAULT_LINK).trim();
-    if (!/^https?:\/\//.test(link)) { toast('链接要以 http 开头哦'); return; }
-    document.getElementById('posterBtn').textContent = '⏳ 生成中…';
+    if (!validLink(link)) return;
+    const btn = document.getElementById('posterBtn');
+    btn.textContent = '⏳ 生成中…';
+    btn.disabled = true;
     makePoster(lastResult.short, link, null, (dataUrl) => {
-      document.getElementById('posterBtn').textContent = '🖼️ 重新生成海报';
+      btn.textContent = '🖼️ 重新生成海报';
+      btn.disabled = false;
       showPoster(dataUrl);
     });
   };
@@ -607,7 +618,7 @@
   aiBtn.onclick = () => {
     if (!lastResult) { toast('先生成内容，再生成海报 😅'); return; }
     const link = (linkInput.value || DEFAULT_LINK).trim();
-    if (!/^https?:\/\//.test(link)) { toast('链接要以 http 开头哦'); return; }
+    if (!validLink(link)) return;
     aiBtn.textContent = '⏳ AI 正在画背景…（10-30秒）';
     aiBtn.disabled = true;
     fetch('/api/agnes-image?prompt=' + encodeURIComponent(buildPrompt()))
@@ -637,7 +648,17 @@
   function showPoster(dataUrl) {
     const prev = document.getElementById('posterPreview');
     prev.innerHTML = '<img src="' + dataUrl + '" alt="海报">';
+    const dl = document.getElementById('posterDl');
+    dl.href = dataUrl;
+    dl.style.display = 'block';
     toast('海报生成好啦，长按保存 ✅');
+    try { prev.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
+  }
+  // 链接校验：http 开头 + 长度限制（二维码容量有限）
+  function validLink(link) {
+    if (!/^https?:\/\//.test(link)) { toast('链接要以 http 开头哦'); return false; }
+    if (link.length > 500) { toast('链接太长，二维码会扫不出来，请用短链接'); return false; }
+    return true;
   }
   // AI prompt：按时段/天气/节气生成背景描述
   function buildPrompt() {
@@ -664,9 +685,8 @@
 
     const drawBase = () => {
       if (bgUrl) {
-        // 背景图 cover + 橙色蒙层
+        // 背景图 cover + 橙色蒙层（bgUrl 为 base64 data URL，无跨域问题）
         const img = new Image();
-        img.crossOrigin = 'anonymous';
         img.onload = () => {
           const scale = Math.max(W / img.width, H / img.height);
           const iw = img.width * scale, ih = img.height * scale;
