@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>成绩测评 · 满分虎</title>
+<style>
+  :root {
+    --brand: #FF6B35;
+    --brand-2: #FF8A4C;
+    --brand-3: #F04E23;
+    --brand-soft: #FFF1E8;
+    --brand-softer: #FFF7F0;
+    --ink: #2B2724;
+    --ink-2: #6E655D;
+    --ink-3: #A49A90;
+    --line: #EDE3D9;
+    --bg-top: #FCF9F4;
+    --bg-bottom: #F5EDE3;
+    --card: #FFFFFF;
+    --green: #2FA25B;
+    --green-soft: #E6F4EB;
+    --amber: #F5A623;
+    --amber-soft: #FDF3E0;
+    --red: #E0533D;
+    --red-soft: #FBE9E4;
+    --r-lg: 18px;
+    --r-md: 14px;
+    --r-sm: 10px;
+    --shadow-card: 0 1px 2px rgba(43,39,36,.04), 0 6px 20px rgba(43,39,36,.05);
+    --shadow-lift: 0 2px 6px rgba(255,107,53,.18), 0 10px 28px rgba(255,107,53,.22);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { font-size:16px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-bottom: 110px;
+  }
+
+  /* ───────── 顶部 ───────── */
+  header {
+    position: relative;
+    background: linear-gradient(135deg, #FF8F52 0%, var(--brand) 48%, var(--brand-3) 100%);
+    padding: 26px 20px 42px;
+    color: #fff;
+    overflow: hidden;
+  }
+  header::before {
+    content: ""; position: absolute; right: -50px; top: -70px;
+    width: 190px; height: 190px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,.16) 0%, rgba(255,255,255,0) 70%);
+  }
+  header::after {
+    content: ""; position: absolute; left: -30px; bottom: -70px;
+    width: 150px; height: 150px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 70%);
+  }
+  .head-row { display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1; }
+  .brand { display:flex; align-items:center; gap:10px; }
+  .brand-logo {
+    width: 42px; height: 42px; border-radius: 13px;
+    background: rgba(255,255,255,.22);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 22px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
+  }
+  .brand h1 { font-size: 19px; font-weight: 800; letter-spacing:.5px; line-height:1.2; }
+  .brand p { font-size: 11.5px; opacity:.9; margin-top:2px; letter-spacing:.3px; }
+  .badge {
+    font-size: 10.5px; font-weight:700; letter-spacing:1px;
+    background: rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.35);
+    padding: 5px 10px; border-radius: 999px; color:#fff;
+    backdrop-filter: blur(4px);
+  }
+  .head-sub {
+    position: relative; z-index:1;
+    margin-top: 16px;
+    background: rgba(255,255,255,.16);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: var(--r-md);
+    padding: 13px 16px;
+    font-size: 13px; line-height: 1.6;
+    backdrop-filter: blur(6px);
+  }
+  .head-sub b { font-weight: 800; }
+
+  main { padding: 0 16px; margin-top: -24px; position: relative; z-index: 2; }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-card);
+    padding: 20px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(255,255,255,.6);
+  }
+  .card-title {
+    display:flex; align-items:center; gap:8px;
+    font-size: 15.5px; font-weight: 800; margin-bottom: 16px;
+  }
+  .card-title .ico {
+    width: 26px; height: 26px; border-radius: 8px;
+    background: var(--brand-soft); color: var(--brand-3);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 14px;
+  }
+
+  /* 年级选择 */
+  .seg { display:flex; gap:8px; }
+  .seg .opt {
+    flex:1; text-align:center; padding: 11px 0;
+    border-radius: var(--r-md);
+    background: #F7F2EA; color: var(--ink-2);
+    font-size: 14px; font-weight: 700;
+    border: 1px solid var(--line);
+    cursor: pointer;
+    transition: all .18s ease;
+  }
+  .seg .opt.on {
+    background: linear-gradient(135deg, var(--brand-2), var(--brand-3));
+    color: #fff; border-color: transparent;
+    box-shadow: var(--shadow-lift);
+  }
+
+  /* 性别 */
+  .gender-row { display:flex; gap:10px; }
+  .gender {
+    flex:1; display:flex; align-items:center; justify-content:center; gap:8px;
+    padding: 12px 0; border-radius: var(--r-md);
+    background: #F7F2EA; border: 1px solid var(--line);
+    font-size: 14.5px; font-weight: 700; color: var(--ink-2);
+    cursor: pointer; transition: all .18s ease;
+  }
+  .gender.on { background: var(--ink); color:#fff; border-color: var(--ink); }
+
+  /* 提示条 */
+  .tip {
+    display:flex; align-items:flex-start; gap:8px;
+    background: var(--brand-softer);
+    border: 1px solid #FBE3D0;
+    border-radius: var(--r-md);
+    padding: 11px 13px;
+    font-size: 12.5px; line-height: 1.7; color: #A05A33;
+    margin-bottom: 16px;
+  }
+  .tip .ico { flex-shrink:0; }
+
+  /* 项目输入 */
+  .item {
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .item:last-child { border-bottom: none; }
+  .item-info { min-width: 0; }
+  .item-name { font-size: 14.5px; font-weight: 800; display:flex; align-items:center; gap:6px; }
+  .item-name .e { font-size: 12px; color: var(--ink-3); font-weight:600; }
+  .item-unit { font-size: 11.5px; color: var(--ink-3); margin-top: 3px; }
+  .item-input { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+  .item-input input {
+    width: 88px; padding: 9px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    font-size: 15px; font-weight: 700; text-align: center;
+    background: #FBF8F2; color: var(--ink);
+    outline: none;
+    transition: border-color .15s;
+    font-family: inherit;
+  }
+  .item-input input:focus { border-color: var(--brand); background: #fff; }
+  .item-input .u { font-size: 11px; color: var(--ink-3); white-space: nowrap; }
+  .item .score-pill {
+    font-size: 13px; font-weight: 800; min-width: 56px; text-align: center;
+    padding: 6px 8px; border-radius: 999px;
+    background: #F3EDE4; color: var(--ink-3);
+  }
+  .item .score-pill.done { background: var(--green-soft); color: var(--green); }
+  .item .score-pill.mid { background: var(--amber-soft); color: #C07C00; }
+  .item .score-pill.low { background: var(--red-soft); color: var(--red); }
+
+  .btn {
+    width: 100%; border: none; cursor: pointer;
+    font-family: inherit; font-weight: 800; font-size: 16px;
+    border-radius: var(--r-md);
+    padding: 15px 0;
+    color: #fff;
+    background: linear-gradient(135deg, var(--brand-2), var(--brand-3));
+    box-shadow: var(--shadow-lift);
+    transition: transform .12s ease, box-shadow .12s ease;
+    letter-spacing: 1px;
+  }
+  .btn:active { transform: scale(.97); }
+
+  /* 结果区 */
+  .result-head {
+    background: linear-gradient(135deg, #FFF3EA, #FFE9D9);
+    border: 1px solid #FBDDC6;
+    border-radius: var(--r-lg);
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-head::after {
+    content: ""; position: absolute; right: -40px; top: -40px;
+    width: 130px; height: 130px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,107,53,.10) 0%, rgba(255,107,53,0) 70%);
+  }
+  .rh-grade { font-size: 15px; font-weight: 800; color: var(--brand-3); letter-spacing: 2px; }
+  .rh-score { font-size: 56px; font-weight: 900; color: var(--ink); line-height: 1.1; margin: 6px 0 2px; }
+  .rh-score small { font-size: 18px; font-weight: 700; color: var(--ink-3); }
+  .rh-sub { font-size: 13px; color: var(--ink-2); margin-top: 6px; }
+  .rh-tag {
+    display: inline-block; margin-top: 12px;
+    padding: 6px 16px; border-radius: 999px;
+    font-size: 13px; font-weight: 800; letter-spacing: 1px;
+  }
+  .tag-excellent { background: var(--green); color:#fff; }
+  .tag-good { background: var(--amber); color:#fff; }
+  .tag-pass { background: #5B8DEF; color:#fff; }
+  .tag-fail { background: var(--red); color:#fff; }
+
+  /* 图表 */
+  .chart-wrap { position: relative; width: 100%; }
+  .chart-wrap svg { width: 100%; height: auto; display: block; }
+  .legend { display:flex; gap:16px; justify-content:center; margin-top: 10px; flex-wrap:wrap; }
+  .legend span { font-size: 11.5px; color: var(--ink-2); display:flex; align-items:center; gap:5px; }
+  .legend i { width: 10px; height: 10px; border-radius: 3px; display:inline-block; }
+
+  /* 单项明细 */
+  .detail-row {
+    display:flex; align-items:center; gap:10px;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-name { font-size: 13.5px; font-weight: 700; width: 96px; flex-shrink:0; }
+  .detail-bar { flex:1; height: 14px; background: #F3EDE4; border-radius: 999px; overflow: hidden; position: relative; }
+  .detail-bar .fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--brand-2), var(--brand));
+    transition: width .5s ease;
+  }
+  .detail-bar .mark {
+    position: absolute; top:-2px; bottom:-2px; width: 2px;
+    background: var(--ink-3);
+  }
+  .detail-score { font-size: 13.5px; font-weight: 800; width: 44px; text-align:right; flex-shrink:0; }
+
+  /* 描述 */
+  .desc-block { margin-bottom: 14px; }
+  .desc-block:last-child { margin-bottom: 0; }
+  .desc-label {
+    display:inline-flex; align-items:center; gap:6px;
+    font-size: 12px; font-weight: 800; color: var(--brand-3);
+    background: var(--brand-soft);
+    padding: 4px 10px; border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  .desc-text { font-size: 13.5px; line-height: 1.85; color: var(--ink); }
+  .desc-text .hl { color: var(--brand-3); font-weight: 800; }
+  .desc-text .hlg { color: var(--green); font-weight: 800; }
+  .desc-text .hlr { color: var(--red); font-weight: 800; }
+
+  /* 复制按钮 */
+  .copy-btn {
+    width: 100%; border: 1.5px solid var(--brand); cursor: pointer;
+    font-family: inherit; font-weight: 800; font-size: 15px;
+    border-radius: var(--r-md);
+    padding: 14px 0;
+    color: var(--brand-3);
+    background: #fff;
+    transition: all .12s ease;
+  }
+  .copy-btn:active { transform: scale(.97); background: var(--brand-soft); }
+
+  .foot {
+    text-align: center; padding: 18px 24px 8px;
+    font-size: 11px; color: var(--ink-3); line-height: 1.8;
+  }
+
+  /* 固定底部操作 */
+  .fixed-bar {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: rgba(252,249,244,.92);
+    backdrop-filter: blur(10px);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    display: flex; gap: 10px;
+    z-index: 50;
+    border-top: 1px solid rgba(237,227,217,.8);
+  }
+  .fixed-bar .btn { flex: 3; }
+  .fixed-bar .btn-ghost {
+    flex: 1; background: #fff; color: var(--ink-2);
+    border: 1px solid var(--line); box-shadow: none; font-size: 14px;
+  }
+  .toast {
+    position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%) translateY(10px);
+    background: rgba(43,39,36,.92); color: #fff;
+    padding: 10px 20px; border-radius: 999px;
+    font-size: 13px; font-weight: 600;
+    opacity: 0; pointer-events: none;
+    transition: all .25s ease;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .hidden { display:none !important; }
+
+  .src-note {
+    font-size: 11px; color: var(--ink-3); line-height: 1.7;
+    background: #F7F2EA; border-radius: var(--r-md);
+    padding: 10px 12px; margin-top: 14px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-row">
+    <div class="brand">
+      <div class="brand-logo">🐯</div>
+      <div>
+        <h1>满分虎 · 成绩测评</h1>
+        <p>专业体质测评报告 · 数据源自官方标准</p>
+      </div>
+    </div>
+    <span class="badge">BETA</span>
+  </div>
+  <div class="head-sub">
+    依据 <b>《义务教育体育与健康考核评价方案》</b>（京教体艺〔2021〕31号）与国家学生体质健康标准，输入成绩即可生成专业测评报告。
+  </div>
+</header>
+
+<main>
+  <!-- 输入区 -->
+  <div class="card">
+    <div class="card-title"><span class="ico">📋</span>基础信息</div>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:12.5px;font-weight:700;color:var(--ink-2);margin-bottom:8px;">选择年级</div>
+      <div class="seg" id="gradeSeg">
+        <div class="opt" data-g="4">四年级</div>
+        <div class="opt" data-g="6">六年级</div>
+        <div class="opt" data-g="8">八年级</div>
+        <div class="opt" data-g="9">九年级</div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:12.5px;font-weight:700;color:var(--ink-2);margin-bottom:8px;">选择性别</div>
+      <div class="gender-row" id="genderRow">
+        <div class="gender on" data-s="M">👦 男生</div>
+        <div class="gender" data-s="F">👧 女生</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="inputCard">
+    <div class="card-title"><span class="ico">🏃</span>输入测试成绩</div>
+    <div class="tip" id="inputTip">
+      <span class="ico">💡</span>
+      <span>填写各项实际测试成绩，完成后点击下方「生成测评报告」。50米跑/长跑为秒或分:秒，其余按次数/厘米/米填写。</span>
+    </div>
+    <div id="itemList"></div>
+  </div>
+
+  <button class="btn" id="genBtn" style="margin-bottom:14px;">生成测评报告</button>
+
+  <!-- 结果区 -->
+  <div id="resultArea" class="hidden">
+
+    <div class="result-head">
+      <div class="rh-grade" id="rhGradeLabel">综合等级</div>
+      <div class="rh-score" id="rhScore">0<small> 分</small></div>
+      <div class="rh-sub" id="rhSub">—</div>
+      <div id="rhTagBox"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">📊</span>单项得分对比</div>
+      <div class="chart-wrap" id="barChart"></div>
+      <div class="legend">
+        <span><i style="background:linear-gradient(90deg,#FF8A4C,#F04E23)"></i>单项得分</span>
+        <span><i style="background:#EDE3D9"></i>满分</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">🕸️</span>身体素质多维分析</div>
+      <div class="chart-wrap" id="radarChart"></div>
+      <div class="legend">
+        <span><i style="background:var(--brand)"></i>本次测评</span>
+        <span><i style="background:#EDE3D9"></i>及格线(60)</span>
+      </div>
+      <div class="desc-block" style="margin-top:12px;">
+        <div class="desc-label">素质画像</div>
+        <div class="desc-text" id="radarDesc"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">📝</span>单项明细</div>
+      <div id="detailList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">💬</span>专业点评</div>
+      <div id="descArea"></div>
+    </div>
+
+    <button class="copy-btn" id="copyBtn">📋 复制测评报告（发微信）</button>
+
+    <div class="src-note">
+      📌 数据来源：《北京市义务教育体育与健康考核评价方案》(京教体艺〔2021〕31号)、《国家学生体质健康标准(2014年修订)》、北京教育考试院《现场考试项目评分标准(试行)》(2023)。测评结果仅供参考，最终成绩以官方统测为准。
+    </div>
+  </div>
+
+  <div class="foot">
+    满分虎 · 专注青少年体质提升<br>
+    本工具为内部测评辅助，不构成考试承诺
+  </div>
+</main>
+
+<div class="fixed-bar hidden" id="fixedBar">
+  <button class="btn btn-ghost" id="resetBtn">↺ 重置</button>
+  <button class="btn" id="genBtn2">重新测评</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="assessment_data.js"></script>
+<script>
+(function(){
+  "use strict";
+  var D = window.ASSESS_DATA;
+  var state = { grade: "4", sex: "M" };
+  var results = null;
+  var toastTimer = null;
+
+  /* ---------- 工具 ---------- */
+  function $(id){ return document.getElementById(id); }
+  function toast(msg){
+    var t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2200);
+  }
+  function esc(s){
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+  /* 时间字符串 -> 秒：支持 "3'50" "3:50" "3.50" "230" */
+  function timeToSec(v){
+    v = String(v).trim();
+    var m = v.match(/^(\d+)[':\.](\d{1,2})$/);
+    if (m) return parseInt(m[1],10)*60 + parseInt(m[2],10);
+    var n = parseFloat(v);
+    return isNaN(n) ? null : n;
+  }
+  function secToTime(s){
+    var m = Math.floor(s/60), sec = Math.round(s%60);
+    if (sec === 60){ m++; sec = 0; }
+    return m + "'" + (sec<10?"0":"") + sec;
+  }
+  function num(v){
+    var n = parseFloat(v);
+    return isNaN(n) ? null : n;
+  }
+
+  /* ---------- 项目定义（按年级） ---------- */
+  var ITEM_DEFS = {
+    "4": [
+      { key:"bmi", name:"BMI", unit:"kg/m²", input:"text", ph:"如 18.5" },
+      { key:"vital", name:"肺活量", unit:"毫升", input:"num", ph:"如 2400" },
+      { key:"sitreach", name:"坐位体前屈", unit:"厘米", input:"num", ph:"如 12.5" },
+      { key:"run50", name:"50米跑", unit:"秒", input:"num", ph:"如 9.5" },
+      { key:"rope", name:"一分钟跳绳", unit:"个/分", input:"num", ph:"如 120" },
+      { key:"situp", name:"一分钟仰卧起坐", unit:"个/分", input:"num", ph:"如 35" }
+    ],
+    "6": [
+      { key:"bmi", name:"BMI", unit:"kg/m²", input:"text", ph:"如 18.5" },
+      { key:"vital", name:"肺活量", unit:"毫升", input:"num", ph:"如 2500" },
+      { key:"sitreach", name:"坐位体前屈", unit:"厘米", input:"num", ph:"如 12.5" },
+      { key:"run50", name:"50米跑", unit:"秒", input:"num", ph:"如 8.8" },
+      { key:"rope", name:"一分钟跳绳", unit:"个/分", input:"num", ph:"如 140" },
+      { key:"situp", name:"一分钟仰卧起坐", unit:"个/分", input:"num", ph:"如 40" },
+      { key:"run508", name:"50米×8往返跑", unit:"分:秒", input:"time", ph:"如 1'45" }
+    ],
+    "8": [
+      { key:"bmi", name:"BMI", unit:"kg/m²", input:"text", ph:"如 19.0" },
+      { key:"vital", name:"肺活量", unit:"毫升", input:"num", ph:"如 3200" },
+      { key:"run50", name:"50米跑", unit:"秒", input:"num", ph:"如 8.2" },
+      { key:"sitreach", name:"坐位体前屈", unit:"厘米", input:"num", ph:"如 14.0" },
+      { key:"longjump", name:"立定跳远", unit:"厘米", input:"num", ph:"如 210" },
+      { key:"pullup", name:"引体向上", unit:"次", input:"num", ph:"如 10", g8:"M" },
+      { key:"situp", name:"1分钟仰卧起坐", unit:"个/分", input:"num", ph:"如 40", g8:"F" },
+      { key:"run800", name:"1000米跑", unit:"分:秒", input:"time", ph:"如 4'20", g8:"M" },
+      { key:"run800f", name:"800米跑", unit:"分:秒", input:"time", ph:"如 4'00", g8:"F" }
+    ],
+    "9": [
+      { key:"run1000", name:"1000米跑(男)", unit:"分:秒", input:"time", ph:"如 4'20", gender:"M" },
+      { key:"run800", name:"800米跑(女)", unit:"分:秒", input:"time", ph:"如 4'00", gender:"F" },
+      { key:"pullup", name:"引体向上(男)", unit:"次", input:"num", ph:"如 8", gender:"M" },
+      { key:"xieshen", name:"斜身引体(女)", unit:"次", input:"num", ph:"如 28", gender:"F" },
+      { key:"shuangg", name:"双杠臂屈伸(男)", unit:"次", input:"num", ph:"如 8", gender:"M" },
+      { key:"situp", name:"仰卧起坐(女)", unit:"次/分", input:"num", ph:"如 32", gender:"F" },
+      { key:"ball", name:"投掷实心球", unit:"米", input:"num", ph:"如 7.5" },
+      { key:"rope", name:"1分钟跳绳", unit:"次/分", input:"num", ph:"如 150" },
+      { key:"jump", name:"原地纵跳摸高", unit:"厘米", input:"num", ph:"如 42" },
+      { key:"longjump", name:"立定跳远", unit:"米", input:"num", ph:"如 1.9" },
+      { key:"foot", name:"足球·运球射门", unit:"秒", input:"num", ph:"如 22" },
+      { key:"basket", name:"篮球·运球投篮", unit:"秒", input:"num", ph:"如 40" },
+      { key:"volley", name:"排球·垫球发球", unit:"积分", input:"num", ph:"如 12" },
+      { key:"ping", name:"乒乓球·左推右攻", unit:"次数", input:"num", ph:"如 36" },
+      { key:"badm", name:"羽毛球·挑球发高远球", unit:"积分", input:"num", ph:"如 15" },
+      { key:"swim", name:"100米游泳", unit:"分:秒", input:"time", ph:"如 3'10" }
+    ]
+  };
+  /* 9年级：选考类别分组 */
+  var CAT_GROUPS = {
+    "9": [
+      { cat:"cat1", label:"素质项目Ⅰ（必考）", max: 8, items:["run1000","run800"] },
+      { cat:"cat2", label:"素质项目Ⅱ（8选1）", max: 8, items:["pullup","xieshen","shuangg","situp","ball","rope","jump","longjump"] },
+      { cat:"cat3", label:"运动能力Ⅰ（5选1）", max: 8, items:["foot","basket","volley","ping","badm"] },
+      { cat:"cat4", label:"运动能力Ⅱ（7选1）", max: 6, items:["swim"] }
+    ]
+  };
+
+  /* 项目展示名 */
+  function itemDisplayName(def){
+    if (def.sub) return null;
+    return def.name;
+  }
+
+  /* ---------- 渲染输入区 ---------- */
+  function renderItems(){
+    var box = $("itemList");
+    box.innerHTML = "";
+    var defs = ITEM_DEFS[state.grade];
+    if (state.grade === "9") {
+      /* 九年级：按类别渲染 */
+      CAT_GROUPS["9"].forEach(function(grp){
+        var gDiv = document.createElement("div");
+        gDiv.className = "cat-group";
+        gDiv.style.cssText = "margin-bottom:6px;";
+        var h = document.createElement("div");
+        h.style.cssText = "font-size:12px;font-weight:800;color:var(--brand-3);background:var(--brand-soft);display:inline-block;padding:3px 10px;border-radius:999px;margin-bottom:4px;";
+        h.textContent = grp.label + " · " + grp.max + "分";
+        gDiv.appendChild(h);
+        grp.items.forEach(function(key){
+          var def = defs.filter(function(d){return d.key===key;})[0];
+          if (!def) return;
+          if (def.gender && def.gender !== state.sex) return;
+          gDiv.appendChild(makeItemRow(def));
+        });
+        box.appendChild(gDiv);
+      });
+    } else {
+      defs.forEach(function(def){
+        /* 8年级：力量项目按性别显示引体(男)/仰卧起坐(女)，耐力按性别显示1000米(男)/800米(女) */
+        if (state.grade === "8") {
+          if (def.g8 && def.g8 !== state.sex) return;
+          var dispName = def.name;
+          if (def.key === "pullup" && state.sex === "M") dispName = "引体向上(男)";
+          if (def.key === "situp" && state.sex === "F") dispName = "1分钟仰卧起坐(女)";
+          if (def.key === "run800" && state.sex === "M") dispName = "1000米跑(男)";
+          if (def.key === "run800f" && state.sex === "F") dispName = "800米跑(女)";
+          var rowDef = { key: def.key, name: dispName, unit: def.unit, input: def.input, ph: def.ph };
+          box.appendChild(makeItemRow(rowDef));
+          return;
+        }
+        box.appendChild(makeItemRow(def));
+      });
+    }
+    /* 更新提示 */
+    var tip = $("inputTip");
+    if (state.grade === "9") {
+      tip.innerHTML = "<span class='ico'>💡</span><span>九年级为现场考试计分：每类选1项填写成绩。素质Ⅰ必考，其余每类任选1项。</span>";
+    } else if (state.grade === "8") {
+      tip.innerHTML = "<span class='ico'>💡</span><span>八年级国体测试：填写全部项目（力量与耐力按性别显示）。</span>";
+    } else {
+      tip.innerHTML = "<span class='ico'>💡</span><span>填写各项实际测试成绩。50米×8往返跑填分:秒，如 1'45。</span>";
+    }
+  }
+
+  function makeItemRow(def){
+    var row = document.createElement("div");
+    row.className = "item";
+    row.dataset.key = def.key;
+    var inputHtml = "";
+    if (def.input === "none") {
+      inputHtml = '<div class="score-pill" data-pill="1"></div>';
+    } else if (def.input === "time") {
+      inputHtml = '<div class="item-input"><input type="text" inputmode="decimal" data-in="1" placeholder="'+def.ph+'" style="width:104px;"><span class="u">分:秒</span></div>';
+    } else {
+      inputHtml = '<div class="item-input"><input type="text" inputmode="decimal" data-in="1" placeholder="'+def.ph+'"><span class="u">'+esc(def.unit)+'</span></div>';
+    }
+    var scorePill = def.input === "none" ? "" : '<div class="score-pill" data-pill="1"></div>';
+    row.innerHTML =
+      '<div class="item-info"><div class="item-name">'+esc(def.name)+'</div><div class="item-unit">'+esc(def.unit)+'</div></div>' +
+      inputHtml + scorePill;
+    /* 输入时实时评分预览 */
+    var inp = row.querySelector('input[data-in]');
+    if (inp) {
+      inp.addEventListener("input", function(){ liveScore(def, inp, row); });
+      inp.addEventListener("blur", function(){ liveScore(def, inp, row); });
+    }
+    return row;
+  }
+
+  /* 实时评分预览（国体百分制） */
+  function liveScore(def, inp, row){
+    var pill = row.querySelector('[data-pill]');
+    if (!pill) return;
+    var val = readInput(def, inp.value);
+    if (val === null || val === undefined) { pill.textContent = "—"; pill.className = "score-pill"; return; }
+    var r = null;
+    if (state.grade === "9") {
+      r = scoreXianchang(def.key, val);
+      if (r !== null) {
+        var pct = Math.round(r.score / (catMax(def.key)) * 100);
+        pill.textContent = r.score + "分";
+        pill.className = "score-pill " + (pct >= 90 ? "done" : pct >= 60 ? "mid" : "low");
+      } else { pill.textContent = "—"; pill.className = "score-pill"; }
+    } else {
+      if (def.key === "bmi") {
+        /* BMI 实时预览：按区间评分 */
+        var bv = num(inp.value);
+        if (bv !== null && !isNaN(bv)) {
+          var bsc = scoreBMI(bv);
+          pill.textContent = bsc + "分";
+          pill.className = "score-pill " + (bsc >= 90 ? "done" : bsc >= 60 ? "mid" : "low");
+        } else { pill.textContent = "—"; pill.className = "score-pill"; }
+        return;
+      }
+      r = scoreGuoti(def.key, val);
+      if (r !== null) {
+        pill.textContent = r.score + "分";
+        pill.className = "score-pill " + (r.score >= 90 ? "done" : r.score >= 60 ? "mid" : "low");
+      } else { pill.textContent = "—"; pill.className = "score-pill"; }
+    }
+  }
+
+  function readInput(def, raw){
+    if (!raw) return undefined;
+    if (def.input === "time") return timeToSec(raw);
+    return num(raw);
+  }
+
+  function catMax(key){
+    var groups = CAT_GROUPS["9"];
+    for (var i=0;i<groups.length;i++){
+      if (groups[i].items.indexOf(key) >= 0) return groups[i].max;
+    }
+    return 8;
+  }
+
+  /* ---------- 国体评分 ---------- */
+  function scoreGuoti(key, val){
+    if (val === undefined || val === null) return null;
+    var grade = state.grade;
+    var tables = D.guoti.tables[grade];
+    var t;
+    if (key === "bmi") {
+      t = tables.bmi[state.sex];
+      if (!t) return null;
+      var row = null;
+      for (var i=0;i<t.length;i++){
+        if (t[i][0] === "normal") row = t[i];
+      }
+      /* BMI 需要按区间判断，由页面传 raw */
+      return null;
+    }
+    t = tables[key];
+    if (!t) return null;
+    var rows = t[state.sex];
+    if (!rows) {
+      /* 引体只有男、仰卧起坐只有女 */
+      if (key === "pullup") rows = t.M;
+      else if (key === "situp") rows = t.F;
+      else return null;
+    }
+    if (!rows) return null;
+    var low = isLow(key, grade);
+    for (var j=0;j<rows.length;j++){
+      var rowScore = rows[j][0], rowVal = rows[j][1];
+      if (low) {
+        /* 低优：成绩 <= 标准 */
+        if (val <= rowVal + 1e-9) return { score: rowScore, standard: rowVal };
+      } else {
+        if (val >= rowVal - 1e-9) return { score: rowScore, standard: rowVal };
+      }
+    }
+    /* 超过表底：按最后一行 */
+    var last = rows[rows.length-1];
+    return { score: last[0], standard: last[1] };
+  }
+
+  function isLow(key, grade){
+    if (key === "run50") return true;
+    if (key === "run508") return true;
+    if (key === "run800") return true;
+    return false;
+  }
+
+  /* BMI 评分 */
+  function scoreBMI(bmiVal){
+    var t = D.guoti.tables[state.grade].bmi[state.sex];
+    if (!t) return null;
+    for (var i=0;i<t.length;i++){
+      var row = t[i];
+      var range = row[2];
+      if (range.indexOf("≤") === 0) {
+        var max = parseFloat(range.replace("≤",""));
+        if (bmiVal <= max) return row[1];
+      } else if (range.indexOf("≥") === 0) {
+        var min = parseFloat(range.replace("≥",""));
+        if (bmiVal >= min) return row[1];
+      } else {
+        var parts = range.split("-");
+        var lo = parseFloat(parts[0]), hi = parseFloat(parts[1]);
+        if (bmiVal >= lo && bmiVal <= hi) return row[1];
+      }
+    }
+    return 10;
+  }
+
+  /* ---------- 现场考试评分（9年级） ---------- */
+  function scoreXianchang(key, val){
+    if (val === undefined || val === null) return null;
+    var t = D.xianchang.tables[key];
+    if (!t) return null;
+    var rows = t[state.sex] || t.M || t.F;
+    if (!rows) return null;
+    var item = D.xianchang.items[key];
+    var low = item.type === "lo";
+    for (var j=0;j<rows.length;j++){
+      var rs = rows[j][0], rv = rows[j][1];
+      if (low) {
+        if (val <= rv + 1e-9) return { score: rs, standard: rv };
+      } else {
+        if (val >= rv - 1e-9) return { score: rs, standard: rv };
+      }
+    }
+    /* 低于表格最低档（如引体0次，官方表最低3分=1次）→ 0 分 */
+    var last = rows[rows.length-1];
+    return { score: 0, standard: last[1] };
+  }
+
+  /* ---------- 生成报告 ---------- */
+  function generate(){
+    var defs = ITEM_DEFS[state.grade];
+    var inputs = {};
+    var rows = document.querySelectorAll("#itemList .item");
+    rows.forEach(function(row){
+      var key = row.dataset.key;
+      var inp = row.querySelector('input[data-in]');
+      if (!key || !inp) return;
+      var raw = inp.value;
+      var def = defs.filter(function(d){return d.key===key;})[0];
+      if (!def && key === "pullup") def = {input:"num"};
+      if (!def && key === "run800") def = {input:"time"};
+      if (raw) inputs[key] = readInput({input: (key==="run800"||key==="run800f"||key==="run508"||key==="run1000"||key==="swim")?"time":"num"}, raw);
+    });
+    /* BMI 特殊处理：需要原始字符串判断区间 */
+    var bmiRaw = null;
+    rows.forEach(function(row){
+      if (row.dataset.key === "bmi") bmiRaw = (row.querySelector('input')||{}).value;
+    });
+
+    if (state.grade === "9") {
+      results = computeXianchang(inputs, bmiRaw);
+    } else {
+      results = computeGuoti(inputs, bmiRaw);
+    }
+    if (!results) { toast("请填写成绩后生成"); return; }
+    renderResults();
+    $("resultArea").classList.remove("hidden");
+    $("fixedBar").classList.remove("hidden");
+    $("genBtn").classList.add("hidden");
+    setTimeout(function(){
+      $("resultArea").scrollIntoView({ behavior:"smooth", block:"start" });
+    }, 60);
+  }
+
+  /* 国体总分计算 */
+  function computeGuoti(inputs, bmiRaw){
+    var grade = state.grade;
+    var weights = D.guoti.weights[grade];
+    var items = [];
+    var filled = 0, total = 0, totalW = 0, bonusTotal = 0;
+    var keys = Object.keys(weights);
+    keys.forEach(function(key){
+      var w = weights[key];
+      if (key === "bmi") {
+        var bv = num(bmiRaw);
+        if (bv === null) return;
+        var sc = scoreBMI(bv);
+        items.push({ key:"bmi", name:"BMI", score: sc, weight: w, unit:"kg/m²", display: bmiRaw });
+        total += sc * w; totalW += w; filled++;
+        return;
+      }
+      if (grade === "8" && key === "power") {
+        /* 力量权重：男→引体向上，女→仰卧起坐 */
+        var pk = state.sex === "M" ? "pullup" : "situp";
+        var pv = inputs[pk];
+        if (pv === undefined) return;
+        var pr = scoreGuoti(pk, pv);
+        if (!pr) return;
+        items.push({ key:"power", name: state.sex==="M"?"引体向上":"仰卧起坐", score: pr.score, weight: w, unit: state.sex==="M"?"次":"个/分", display: pv });
+        total += pr.score * w; totalW += w; filled++;
+        return;
+      }
+      if (grade === "8" && key === "run800") {
+        /* 耐力权重：男→1000米(run800)，女→800米(run800f) */
+        var rk = state.sex === "M" ? "run800" : "run800f";
+        var rv = inputs[rk];
+        if (rv === undefined) return;
+        var rr = scoreGuoti("run800", rv);
+        if (!rr) return;
+        items.push({ key:"run800", name: state.sex==="M"?"1000米跑":"800米跑", score: rr.score, weight: w, unit:"分:秒", display: rv });
+        total += rr.score * w; totalW += w; filled++;
+        return;
+      }
+      var val = inputs[key];
+      if (val === undefined) return;
+      var r = scoreGuoti(key, val);
+      if (!r) return;
+      var nm = { vital:"肺活量", sitreach:"坐位体前屈", run50:"50米跑", rope:"一分钟跳绳", situp:"一分钟仰卧起坐", run508:"50米×8往返跑", longjump:"立定跳远" }[key] || key;
+      items.push({ key:key, name:nm, score:r.score, weight:w, unit: D.guoti.tables[grade][key] ? "" : "", display: val, standard: r.standard });
+      total += r.score * w; totalW += w; filled++;
+    });
+    if (totalW === 0) return null;
+    /* 加权总分：Σ(得分×权重)/Σ权重 → 标准分（百分制） */
+    var std = total / totalW;
+    /* 附加分：六年级跳绳 / 八年级力量与耐力 */
+    if (grade === "6" && inputs.rope !== undefined) {
+      var ropeFull = D.guoti.ropeBonusFull[state.sex];
+      var extra = Math.floor((inputs.rope - ropeFull) / 2);
+      if (extra > 20) extra = 20;
+      if (extra < 0) extra = 0;
+      bonusTotal += extra;
+    }
+    if (grade === "8") {
+      if (state.sex === "M") {
+        var pv = inputs.pullup;
+        if (pv !== undefined) {
+          var pb = Math.floor(pv - 14);
+          if (pb > 10) pb = 10;
+          if (pb < 0) pb = 0;
+          bonusTotal += pb;
+        }
+        var rv = inputs.run800;
+        if (rv !== undefined) {
+          var base = 230; /* 男1000米满分 3'50" */
+          var diff = base - rv;
+          var rb = 0;
+          var btab = D.guoti.bonus.run1000m8.table;
+          for (var b=10;b>=1;b--){ if (diff >= btab[b]) { rb = b; break; } }
+          bonusTotal += rb;
+        }
+      } else {
+        var sv = inputs.situp;
+        if (sv !== undefined) {
+          var sbt = D.guoti.bonus.situp8.table;
+          var sb = 0;
+          for (var b2=10;b2>=1;b2--){ if (sv - 51 >= sbt[b2]) { sb = b2; break; } }
+          bonusTotal += sb;
+        }
+        var rv2 = inputs.run800f;
+        if (rv2 !== undefined) {
+          var base2 = 210; /* 女800米满分 3'30" */
+          var diff2 = base2 - rv2;
+          var rb2 = 0;
+          var btab2 = D.guoti.bonus.run800m8.table;
+          for (var b3=10;b3>=1;b3--){ if (diff2 >= btab2[b3]) { rb2 = b3; break; } }
+          bonusTotal += rb2;
+        }
+      }
+    }
+    var finalScore = Math.round((std + bonusTotal) * 10) / 10;
+    return { mode:"guoti", items: items, stdScore: Math.round(std*10)/10, bonus: bonusTotal, total: finalScore, max: 120 };
+  }
+
+  /* 现场考试总分计算 */
+  function computeXianchang(inputs, bmiRaw){
+    var groups = CAT_GROUPS["9"];
+    var items = [], total = 0, totalMax = 0, filledGroups = 0;
+    groups.forEach(function(grp){
+      var best = null;
+      grp.items.forEach(function(key){
+        var val = inputs[key];
+        if (val === undefined) return;
+        var r = scoreXianchang(key, val);
+        if (!r) return;
+        if (!best || r.score > best.score) {
+          best = { key:key, score:r.score, standard:r.standard, val:val, name: D.xianchang.items[key].name, unit: D.xianchang.items[key].unit };
+        }
+      });
+      if (best) {
+        items.push({ key:best.key, name:best.name, score:best.score, max: grp.max, weight: grp.max, unit:best.unit, display:best.val, cat: grp.cat });
+        total += best.score;
+        totalMax += grp.max;
+        filledGroups++;
+      }
+    });
+    if (filledGroups === 0) return null;
+    var pct = total / totalMax * 100;
+    return { mode:"xc", items: items, total: Math.round(total*10)/10, max: totalMax, pct: pct };
+  }
+
+  /* ---------- 等级 ---------- */
+  function gradeOf(score, pct){
+    /* 国体：按百分制比例 */
+    if (pct !== undefined) {
+      if (pct >= 90) return { name:"优秀", cls:"tag-excellent" };
+      if (pct >= 80) return { name:"良好", cls:"tag-good" };
+      if (pct >= 60) return { name:"及格", cls:"tag-pass" };
+      return { name:"待提升", cls:"tag-fail" };
+    }
+    if (score >= 90) return { name:"优秀", cls:"tag-excellent" };
+    if (score >= 80) return { name:"良好", cls:"tag-good" };
+    if (score >= 60) return { name:"及格", cls:"tag-pass" };
+    return { name:"待提升", cls:"tag-fail" };
+  }
+
+  /* ---------- 素质维度 ---------- */
+  var DIM_MAP = {
+    "4": { "run50":"速度", "rope":"协调", "situp":"力量", "sitreach":"柔韧", "vital":"心肺", "bmi":"体态" },
+    "6": { "run50":"速度", "run508":"耐力", "rope":"协调", "situp":"力量", "sitreach":"柔韧", "vital":"心肺", "bmi":"体态" },
+    "8": { "run50":"速度", "run800":"耐力", "longjump":"爆发", "sitreach":"柔韧", "vital":"心肺", "bmi":"体态", "pullup":"力量", "situp":"力量" },
+    "9": { "run1000":"耐力", "run800":"耐力", "pullup":"力量", "xieshen":"力量", "shuangg":"力量", "situp":"力量", "ball":"力量", "rope":"协调", "jump":"爆发", "longjump":"爆发", "foot":"协调", "basket":"协调", "volley":"协调", "ping":"协调", "badm":"协调", "swim":"耐力" }
+  };
+
+  /* ---------- 渲染结果 ---------- */
+  function renderResults(){
+    var r = results;
+    /* 头 */
+    var gradeInfo = gradeOf(r.total, r.mode === "xc" ? r.pct : undefined);
+    $("rhGradeLabel").textContent = "综合等级 · " + gradeInfo.name;
+    $("rhScore").innerHTML = r.total + "<small> " + (r.mode==="xc" ? "/"+r.max+"分" : "分") + "</small>";
+    $("rhSub").textContent = r.mode === "xc"
+      ? ("已选 " + r.items.length + " 类项目 · 得分率 " + Math.round(r.pct) + "%")
+      : (r.stdScore !== undefined ? "标准分 " + r.stdScore + " · 附加分 +" + r.bonus : "");
+    $("rhTagBox").innerHTML = '<span class="rh-tag ' + gradeInfo.cls + '">' + gradeInfo.name + '</span>';
+
+    renderBar(r);
+    renderRadar(r);
+    renderDetail(r);
+    renderDesc(r);
+  }
+
+  /* 柱状图 */
+  function renderBar(r){
+    var box = $("barChart");
+    var items = r.items;
+    var W = 340, H = 40 + items.length * 40 + 20;
+    var maxVal = r.mode === "xc" ? 8 : 100;
+    var padL = 110, padR = 34, padT = 18;
+    var plotW = W - padL - padR;
+    var svg = '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">';
+    items.forEach(function(it, i){
+      var y = padT + i * 40;
+      var sc = it.score;
+      var norm = r.mode === "xc" ? sc / it.max : sc;
+      var w = Math.max(2, norm / 100 * plotW);
+      var color = norm >= 90 ? "#2FA25B" : norm >= 60 ? "#F5A623" : "#E0533D";
+      svg += '<text x="'+(padL-10)+'" y="'+(y+13)+'" text-anchor="end" font-size="12" fill="#6E655D" font-weight="600">'+esc(it.name)+'</text>';
+      svg += '<rect x="'+padL+'" y="'+y+'" width="'+plotW+'" height="18" rx="9" fill="#F3EDE4"/>';
+      svg += '<rect x="'+padL+'" y="'+y+'" width="'+w+'" height="18" rx="9" fill="'+color+'" opacity="0.9"/>';
+      var label = r.mode === "xc" ? (sc + "分") : sc;
+      svg += '<text x="'+(padL+w+6)+'" y="'+(y+13)+'" font-size="12" fill="#2B2724" font-weight="800">'+label+'</text>';
+      if (r.mode === "xc") {
+        svg += '<text x="'+(padL+plotW)+'" y="'+(y+13)+'" text-anchor="end" font-size="10" fill="#A49A90">满'+it.max+'</text>';
+      }
+    });
+    svg += '</svg>';
+    box.innerHTML = svg;
+  }
+
+  /* 雷达图 */
+  function renderRadar(r){
+    var box = $("radarChart");
+    /* 聚合维度分数（百分制比例） */
+    var dims = {}, dimCount = {};
+    r.items.forEach(function(it){
+      var d = (DIM_MAP[state.grade]||{})[it.key];
+      if (!d) d = "综合";
+      var sc = r.mode === "xc" ? (it.score / it.max * 100) : it.score;
+      if (!dims[d]) { dims[d] = 0; dimCount[d] = 0; }
+      dims[d] += sc; dimCount[d]++;
+    });
+    var labels = Object.keys(dims);
+    if (labels.length === 0) { box.innerHTML = ""; return; }
+    var values = labels.map(function(l){ return dims[l] / dimCount[l]; });
+    /* 排序保证稳定：保持输入顺序 */
+    var C = 170, R = 78;
+    var svg = '<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg">';
+    svg += '<g transform="translate(170,100)">';
+    /* 网格 */
+    for (var ring=1; ring<=4; ring++){
+      var rr = R * ring / 4;
+      var pts = [];
+      for (var a=0;a<labels.length;a++){
+        var ang = -Math.PI/2 + a * 2*Math.PI/labels.length;
+        pts.push((C/2 + rr*Math.cos(ang)*0.9) + "," + (rr*Math.sin(ang)*0.9));
+      }
+      svg += '<polygon points="'+pts.join(" ")+'" fill="'+(ring===4?'rgba(255,107,53,.04)':'none')+'" stroke="#E8DED2" stroke-width="1"/>';
+    }
+    /* 轴线 */
+    for (var b=0;b<labels.length;b++){
+      var ang2 = -Math.PI/2 + b * 2*Math.PI/labels.length;
+      svg += '<line x1="0" y1="0" x2="'+(R*0.9*Math.cos(ang2))+'" y2="'+(R*0.9*Math.sin(ang2))+'" stroke="#E8DED2" stroke-width="1"/>';
+      var lx = (R+16)*0.9*Math.cos(ang2), ly = (R+14)*0.9*Math.sin(ang2);
+      svg += '<text x="'+lx+'" y="'+ly+'" text-anchor="middle" font-size="11" fill="#2B2724" font-weight="700">'+labels[b]+'</text>';
+    }
+    /* 及格线（60） */
+    var p60 = [];
+    for (var c=0;c<labels.length;c++){
+      var ang3 = -Math.PI/2 + c * 2*Math.PI/labels.length;
+      p60.push((R*0.6*0.9*Math.cos(ang3)).toFixed(1) + "," + (R*0.6*0.9*Math.sin(ang3)).toFixed(1));
+    }
+    svg += '<polygon points="'+p60.join(" ")+'" fill="none" stroke="#A49A90" stroke-width="1" stroke-dasharray="4 3"/>';
+    /* 数据 */
+    var dpts = [];
+    for (var d2=0;d2<labels.length;d2++){
+      var v = Math.max(0, Math.min(100, values[d2]));
+      var ang4 = -Math.PI/2 + d2 * 2*Math.PI/labels.length;
+      dpts.push((R*0.9*Math.cos(ang4)*v/100).toFixed(1) + "," + (R*0.9*Math.sin(ang4)*v/100).toFixed(1));
+    }
+    svg += '<polygon points="'+dpts.join(" ")+'" fill="rgba(255,107,53,.22)" stroke="#FF6B35" stroke-width="2" stroke-linejoin="round"/>';
+    for (var d3=0;d3<labels.length;d3++){
+      var v2 = Math.max(0, Math.min(100, values[d3]));
+      var ang5 = -Math.PI/2 + d3 * 2*Math.PI/labels.length;
+      svg += '<circle cx="'+(R*0.9*Math.cos(ang5)*v2/100).toFixed(1)+'" cy="'+(R*0.9*Math.sin(ang5)*v2/100).toFixed(1)+'" r="3" fill="#FF6B35"/>';
+    }
+    svg += '</g></svg>';
+    box.innerHTML = svg;
+    /* 画像描述 */
+    var sorted = labels.slice().sort(function(a,b){ return values[labels.indexOf(b)] - values[labels.indexOf(a)]; });
+    var strong = sorted[0], weak = sorted[sorted.length-1];
+    var sVal = Math.round(values[labels.indexOf(strong)]), wVal = Math.round(values[labels.indexOf(weak)]);
+    var html = '';
+    if (sVal >= 85) html += '「<span class="hlg">'+strong+'</span>」表现突出（'+sVal+'分），是当前的核心优势素质。';
+    else if (sVal >= 70) html += '「<span class="hl">'+strong+'</span>」相对占优（'+sVal+'分），具备较好基础。';
+    else if (sVal >= 60) html += '「<span class="hl">'+strong+'</span>」为相对强项（'+sVal+'分），处于及格线以上。';
+    else html += '各项素质均有提升空间，其中「<span class="hl">'+strong+'</span>」相对较好（'+sVal+'分）。';
+    if (wVal < 60) html += '「<span class="hlr">'+weak+'</span>」目前低于及格线（'+wVal+'分），是当前需要重点关注的薄弱环节。';
+    else if (wVal < 80) html += '「<span class="hlr">'+weak+'</span>」相对偏弱（'+wVal+'分），与优势素质存在一定差距。';
+    else html += '「<span class="hl">'+weak+'</span>」虽为相对弱项，但整体仍处于良好水平（'+wVal+'分），发展较为均衡。';
+    $("radarDesc").innerHTML = html;
+  }
+
+  /* 明细 */
+  function renderDetail(r){
+    var box = $("detailList");
+    var html = "";
+    r.items.forEach(function(it){
+      var pct = r.mode === "xc" ? (it.score / it.max * 100) : it.score;
+      var color = pct >= 90 ? "linear-gradient(90deg,#3DB86B,#2FA25B)" : pct >= 60 ? "linear-gradient(90deg,#FFB84D,#F5A623)" : "linear-gradient(90deg,#E96A55,#E0533D)";
+      var disp = it.display;
+      if (typeof disp === "number" && (it.key === "run800" || it.key === "run508" || it.key === "run1000" || it.key === "swim")) {
+        disp = secToTime(disp);
+      }
+      html += '<div class="detail-row">' +
+        '<div class="detail-name">'+esc(it.name)+'</div>' +
+        '<div class="detail-bar"><div class="fill" style="width:'+Math.min(100,pct)+'%;background:'+color+'"></div></div>' +
+        '<div class="detail-score">'+(r.mode==="xc"?it.score+"分":it.score)+'</div>' +
+        '</div>';
+    });
+    box.innerHTML = html;
+  }
+
+  /* 描述 */
+  function renderDesc(r){
+    var box = $("descArea");
+    var html = "";
+    var gradeInfo = gradeOf(r.total, r.mode === "xc" ? r.pct : undefined);
+    /* 综合评语 */
+    var top = r.items.slice().sort(function(a,b){
+      var sa = r.mode==="xc" ? a.score/a.max : a.score;
+      var sb = r.mode==="xc" ? b.score/b.max : b.score;
+      return sb - sa;
+    });
+    var strong = top[0], weak = top[top.length-1];
+    var sPct = r.mode==="xc" ? Math.round(strong.score/strong.max*100) : strong.score;
+    var wPct = r.mode==="xc" ? Math.round(weak.score/weak.max*100) : weak.score;
+
+    html += '<div class="desc-block"><div class="desc-label">综合评语</div><div class="desc-text">';
+    if (gradeInfo.name === "优秀") html += '整体身体素质处于<span class="hlg">优秀水平</span>，各项指标发展均衡、基础扎实，在同龄人中具备明显优势。';
+    else if (gradeInfo.name === "良好") html += '整体身体素质处于<span class="hl">良好水平</span>，基础条件不错，个别项目仍有进一步发展的空间。';
+    else if (gradeInfo.name === "及格") html += '整体身体素质达到<span class="hl">及格水平</span>，处于中等位置，建议系统性地巩固基础、均衡发展各项素质。';
+    else html += '当前整体水平<span class="hlr">低于及格线</span>，需要重视体质发展，从基础项目入手逐步提升。';
+    html += '</div></div>';
+
+    /* 优势项 */
+    html += '<div class="desc-block"><div class="desc-label">优势项目</div><div class="desc-text">';
+    html += '「<span class="hlg">'+esc(strong.name)+'</span>」表现最佳（'+sPct+(r.mode==="xc"?"%":"分")+'），' + describeLevel(sPct) + '。';
+    html += '</div></div>';
+
+    /* 待提升 */
+    html += '<div class="desc-block"><div class="desc-label">待提升方向</div><div class="desc-text">';
+    if (wPct >= 80) html += '「<span class="hl">'+esc(weak.name)+'</span>」为相对弱项（'+wPct+'分），但整体已处于良好区间，可通过持续坚持保持并巩固。';
+    else if (wPct >= 60) html += '「<span class="hlr">'+esc(weak.name)+'</span>」相对偏弱（'+wPct+'分），处于及格线附近，建议给予更多关注。';
+    else html += '「<span class="hlr">'+esc(weak.name)+'</span>」目前低于及格线（'+wPct+'分），是当前需要优先关注的项目。';
+    html += '</div></div>';
+
+    /* 发展建议（不提训练方法） */
+    html += '<div class="desc-block"><div class="desc-label">发展建议</div><div class="desc-text">';
+    html += suggestText(r);
+    html += '</div></div>';
+
+    /* 数据提示 */
+    html += '<div class="desc-block"><div class="desc-label">数据提示</div><div class="desc-text">';
+    html += '本报告依据官方评分标准计算，单项得分与等级对应关系：优秀≥90、良好≥80、及格≥60。成绩受测试当天状态、天气与场地等因素影响，建议多次测评综合评估。';
+    html += '</div></div>';
+
+    box.innerHTML = html;
+  }
+
+  function describeLevel(pct){
+    if (pct >= 90) return "已达到优秀标准";
+    if (pct >= 80) return "达到良好水平";
+    if (pct >= 60) return "达到及格水平";
+    return "暂未达到及格线";
+  }
+
+  function suggestText(r){
+    var grade = state.grade;
+    var g = gradeOf(r.total, r.mode === "xc" ? r.pct : undefined);
+    var t = [];
+    if (grade === "9") {
+      t.push("九年级现场考试共4类项目，本次测评覆盖" + r.items.length + "类。建议保持已选项目的稳定发挥，同时关注得分率较低类别的选考组合优化。");
+      var lowCat = r.items.filter(function(it){ return (it.score/it.max) < 0.6; });
+      if (lowCat.length) t.push("其中「" + lowCat.map(function(it){return it.name;}).join("、") + "」得分率不足60%，是总分提升的关键空间所在。");
+      t.push("测评数据可用于考前针对性评估，帮助合理规划选考项目。");
+    } else if (grade === "8") {
+      t.push("八年级体质测试结果计入中考过程性考核（满分10分，测试得分80分及以上按满分赋分）。当前测试得分" + Math.round(r.total) + "分" + (r.total>=80 ? "，已满足满分赋分条件。" : "，距满分赋分线80分还有" + Math.round(80 - r.total) + "分差距。"));
+      t.push("附加分来自引体向上（男）/仰卧起坐（女）与1000米/800米的加分项，满分120分。");
+    } else {
+      t.push(grade === "4" ? "四年级测试结果用于记录体质档案，为后续年级考核打基础。" : "六年级测试结果计入中考过程性考核（测试得分80分及以上按满分赋分），且跳绳为唯一加分项（超出满分每2个+1分，上限20分）。");
+      if (grade === "6" && r.bonus > 0) t.push("本次跳绳附加分 +" + r.bonus + " 分，已计入总分。");
+    }
+    t.push("建议保持规律作息与良好运动习惯，均衡发展各项素质，定期测评跟踪进步。");
+    return t.join("");
+  }
+
+  /* ---------- 复制报告 ---------- */
+  function copyReport(){
+    var r = results;
+    if (!r) return;
+    var g = gradeOf(r.total, r.mode === "xc" ? r.pct : undefined);
+    var lines = [];
+    lines.push("【满分虎 · 体质测评报告】");
+    lines.push("年级：" + ({4:"四年级",6:"六年级",8:"八年级",9:"九年级"})[state.grade] + "　性别：" + (state.sex==="M"?"男":"女"));
+    lines.push("综合得分：" + r.total + (r.mode==="xc"?"/"+r.max+"分":"分") + "　等级：" + g.name);
+    if (r.mode === "guoti") lines.push("标准分 " + r.stdScore + " · 附加分 +" + r.bonus);
+    lines.push("── 单项成绩 ──");
+    r.items.forEach(function(it){
+      var disp = it.display;
+      if (typeof disp === "number" && (it.key==="run800"||it.key==="run508"||it.key==="run1000"||it.key==="swim")) disp = secToTime(disp);
+      lines.push(it.name + "：" + disp + (it.unit ? " " + it.unit : "") + " → " + (r.mode==="xc"? it.score+"/"+it.max+"分" : it.score+"分"));
+    });
+    lines.push("── 测评说明 ──");
+    lines.push("依据《义务教育体育与健康考核评价方案》(京教体艺〔2021〕31号)及国家学生体质健康标准评定。");
+    lines.push("测评结果仅供参考，最终成绩以官方统测为准。");
+    var text = lines.join("\n");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function(){ toast("报告已复制 ✅"); }, function(){ fallbackCopy(text); });
+    } else {
+      fallbackCopy(text);
+    }
+  }
+  function fallbackCopy(text){
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); toast("报告已复制 ✅"); } catch(e){ toast("复制失败，请长按选择复制"); }
+    document.body.removeChild(ta);
+  }
+
+  /* ---------- 事件 ---------- */
+  function bindEvents(){
+    var segs = document.querySelectorAll("#gradeSeg .opt");
+    segs.forEach(function(s){
+      s.addEventListener("click", function(){
+        segs.forEach(function(x){ x.classList.remove("on"); });
+        s.classList.add("on");
+        state.grade = s.dataset.g;
+        $("resultArea").classList.add("hidden");
+        $("fixedBar").classList.add("hidden");
+        $("genBtn").classList.remove("hidden");
+        results = null;
+        renderItems();
+      });
+    });
+    var genders = document.querySelectorAll("#genderRow .gender");
+    genders.forEach(function(s){
+      s.addEventListener("click", function(){
+        genders.forEach(function(x){ x.classList.remove("on"); });
+        s.classList.add("on");
+        state.sex = s.dataset.s;
+        $("resultArea").classList.add("hidden");
+        $("fixedBar").classList.add("hidden");
+        $("genBtn").classList.remove("hidden");
+        results = null;
+        renderItems();
+      });
+    });
+    $("genBtn").addEventListener("click", generate);
+    $("genBtn2").addEventListener("click", function(){
+      $("resultArea").classList.add("hidden");
+      $("fixedBar").classList.add("hidden");
+      $("genBtn").classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    $("resetBtn").addEventListener("click", function(){
+      document.querySelectorAll("#itemList input").forEach(function(i){ i.value = ""; });
+      document.querySelectorAll("#itemList .score-pill").forEach(function(p){
+        if (p.dataset.pill) { p.textContent = "—"; p.className = "score-pill"; }
+      });
+      $("resultArea").classList.add("hidden");
+      $("fixedBar").classList.add("hidden");
+      $("genBtn").classList.remove("hidden");
+      results = null;
+    });
+    $("copyBtn").addEventListener("click", copyReport);
+  }
+
+  /* ---------- init ---------- */
+  bindEvents();
+  renderItems();
+})();
+</script>
+</body>
+</html>
