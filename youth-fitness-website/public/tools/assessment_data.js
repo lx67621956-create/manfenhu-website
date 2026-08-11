@@ -161,6 +161,12 @@ window.ASSESS_DATA = {
       ping:    { name: "乒乓球·左推右攻发球", gender: "B", unit: "次数", type: "hi" },
       badm:    { name: "羽毛球·挑球发高远球", gender: "B", unit: "积分", type: "hi" },
       /* 运动能力Ⅱ 6分 */
+      shuangg1: { name: "体操·双杠组合Ⅰ", gender: "M", unit: "得分", type: "manual", max: 6, note: "动作质量5分+表现1分" },
+      shuangg2: { name: "体操·双杠组合Ⅱ", gender: "F", unit: "得分", type: "manual", max: 6, note: "动作质量5分+表现1分" },
+      jiqiao1:  { name: "体操·技巧组合Ⅰ", gender: "M", unit: "得分", type: "manual", max: 6, note: "动作质量5分+表现1分" },
+      jiqiao2:  { name: "体操·技巧组合Ⅱ", gender: "F", unit: "得分", type: "manual", max: 6, note: "动作质量5分+表现1分" },
+      changquan: { name: "武术·健身长拳", gender: "B", unit: "得分", type: "manual", max: 6, note: "动作质量5分+表现1分" },
+      nanquan:  { name: "武术·健身南拳", gender: "B", unit: "得分", type: "manual", max: 6, note: "动作质量5分+表现1分" },
       swim:    { name: "100米游泳", gender: "B", unit: "分·秒", type: "lo" }
     },
     /* 评分表：item -> gender -> [[score, value], ...] 低优降序（分数高→低，值从小到大） */
