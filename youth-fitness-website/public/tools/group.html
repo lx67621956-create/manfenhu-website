@@ -487,11 +487,23 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
     }
     base.push(b);
 
-    // 短版：问候 + 天气（1-2条）+ 品牌
     // 短版（海报用）：问候 + 天气 + 节日/节气句 + 品牌（文字与背景同样贴合主题）
+    // 节日/节气句优先抽"含节日名"的显性句子（如"端午安康""立春…"），海报一眼看出主题
+    const festLine = key => {
+      const arr = (D.festival[key] || []);
+      if (!arr.length) return '';
+      const ex = arr.filter(s => s.includes(key));
+      return pick(ex.length ? ex : arr);
+    };
+    const jieqiLine = key => {
+      const arr = (D.jieqi[key] || []);
+      if (!arr.length) return '';
+      const ex = arr.filter(s => s.includes(key));
+      return pick(ex.length ? ex : arr);
+    };
     const shortParts = [g].concat(weatherParts.slice(0, 1));
-    if (state.jieqi && D.jieqi[state.jieqi]) shortParts.push(pick(D.jieqi[state.jieqi]));
-    if (state.festival && D.festival[state.festival]) shortParts.push(pick(D.festival[state.festival]));
+    if (state.jieqi && D.jieqi[state.jieqi]) shortParts.push(jieqiLine(state.jieqi));
+    if (state.festival && D.festival[state.festival]) shortParts.push(festLine(state.festival));
     shortParts.push(b);
     const short = shortParts.filter(Boolean).join("\n");
     // 完整版：全部内容
