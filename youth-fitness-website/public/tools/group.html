@@ -470,10 +470,18 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
     weatherParts.forEach(w => base.push(w + "\n"));
     if (state.jieqi && D.jieqi[state.jieqi]) base.push(pick(D.jieqi[state.jieqi]) + "\n");
     if (state.festival && D.festival[state.festival]) base.push(pick(D.festival[state.festival]) + "\n");
-    // 关怀句（饮食/作息/防久坐/训练提醒 随机一类，让内容更生活化）
+    // 关怀句按时段加权：早=饮食/晨起活动、午=作息/久坐、晚=睡眠/睡前放松（时段感更强）
+    const carePriority = { morning: ['diet', 'sedentary'], noon: ['sleep', 'sedentary'], night: ['sleep', 'training'] };
+    const prio = carePriority[state.period] || [];
     const careKeys = Object.keys(D.care || {});
     if (careKeys.length) {
-      const ck = careKeys[Math.floor(Math.random() * careKeys.length)];
+      let ck;
+      if (prio.length && Math.random() < 0.75) {
+        ck = prio[Math.floor(Math.random() * prio.length)];
+        if (!D.care[ck] || !D.care[ck].length) ck = careKeys[Math.floor(Math.random() * careKeys.length)];
+      } else {
+        ck = careKeys[Math.floor(Math.random() * careKeys.length)];
+      }
       const careArr = D.care[ck] || [];
       if (careArr.length) base.push(pick(careArr) + "\n");
     }
@@ -682,22 +690,56 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
     if (link.length > 500) { toast('链接太长，二维码会扫不出来，请用短链接'); return false; }
     return true;
   }
-  // AI prompt：随机场景/风格/配色 + 按时段天气节气组合（避免每次都生成同样的图）
+  // AI prompt：时段场景 + 天气视觉 + 节日视觉（画面直接贴合文案主题）
   function buildPrompt() {
-    const scenes = [
-      'children playing football on a green grass field',
-      'kids running a fun race on a track, laughing',
-      'kids jumping rope happily in a sunny park',
-      'children doing gymnastics stretches on a mat',
-      'kids playing basketball on an outdoor court',
-      'children riding bicycles together in a park',
-      'kids doing morning exercises in a school yard',
-      'children playing badminton in a garden',
-      'kids climbing on playground equipment',
-      'children doing yoga poses on the grass',
-      'kids playing catch with a frisbee',
-      'children cheering and high-fiving after exercise'
-    ];
+    const pickR = arr => arr[Math.floor(Math.random() * arr.length)];
+    // 时段视觉场景（画面里直接有光线/天空/环境特征）
+    const periodScenes = {
+      morning: [
+        'golden morning sunrise light, kids doing morning exercise in a sunny schoolyard, birds flying in dawn sky',
+        'soft morning glow, children running and playing in a park at sunrise, morning dew on grass',
+        'bright morning, kids doing stretches and warm-ups outdoors, warm sunrise colors in sky'
+      ],
+      noon: [
+        'bright noon sunlight, kids playing football on a green field under clear blue sky',
+        'high noon, children playing on playground equipment, vivid summer day, strong sun',
+        'sunny midday, kids doing sports activities on a track, clear blue sky, bright daylight'
+      ],
+      night: [
+        'peaceful night, kids doing light evening exercise under a starry sky, crescent moon and stars',
+        'warm evening, children playing in a park at night, glowing street lamps, full moon',
+        'night sky full of stars, kids stretching at home by cozy warm window light'
+      ]
+    };
+    // 天气视觉元素（画面特征）
+    const weatherVisual = {
+      hot: 'hot summer day, heat shimmer, kids drinking water to cool down',
+      cold: 'cold winter day, kids in warm coats and scarves, frosty air',
+      rain: 'rainy day, raindrops on window, kids playing inside a cozy warm room',
+      snow: 'snowy day, snowflakes falling, kids playing with a snowman',
+      wind: 'windy day, leaves blowing, kites flying in the sky',
+      fog: 'soft foggy morning, misty gentle atmosphere',
+      clear: 'clear sunny sky, fresh bright air'
+    };
+    // 节日视觉元素
+    const festVisual = {
+      '春节': 'chinese new year, red lanterns and fireworks',
+      '元旦': 'new year celebration, confetti and festive colors',
+      '元宵节': 'lantern festival, glowing colorful lanterns',
+      '除夕': 'spring festival eve, red lanterns and fireworks',
+      '圣诞节': 'christmas, decorated tree and snow',
+      '中秋节': 'mid-autumn festival, full moon and glowing lanterns',
+      '国庆节': 'national day celebration, red flags and fireworks',
+      '劳动节': 'spring day, blooming flowers and sunshine',
+      '儿童节': 'children day, balloons and joy',
+      '妇女节': 'spring flowers, warm pink tones',
+      '母亲节': 'warm family hug, flowers',
+      '父亲节': 'father and child playing sports together',
+      '端午节': 'dragon boat festival, river and boats',
+      '重阳节': 'autumn hills, family hiking together',
+      '清明节': 'spring outing, fresh green nature',
+      '植树节': 'planting trees, green nature'
+    };
     const styles = [
       'flat cartoon illustration', 'cute kawaii style', 'soft watercolor style',
       'vibrant comic style', 'minimalist modern illustration', 'warm chalk drawing style'
@@ -706,18 +748,15 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
       'warm orange and cream tones', 'sunny yellow and peach tones',
       'soft pastel tones', 'fresh green with orange accents', 'cozy sunset tones'
     ];
-    const pickR = arr => arr[Math.floor(Math.random() * arr.length)];
-    const periodMap = { morning: 'morning sunshine', noon: 'bright midday', night: 'night with stars' };
-    const weatherMap = { hot: 'hot summer day', cold: 'cold winter day', rain: 'rainy day', snow: 'snowy day', wind: 'windy day', fog: 'soft foggy morning', clear: 'sunny clear day' };
-    const parts = [
-      pickR(scenes) + ', cute cartoon illustration for kids fitness poster background',
-      pickR(styles) + ', ' + pickR(palettes),
-      'happy energetic children, soft rounded shapes',
-      'no text, no words, no letters, no watermark'
-    ];
-    if (state.period && periodMap[state.period]) parts.push(periodMap[state.period]);
-    if (state.weather.length && weatherMap[state.weather[0]]) parts.push(weatherMap[state.weather[0]]);
+    const parts = [];
+    const scene = (periodScenes[state.period] || periodScenes.morning)[Math.floor(Math.random() * 3)];
+    parts.push(scene + ', cute cartoon illustration for kids fitness poster background');
+    const w = state.weather && state.weather.length ? state.weather[0] : 'clear';
+    if (weatherVisual[w]) parts.push(weatherVisual[w]);
+    if (state.festival && festVisual[state.festival]) parts.push(festVisual[state.festival]);
     if (state.jieqi) parts.push(state.jieqi + ' solar term seasonal atmosphere');
+    parts.push(pickR(styles) + ', ' + pickR(palettes));
+    parts.push('happy energetic children, soft rounded shapes, no text, no words, no letters, no watermark');
     return parts.join(', ');
   }
 
