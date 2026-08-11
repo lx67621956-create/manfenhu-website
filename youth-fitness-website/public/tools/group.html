@@ -674,14 +674,37 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
     if (link.length > 500) { toast('链接太长，二维码会扫不出来，请用短链接'); return false; }
     return true;
   }
-  // AI prompt：按时段/天气/节气生成背景描述
+  // AI prompt：随机场景/风格/配色 + 按时段天气节气组合（避免每次都生成同样的图）
   function buildPrompt() {
+    const scenes = [
+      'children playing football on a green grass field',
+      'kids running a fun race on a track, laughing',
+      'kids jumping rope happily in a sunny park',
+      'children doing gymnastics stretches on a mat',
+      'kids playing basketball on an outdoor court',
+      'children riding bicycles together in a park',
+      'kids doing morning exercises in a school yard',
+      'children playing badminton in a garden',
+      'kids climbing on playground equipment',
+      'children doing yoga poses on the grass',
+      'kids playing catch with a frisbee',
+      'children cheering and high-fiving after exercise'
+    ];
+    const styles = [
+      'flat cartoon illustration', 'cute kawaii style', 'soft watercolor style',
+      'vibrant comic style', 'minimalist modern illustration', 'warm chalk drawing style'
+    ];
+    const palettes = [
+      'warm orange and cream tones', 'sunny yellow and peach tones',
+      'soft pastel tones', 'fresh green with orange accents', 'cozy sunset tones'
+    ];
+    const pickR = arr => arr[Math.floor(Math.random() * arr.length)];
     const periodMap = { morning: 'morning sunshine', noon: 'bright midday', night: 'night with stars' };
     const weatherMap = { hot: 'hot summer day', cold: 'cold winter day', rain: 'rainy day', snow: 'snowy day', wind: 'windy day', fog: 'soft foggy morning', clear: 'sunny clear day' };
     const parts = [
-      'cute cartoon illustration for kids fitness poster background',
-      'children exercising, running, jumping rope, playing ball, happy and energetic',
-      'warm orange and cream color tones, flat design, soft rounded shapes',
+      pickR(scenes) + ', cute cartoon illustration for kids fitness poster background',
+      pickR(styles) + ', ' + pickR(palettes),
+      'happy energetic children, soft rounded shapes',
       'no text, no words, no letters, no watermark'
     ];
     if (state.period && periodMap[state.period]) parts.push(periodMap[state.period]);
@@ -768,16 +791,16 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
         ctx.restore();
         titleY = ly + l + 56;
         ctx.fillStyle = 'rgba(255,255,255,.95)';
-        ctx.font = '800 50px "PingFang SC","Microsoft YaHei",sans-serif';
-        ctx.fillText('满分虎 · 体能训练', W / 2, titleY);
+        ctx.font = '800 54px "PingFang SC","Microsoft YaHei",sans-serif';
+        ctx.fillText('满分虎', W / 2, titleY);
         ctx.fillStyle = 'rgba(255,255,255,.85)';
         ctx.font = '400 30px "PingFang SC","Microsoft YaHei",sans-serif';
         ctx.fillText('专注青少年体质提升', W / 2, titleY + 56);
       } else {
         // fallback：无 LOGO 时用文字
         ctx.fillStyle = 'rgba(255,255,255,.95)';
-        ctx.font = '800 52px "PingFang SC","Microsoft YaHei",sans-serif';
-        ctx.fillText('🐯 满分虎 · 体能训练', W / 2, 180);
+        ctx.font = '800 54px "PingFang SC","Microsoft YaHei",sans-serif';
+        ctx.fillText('满分虎', W / 2, 180);
         ctx.fillStyle = 'rgba(255,255,255,.85)';
         ctx.font = '400 30px "PingFang SC","Microsoft YaHei",sans-serif';
         ctx.fillText('专注青少年体质提升', W / 2, 238);
@@ -789,16 +812,18 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
       ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(200, lineY); ctx.lineTo(W - 200, lineY); ctx.stroke();
 
-      // 问候语文案（自动换行）
+      // 问候语文案（自动换行；行数动态限制，绝不遮挡下方二维码）
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = '500 44px "PingFang SC","Microsoft YaHei",sans-serif';
-      const lines = wrapText(ctx, text, W - 160, 48);
-      const maxLines = 12;
+      ctx.font = '500 42px "PingFang SC","Microsoft YaHei",sans-serif';
+      const lines = wrapText(ctx, text, W - 180, 46);
+      const qrTop = H - 540 - 24 - 20; // 二维码白底顶部（留 20px 安全间距）
+      const yStart = logoImg && logoImg.naturalWidth ? 425 : 415;
+      const maxLines = Math.max(3, Math.floor((qrTop - yStart - 10) / 66));
       const shown = lines.slice(0, maxLines);
-      let y = logoImg && logoImg.naturalWidth ? 430 : 420;
+      let y = yStart;
       shown.forEach(l => {
         ctx.fillText(l, W / 2, y);
-        y += 72;
+        y += 66;
       });
       if (lines.length > maxLines) {
         ctx.font = '500 34px "PingFang SC","Microsoft YaHei",sans-serif';
@@ -806,23 +831,23 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
         ctx.fillText('……', W / 2, y);
       }
 
-      // 二维码区（白底圆角）
-      const qrSize = 380;
+      // 二维码区（白底圆角，缩小版）
+      const qrSize = 280;
       const qrX = (W - qrSize) / 2;
-      const qrY = H - 640;
-      roundRect(ctx, qrX - 30, qrY - 30, qrSize + 60, qrSize + 60, 36);
+      const qrY = H - 540;
+      roundRect(ctx, qrX - 24, qrY - 24, qrSize + 48, qrSize + 48, 28);
       ctx.fillStyle = '#FFFFFF';
       ctx.fill();
 
       // 底部文字
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = '700 38px "PingFang SC","Microsoft YaHei",sans-serif';
-      ctx.fillText('扫码咨询 · 报名体验', W / 2, H - 130);
+      ctx.font = '700 34px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.fillText('扫码咨询 · 报名体验', W / 2, H - 118);
       ctx.fillStyle = 'rgba(255,255,255,.8)';
-      ctx.font = '400 28px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.font = '400 26px "PingFang SC","Microsoft YaHei",sans-serif';
       let host = 'www.manfenhu.com';
       try { host = new URL(link).hostname.replace('www.', ''); } catch (e) {}
-      ctx.fillText(host, W / 2, H - 82);
+      ctx.fillText(host, W / 2, H - 72);
 
       // 二维码（本地库 qrcode-generator）
       if (typeof qrcode === 'undefined') {
