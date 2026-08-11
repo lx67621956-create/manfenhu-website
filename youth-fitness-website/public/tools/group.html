@@ -465,6 +465,13 @@
     weatherParts.forEach(w => base.push(w + "\n"));
     if (state.jieqi && D.jieqi[state.jieqi]) base.push(pick(D.jieqi[state.jieqi]) + "\n");
     if (state.festival && D.festival[state.festival]) base.push(pick(D.festival[state.festival]) + "\n");
+    // 关怀句（饮食/作息/防久坐/训练提醒 随机一类，让内容更生活化）
+    const careKeys = Object.keys(D.care || {});
+    if (careKeys.length) {
+      const ck = careKeys[Math.floor(Math.random() * careKeys.length)];
+      const careArr = D.care[ck] || [];
+      if (careArr.length) base.push(pick(careArr) + "\n");
+    }
     base.push(b);
 
     // 短版：问候 + 天气（1-2条）+ 品牌
