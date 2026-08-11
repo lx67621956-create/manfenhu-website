@@ -311,6 +311,8 @@
   /* 图表 */
   .chart-wrap { position: relative; width: 100%; }
   .chart-wrap svg { width: 100%; height: auto; display: block; }
+  #radarChart { padding: 4px 2px 0; }
+  #barChart { padding: 0; }
   .legend { display:flex; gap:14px; justify-content:center; margin-top: 8px; flex-wrap:wrap; }
   .legend span { font-size: 11px; color: var(--ink-2); display:flex; align-items:center; gap:5px; }
   .legend i { width: 10px; height: 10px; border-radius: 3px; display:inline-block; }
@@ -1111,11 +1113,12 @@
     var titleEl = $("radarTitle");
     if (titleEl) titleEl.textContent = labels.length + " 维素质画像";
 
-    var C = 170, R = 74;
+    var C = 170, R = 68, LABEL = 26;
     var N = labels.length;
     if (N < 3) { box.innerHTML = ""; return; }
-    var svg = '<svg viewBox="0 0 340 210" xmlns="http://www.w3.org/2000/svg">';
-    svg += '<g transform="translate('+C+','+(R+26)+')">';
+    /* viewBox 高度加大 + translateY 加大：给顶部标签和底部留足空间 */
+    var svg = '<svg viewBox="0 0 340 224" xmlns="http://www.w3.org/2000/svg">';
+    svg += '<g transform="translate('+C+','+(R+52)+')">';
     var ang = function(i){ return -Math.PI/2 + i * 2*Math.PI/N; };
     var px = function(i, rr){ return (rr*Math.cos(ang(i))).toFixed(1); };
     var py = function(i, rr){ return (rr*Math.sin(ang(i))).toFixed(1); };
@@ -1129,7 +1132,7 @@
     /* 轴线 */
     for (var b=0;b<N;b++){
       svg += '<line x1="0" y1="0" x2="'+px(b,R)+'" y2="'+py(b,R)+'" stroke="#E8DED2" stroke-width="1"/>';
-      var lx = px(b, R+15), ly = py(b, R+15);
+      var lx = px(b, R+LABEL), ly = py(b, R+LABEL);
       svg += '<text x="'+lx+'" y="'+ly+'" text-anchor="middle" font-size="11" fill="#2B2724" font-weight="700">'+labels[b]+'</text>';
     }
     /* 及格线（60） */
