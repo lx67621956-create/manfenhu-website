@@ -416,6 +416,10 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
     el.onclick = () => {
       const i = state.weather.indexOf(key);
       if (i >= 0) { state.weather.splice(i, 1); } else { state.weather.push(key); }
+      // 默认"晴"被其他天气替代：只选了默认晴+一个新天气时，自动去掉晴
+      if (key !== 'clear' && state.weather.length === 2 && state.weather[0] === 'clear' && state.weather[1] !== 'clear') {
+        state.weather.splice(0, 1);
+      }
       if (state.weather.length === 0) state.weather.push("clear");
       renderWeather();
     };
@@ -568,10 +572,14 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
     copyText(texts.join("\n\n"));
   };
   document.getElementById('clearBtn').onclick = () => {
+    state.period = "morning";
+    state.weather = ["clear"];
     state.jieqi = ""; state.festival = "";
     state.interact = false;
     sw.classList.remove('on');
     syncSelects();
+    renderPeriods();
+    renderWeather();
     resultEl.classList.add('hidden');
     toast('已重置');
   };
