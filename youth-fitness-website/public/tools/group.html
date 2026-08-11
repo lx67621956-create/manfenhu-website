@@ -690,55 +690,70 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
     if (link.length > 500) { toast('链接太长，二维码会扫不出来，请用短链接'); return false; }
     return true;
   }
-  // AI prompt：时段场景 + 天气视觉 + 节日视觉（画面直接贴合文案主题）
+  // AI prompt：主题优先级 节日 > 节气 > 天气 > 时段（时段只负责光线氛围）
   function buildPrompt() {
     const pickR = arr => arr[Math.floor(Math.random() * arr.length)];
-    // 时段视觉场景（画面里直接有光线/天空/环境特征）
-    const periodScenes = {
-      morning: [
-        'golden morning sunrise light, kids doing morning exercise in a sunny schoolyard, birds flying in dawn sky',
-        'soft morning glow, children running and playing in a park at sunrise, morning dew on grass',
-        'bright morning, kids doing stretches and warm-ups outdoors, warm sunrise colors in sky'
-      ],
-      noon: [
-        'bright noon sunlight, kids playing football on a green field under clear blue sky',
-        'high noon, children playing on playground equipment, vivid summer day, strong sun',
-        'sunny midday, kids doing sports activities on a track, clear blue sky, bright daylight'
-      ],
-      night: [
-        'peaceful night, kids doing light evening exercise under a starry sky, crescent moon and stars',
-        'warm evening, children playing in a park at night, glowing street lamps, full moon',
-        'night sky full of stars, kids stretching at home by cozy warm window light'
-      ]
+    // ① 节日画面（有节日时为主）
+    const festScenes = {
+      '春节': 'chinese new year celebration, red lanterns hanging, fireworks in sky, kids in red clothes',
+      '元旦': 'new year celebration, colorful confetti, festive decorations',
+      '元宵节': 'lantern festival at night, glowing colorful lanterns, families watching together',
+      '除夕': 'spring festival eve, warm family dinner, red lanterns, fireworks outside',
+      '妇女节': 'spring day with blooming flowers, warm pink tones, sunshine',
+      '植树节': 'kids planting young trees in fresh green nature',
+      '清明节': 'spring outing, kids flying kites on fresh green hills',
+      '劳动节': 'sunny spring day, blooming flowers, joyful outdoor activities',
+      '母亲节': 'warm moment, mother and child hugging, flowers',
+      '儿童节': 'children day celebration, balloons, carnival games',
+      '端午节': 'dragon boat festival, dragon boat racing on river, zongzi',
+      '父亲节': 'father and child playing ball together in a sunny park',
+      '中秋节': 'mid-autumn night, full moon, glowing lanterns, mooncakes',
+      '国庆节': 'national day, festive flags, fireworks, joyful celebration',
+      '重阳节': 'double ninth festival, family climbing autumn hills, chrysanthemums',
+      '圣诞节': 'christmas, decorated tree with lights, snow, gifts'
     };
-    // 天气视觉元素（画面特征）
-    const weatherVisual = {
-      hot: 'hot summer day, heat shimmer, kids drinking water to cool down',
+    // ② 节气画面（有节气时为主）
+    const jieqiVisual = {
+      '立春': 'early spring, first flowers blooming, kids flying kites in warm breeze',
+      '雨水': 'spring rain, light drizzle, umbrellas, sprouts growing',
+      '惊蛰': 'spring awakening, fresh green, flowers and insects waking up',
+      '春分': 'spring equinox, blooming trees, kids playing outside in mild weather',
+      '清明': 'qingming, fresh green hills, kites in sky, spring outing',
+      '谷雨': 'gentle spring rain on green fields, rice seedlings',
+      '立夏': 'beginning of summer, warm sunshine, green trees, cicadas',
+      '小满': 'golden wheat fields almost ripe, summer approaching',
+      '芒种': 'busy farming fields in sunshine, golden crops',
+      '夏至': 'summer solstice, bright hot sun, lotus flowers in pond',
+      '小暑': 'hot summer, watermelon and fans, kids resting under tree shade',
+      '大暑': 'scorching summer, kids playing in cool water',
+      '立秋': 'beginning of autumn, first falling leaves, cool breeze',
+      '处暑': 'late summer, ripe fruits, harvest feeling',
+      '白露': 'white dew season, morning dew drops, cool autumn air',
+      '秋分': 'autumn equinox, golden harvest fields, pumpkins',
+      '寒露': 'cold dew, autumn leaves turning red, cool weather',
+      '霜降': 'frost on autumn leaves, late autumn scenery',
+      '立冬': 'beginning of winter, bare trees, chilly air, warm clothes',
+      '小雪': 'light snow, first snowflakes falling gently',
+      '大雪': 'heavy snow, snowflakes falling, kids playing in thick snow',
+      '冬至': 'winter solstice, warm cozy home, dumplings and hot soup',
+      '小寒': 'freezing winter, plum blossoms blooming in cold',
+      '大寒': 'coldest winter days, festive new year atmosphere approaching'
+    };
+    // ③ 天气画面（无节日无节气时为主）
+    const weatherScenes = {
+      hot: 'hot summer day, bright sun, kids drinking water and resting under shade',
       cold: 'cold winter day, kids in warm coats and scarves, frosty air',
       rain: 'rainy day, raindrops on window, kids playing inside a cozy warm room',
       snow: 'snowy day, snowflakes falling, kids playing with a snowman',
-      wind: 'windy day, leaves blowing, kites flying in the sky',
-      fog: 'soft foggy morning, misty gentle atmosphere',
-      clear: 'clear sunny sky, fresh bright air'
+      wind: 'windy day, leaves blowing in wind, kites flying high',
+      fog: 'soft foggy morning, misty gentle atmosphere, dewy grass',
+      clear: 'clear sunny day, blue sky, kids playing sports outdoors'
     };
-    // 节日视觉元素
-    const festVisual = {
-      '春节': 'chinese new year, red lanterns and fireworks',
-      '元旦': 'new year celebration, confetti and festive colors',
-      '元宵节': 'lantern festival, glowing colorful lanterns',
-      '除夕': 'spring festival eve, red lanterns and fireworks',
-      '圣诞节': 'christmas, decorated tree and snow',
-      '中秋节': 'mid-autumn festival, full moon and glowing lanterns',
-      '国庆节': 'national day celebration, red flags and fireworks',
-      '劳动节': 'spring day, blooming flowers and sunshine',
-      '儿童节': 'children day, balloons and joy',
-      '妇女节': 'spring flowers, warm pink tones',
-      '母亲节': 'warm family hug, flowers',
-      '父亲节': 'father and child playing sports together',
-      '端午节': 'dragon boat festival, river and boats',
-      '重阳节': 'autumn hills, family hiking together',
-      '清明节': 'spring outing, fresh green nature',
-      '植树节': 'planting trees, green nature'
+    // ④ 时段光线（辅助氛围）
+    const periodLight = {
+      morning: 'golden morning sunlight',
+      noon: 'bright noon sunlight',
+      night: 'starry night sky with crescent moon'
     };
     const styles = [
       'flat cartoon illustration', 'cute kawaii style', 'soft watercolor style',
@@ -748,15 +763,21 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
       'warm orange and cream tones', 'sunny yellow and peach tones',
       'soft pastel tones', 'fresh green with orange accents', 'cozy sunset tones'
     ];
-    const parts = [];
-    const scene = (periodScenes[state.period] || periodScenes.morning)[Math.floor(Math.random() * 3)];
-    parts.push(scene + ', cute cartoon illustration for kids fitness poster background');
-    const w = state.weather && state.weather.length ? state.weather[0] : 'clear';
-    if (weatherVisual[w]) parts.push(weatherVisual[w]);
-    if (state.festival && festVisual[state.festival]) parts.push(festVisual[state.festival]);
-    if (state.jieqi) parts.push(state.jieqi + ' solar term seasonal atmosphere');
-    parts.push(pickR(styles) + ', ' + pickR(palettes));
-    parts.push('happy energetic children, soft rounded shapes, no text, no words, no letters, no watermark');
+    let scene;
+    if (state.festival && festScenes[state.festival]) {
+      scene = festScenes[state.festival];
+    } else if (state.jieqi && jieqiVisual[state.jieqi]) {
+      scene = jieqiVisual[state.jieqi];
+    } else {
+      scene = weatherScenes[(state.weather && state.weather[0]) || 'clear'];
+    }
+    const parts = [
+      scene + ', cute cartoon illustration for kids fitness poster background',
+      periodLight[state.period] || '',
+      'happy children, soft rounded shapes, cheerful atmosphere',
+      pickR(styles) + ', ' + pickR(palettes),
+      'no text, no words, no letters, no watermark'
+    ].filter(Boolean);
     return parts.join(', ');
   }
 
@@ -773,6 +794,16 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
     if (fest === '妇女节' || fest === '母亲节') return { g: ['#F28AA0', '#E06B85', '#C04E68'], deco: '🌸' };
     if (fest === '劳动节' || fest === '国庆节') return { g: ['#E8503C', '#C63B2A', '#9E1F18'], deco: '🎉', deco2: '🎆' };
     if (fest === '清明节') return { g: ['#8FB0A8', '#6E9188', '#4E6F66'], deco: '🌿' };
+    // 节气四季配色（有节气时）
+    const jq = state.jieqi;
+    if (jq === '立春' || jq === '雨水' || jq === '惊蛰' || jq === '春分' || jq === '清明' || jq === '谷雨')
+      return { g: ['#7FB069', '#5E9E4F', '#3F7D33'], deco: '🌱' };
+    if (jq === '立夏' || jq === '小满' || jq === '芒种' || jq === '夏至' || jq === '小暑' || jq === '大暑')
+      return { g: ['#F2A93B', '#E08C1F', '#C06E10'], deco: '☀️' };
+    if (jq === '立秋' || jq === '处暑' || jq === '白露' || jq === '秋分' || jq === '寒露' || jq === '霜降')
+      return { g: ['#D98E4A', '#C0712F', '#9E551F'], deco: '🍂' };
+    if (jq === '立冬' || jq === '小雪' || jq === '大雪' || jq === '冬至' || jq === '小寒' || jq === '大寒')
+      return { g: ['#6E8FB5', '#53749C', '#3A5678'], deco: '❄️' };
     // 天气
     if (W.includes('snow')) return { g: ['#8FB8D8', '#6A96BC', '#487096'], deco: '❄️', deco2: '⛄' };
     if (W.includes('rain')) return { g: ['#7FA8C9', '#5D86AF', '#40658C'], deco: '🌧️', deco2: '☔' };
