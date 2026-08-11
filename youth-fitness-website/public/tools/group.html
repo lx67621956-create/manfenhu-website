@@ -591,9 +591,15 @@
 
   // ── 海报生成 ──
   const linkInput = document.getElementById('posterLink');
-  const DEFAULT_LINK = 'https://www.manfenhu.com';
+  const DEFAULT_LINK = 'https://www.manfenhu.com/contact/';
   try {
-    linkInput.value = localStorage.getItem('posterLink') || DEFAULT_LINK;
+    let saved = localStorage.getItem('posterLink');
+    // 迁移：旧首页地址 → 联系留资页
+    if (saved === 'https://www.manfenhu.com' || saved === 'https://www.manfenhu.com/' || saved === 'https://www.manfenhu.com/index.html') {
+      saved = DEFAULT_LINK;
+      localStorage.setItem('posterLink', DEFAULT_LINK);
+    }
+    linkInput.value = saved || DEFAULT_LINK;
   } catch (e) { linkInput.value = DEFAULT_LINK; }
   linkInput.onchange = () => {
     try { localStorage.setItem('posterLink', linkInput.value); } catch (e) {}
