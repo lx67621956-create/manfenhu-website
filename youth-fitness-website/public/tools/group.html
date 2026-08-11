@@ -721,6 +721,32 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
     return parts.join(', ');
   }
 
+  // 海报主题：节日 > 天气 > 时段（根据当前文案内容动态调整配色）
+  function getTheme() {
+    const W = state.weather || [];
+    const fest = state.festival;
+    // 节日优先
+    if (fest === '春节' || fest === '元旦' || fest === '元宵节' || fest === '除夕')
+      return { g: ['#E8543E', '#C63B2A', '#9E1F18'], deco: '🏮', deco2: '🎆' };
+    if (fest === '圣诞节') return { g: ['#D14A3F', '#B0392F', '#8A251D'], deco: '🎄', deco2: '⛄' };
+    if (fest === '中秋节' || fest === '重阳节') return { g: ['#E8A34D', '#D18A35', '#A96E22'], deco: '🌕', deco2: '🥮' };
+    if (fest === '儿童节') return { g: ['#FF9E5E', '#FF6B35', '#E8501F'], deco: '🎈', deco2: '🎠' };
+    if (fest === '妇女节' || fest === '母亲节') return { g: ['#F28AA0', '#E06B85', '#C04E68'], deco: '🌸' };
+    if (fest === '劳动节' || fest === '国庆节') return { g: ['#E8503C', '#C63B2A', '#9E1F18'], deco: '🎉', deco2: '🎆' };
+    if (fest === '清明节') return { g: ['#8FB0A8', '#6E9188', '#4E6F66'], deco: '🌿' };
+    // 天气
+    if (W.includes('snow')) return { g: ['#8FB8D8', '#6A96BC', '#487096'], deco: '❄️', deco2: '⛄' };
+    if (W.includes('rain')) return { g: ['#7FA8C9', '#5D86AF', '#40658C'], deco: '🌧️', deco2: '☔' };
+    if (W.includes('fog'))  return { g: ['#9BA7B5', '#7C8899', '#5F6B7D'], deco: '🌫️' };
+    if (W.includes('wind')) return { g: ['#8FB0A8', '#6E9188', '#4E6F66'], deco: '🍃' };
+    if (W.includes('hot'))  return { g: ['#FF8A4C', '#F06A1F', '#D04E10'], deco: '☀️' };
+    if (W.includes('cold')) return { g: ['#7E9BC0', '#5E7BA8', '#405E8A'], deco: '🧊' };
+    // 时段
+    if (state.period === 'night') return { g: ['#6B7BD9', '#4E5BB8', '#3A4499'], deco: '🌙', deco2: '⭐' };
+    if (state.period === 'noon') return { g: ['#FFB45E', '#FF8A3C', '#F06A1F'], deco: '☀️' };
+    return { g: ['#FF9E5E', '#FF6B35', '#E8501F'], deco: '🌞' };
+  }
+
   // 绘制海报（1080×1620）；bgUrl 可选：有则用 AI 背景图+蒙层
   function makePoster(text, link, bgUrl, done) {
     const W = 1080, H = 1620;
@@ -764,10 +790,12 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
       }
     };
     const drawGradient = () => {
+      // 主题配色：节日 > 天气 > 时段
+      const th = getTheme();
       const bg = ctx.createLinearGradient(0, 0, W, H);
-      bg.addColorStop(0, '#FF8F52');
-      bg.addColorStop(0.55, '#FF6B35');
-      bg.addColorStop(1, '#F04E23');
+      bg.addColorStop(0, th.g[0]);
+      bg.addColorStop(0.55, th.g[1]);
+      bg.addColorStop(1, th.g[2]);
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
       // 装饰圆
@@ -779,6 +807,16 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
       ctx.beginPath(); ctx.arc(180, 300, 90, 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.arc(900, 1200, 110, 0, Math.PI * 2); ctx.fill();
       ctx.globalAlpha = 1;
+      // 主题装饰 emoji（右上 + 左下）
+      if (th.deco) {
+        ctx.globalAlpha = 0.35;
+        ctx.font = '110px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(th.deco, 930, 300);
+        ctx.font = '80px sans-serif';
+        ctx.fillText(th.deco2 || th.deco, 150, 1380);
+        ctx.globalAlpha = 1;
+      }
     };
 
     const drawContent = () => {
