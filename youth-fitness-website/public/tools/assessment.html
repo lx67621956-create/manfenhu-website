@@ -1204,25 +1204,44 @@
     var strong = top[0], weak = top[top.length-1];
     var sPct = r.mode==="xc" ? Math.round(strong.score/strong.max*100) : strong.score;
     var wPct = r.mode==="xc" ? Math.round(weak.score/weak.max*100) : weak.score;
+    /* 均衡判断：最高分与最低分差距很小，或全部达到优秀线 → 不点名弱项 */
+    var gap = Math.abs(sPct - wPct);
+    var allExcellent = r.items.every(function(it){
+      return (r.mode==="xc" ? it.score/it.max*100 : it.score) >= 90;
+    });
+    var allSameBand = r.items.every(function(it){
+      return (r.mode==="xc" ? it.score/it.max*100 : it.score) >= 60;
+    }) && gap <= 10;
+    var balanced = allExcellent || allSameBand || gap <= 10;
 
     html += '<div class="desc-block"><div class="desc-label">综合评语</div><div class="desc-text">';
-    if (gradeInfo.name === "优秀") html += '整体身体素质处于<span class="hlg">优秀水平</span>，各项指标发展均衡、基础扎实，在同龄人中具备明显优势。';
+    if (balanced) {
+      /* 均衡场景：不区分优势/弱项，按等级措辞 */
+      if (allExcellent) html += '整体身体素质处于<span class="hlg">优秀水平</span>，各项指标发展均衡、无明显短板，基础扎实，在同龄人中具备明显优势。';
+      else if (gradeInfo.name === "良好") html += '整体身体素质处于<span class="hl">良好水平</span>，各项指标发展均衡、无明显短板，基础条件不错，可在此基础上追求更高水平。';
+      else if (gradeInfo.name === "及格") html += '整体身体素质达到<span class="hl">及格水平</span>，各项指标发展较为均衡，建议在保持现状的基础上稳步提升。';
+      else html += '整体身体素质达到<span class="hl">及格及以上水平</span>，各项指标发展较为均衡，建议在保持现状的基础上稳步提升。';
+    } else if (gradeInfo.name === "优秀") html += '整体身体素质处于<span class="hlg">优秀水平</span>，整体基础扎实，个别项目仍有继续拔高的空间。';
     else if (gradeInfo.name === "良好") html += '整体身体素质处于<span class="hl">良好水平</span>，基础条件不错，个别项目仍有进一步发展的空间。';
     else if (gradeInfo.name === "及格") html += '整体身体素质达到<span class="hl">及格水平</span>，处于中等位置，建议系统性地巩固基础、均衡发展各项素质。';
     else html += '当前整体水平<span class="hlr">低于及格线</span>，需要重视体质发展，从基础项目入手逐步提升。';
     html += '</div></div>';
 
-    /* 优势项 */
-    html += '<div class="desc-block"><div class="desc-label">优势项目</div><div class="desc-text">';
-    html += '「<span class="hlg">'+esc(strong.name)+'</span>」表现最佳（'+sPct+(r.mode==="xc"?"%":"分")+'），' + describeLevel(sPct) + '。';
-    html += '</div></div>';
+    /* 优势项：仅在不均衡时点名 */
+    if (!balanced) {
+      html += '<div class="desc-block"><div class="desc-label">优势项目</div><div class="desc-text">';
+      html += '「<span class="hlg">'+esc(strong.name)+'</span>」表现最佳（'+sPct+(r.mode==="xc"?"%":"分")+'），' + describeLevel(sPct) + '。';
+      html += '</div></div>';
+    }
 
-    /* 待提升 */
-    html += '<div class="desc-block"><div class="desc-label">待提升方向</div><div class="desc-text">';
-    if (wPct >= 80) html += '「<span class="hl">'+esc(weak.name)+'</span>」为相对弱项（'+wPct+'分），但整体已处于良好区间，可通过持续坚持保持并巩固。';
-    else if (wPct >= 60) html += '「<span class="hlr">'+esc(weak.name)+'</span>」相对偏弱（'+wPct+'分），处于及格线附近，建议给予更多关注。';
-    else html += '「<span class="hlr">'+esc(weak.name)+'</span>」目前低于及格线（'+wPct+'分），是当前需要优先关注的项目。';
-    html += '</div></div>';
+    /* 待提升：仅在不均衡且确实存在显著低分时出现 */
+    if (!balanced) {
+      html += '<div class="desc-block"><div class="desc-label">待提升方向</div><div class="desc-text">';
+      if (wPct >= 80) html += '「<span class="hl">'+esc(weak.name)+'</span>」为相对弱项（'+wPct+'分），但整体已处于良好区间，可通过持续坚持保持并巩固。';
+      else if (wPct >= 60) html += '「<span class="hlr">'+esc(weak.name)+'</span>」相对偏弱（'+wPct+'分），处于及格线附近，建议给予更多关注。';
+      else html += '「<span class="hlr">'+esc(weak.name)+'</span>」目前低于及格线（'+wPct+'分），是当前需要优先关注的项目。';
+      html += '</div></div>';
+    }
 
     /* 发展建议（不提训练方法） */
     html += '<div class="desc-block"><div class="desc-label">发展建议</div><div class="desc-text">';
