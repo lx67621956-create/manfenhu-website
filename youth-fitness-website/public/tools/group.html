@@ -492,7 +492,8 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
     const festLine = key => {
       const arr = (D.festival[key] || []);
       if (!arr.length) return '';
-      const ex = arr.filter(s => s.includes(key));
+      const short = key.length >= 3 && key.endsWith('节') ? key.slice(0, -1) : key; // 端午节→端午；春节保留全名
+      const ex = arr.filter(s => s.includes(key) || s.includes(short));
       return pick(ex.length ? ex : arr);
     };
     const jieqiLine = key => {
