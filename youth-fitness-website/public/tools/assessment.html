@@ -317,22 +317,6 @@
   .legend span { font-size: 11px; color: var(--ink-2); display:flex; align-items:center; gap:5px; }
   .legend i { width: 10px; height: 10px; border-radius: 3px; display:inline-block; }
 
-  /* 单项明细 */
-  .detail-row {
-    display:flex; align-items:center; gap:10px;
-    padding: 9px 0;
-    border-bottom: 1px dashed var(--line);
-  }
-  .detail-row:last-child { border-bottom: none; }
-  .detail-name { font-size: 13px; font-weight: 700; width: 100px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .detail-bar { flex:1; height: 13px; background: #F3EDE4; border-radius: 999px; overflow: hidden; position: relative; }
-  .detail-bar .fill {
-    height: 100%; border-radius: 999px;
-    background: linear-gradient(90deg, var(--brand-2), var(--brand));
-    transition: width .5s ease;
-  }
-  .detail-score { font-size: 13px; font-weight: 800; width: 42px; text-align:right; flex-shrink:0; }
-
   /* 描述 */
   .desc-block { margin-bottom: 12px; }
   .desc-block:last-child { margin-bottom: 0; }
@@ -348,7 +332,7 @@
   .desc-text .hlg { color: var(--green); font-weight: 800; }
   .desc-text .hlr { color: var(--red); font-weight: 800; }
 
-  /* 复制按钮 */
+  /* 复制/图片按钮 */
   .copy-btn {
     width: 100%; border: 1.5px solid var(--brand); cursor: pointer;
     font-family: inherit; font-weight: 800; font-size: 14.5px;
@@ -357,8 +341,45 @@
     color: var(--brand-3);
     background: #fff;
     transition: all .12s ease;
+    margin-bottom: 10px;
   }
   .copy-btn:active { transform: scale(.97); background: var(--brand-soft); }
+  .img-btn {
+    width: 100%; border: none; cursor: pointer;
+    font-family: inherit; font-weight: 800; font-size: 14.5px;
+    border-radius: var(--r-md);
+    padding: 13px 0;
+    color: #fff;
+    background: linear-gradient(135deg, var(--brand-2), var(--brand-3));
+    box-shadow: var(--shadow-lift);
+    transition: transform .12s ease;
+  }
+  .img-btn:active { transform: scale(.97); }
+
+  /* 图片报告预览弹层 */
+  .img-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(30,26,22,.82);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 20px; backdrop-filter: blur(6px);
+  }
+  .img-overlay img {
+    max-width: 92%; max-height: 72vh;
+    border-radius: 14px;
+    box-shadow: 0 18px 60px rgba(0,0,0,.45);
+  }
+  .img-overlay .io-tip {
+    color: #fff; font-size: 13px; margin-top: 14px;
+    text-align: center; line-height: 1.7;
+  }
+  .img-overlay .io-close {
+    margin-top: 14px;
+    background: rgba(255,255,255,.18); color: #fff;
+    border: 1px solid rgba(255,255,255,.3);
+    padding: 9px 26px; border-radius: 999px;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer;
+  }
 
   .foot {
     text-align: center; padding: 16px 24px 6px;
@@ -485,16 +506,12 @@
     </div>
 
     <div class="card">
-      <div class="card-title"><span class="ico">📝</span>单项明细<span class="sub">成绩 → 得分</span></div>
-      <div id="detailList"></div>
-    </div>
-
-    <div class="card">
       <div class="card-title"><span class="ico">💬</span>专业点评</div>
       <div id="descArea"></div>
     </div>
 
     <button class="copy-btn" id="copyBtn">📋 复制测评报告（发微信）</button>
+    <button class="img-btn" id="imgBtn">🖼️ 保存测评图片（发朋友圈/家长）</button>
 
     <div class="src-note">
       📌 数据来源：《北京市义务教育体育与健康考核评价方案》(京教体艺〔2021〕31号)、《国家学生体质健康标准(2014年修订)》、北京教育考试院《现场考试项目评分标准(试行)》(2023)。测评结果仅供参考，最终成绩以官方统测为准。
@@ -514,6 +531,13 @@
 
 <div class="toast" id="toast"></div>
 
+<div class="img-overlay hidden" id="imgOverlay">
+  <img id="imgPreview" alt="测评报告">
+  <div class="io-tip" id="imgTip">长按图片保存到相册，即可发送给家长或朋友圈</div>
+  <button class="io-close" id="imgClose">关 闭</button>
+</div>
+
+<script src="qrcode.min.js"></script>
 <script src="assessment_data.js"></script>
 <script>
 (function(){
@@ -1059,7 +1083,6 @@
 
     renderBar(r);
     renderRadar(r);
-    renderDetail(r);
     renderDesc(r);
   }
 
@@ -1172,27 +1195,6 @@
     desc.innerHTML = html;
   }
 
-  /* 明细 */
-  function renderDetail(r){
-    var box = $("detailList");
-    var html = "";
-    r.items.forEach(function(it){
-      var pct = r.mode === "xc" ? (it.score / it.max * 100) : it.score;
-      var color = pct >= 90 ? "linear-gradient(90deg,#3DB86B,#2FA25B)" : pct >= 60 ? "linear-gradient(90deg,#FFB84D,#F5A623)" : "linear-gradient(90deg,#E96A55,#E0533D)";
-      var disp = it.display;
-      if (typeof disp === "number" && (it.key === "run800" || it.key === "run508" || it.key === "run1000" || it.key === "swim")) {
-        disp = secToTime(disp);
-      }
-      if (it.sub) disp = disp + "（" + it.sub + "）";
-      html += '<div class="detail-row">' +
-        '<div class="detail-name">'+esc(it.name)+'</div>' +
-        '<div class="detail-bar"><div class="fill" style="width:'+Math.min(100,pct)+'%;background:'+color+'"></div></div>' +
-        '<div class="detail-score">'+(r.mode==="xc"?it.score+"分":it.score)+'</div>' +
-        '</div>';
-    });
-    box.innerHTML = html;
-  }
-
   /* 描述 */
   function renderDesc(r){
     var box = $("descArea");
@@ -1251,12 +1253,69 @@
     html += suggestText(r);
     html += '</div></div>';
 
+    /* 素质维度专项解读（专业性） */
+    html += '<div class="desc-block"><div class="desc-label">素质维度解读</div><div class="desc-text">';
+    html += dimInsight(r);
+    html += '</div></div>';
+
+    /* 满分虎专业建议（软性引流，不涉训练方法） */
+    html += '<div class="desc-block"><div class="desc-label">满分虎建议</div><div class="desc-text">';
+    html += brandAdvice(r);
+    html += '</div></div>';
+
     /* 数据提示 */
     html += '<div class="desc-block"><div class="desc-label">数据提示</div><div class="desc-text">';
     html += '本报告依据官方评分标准计算，单项得分与等级对应关系：优秀≥90、良好≥80、及格≥60。成绩受测试当天状态、天气与场地等因素影响，建议多次测评综合评估。';
     html += '</div></div>';
 
     box.innerHTML = html;
+  }
+
+  /* 素质维度专业解读 */
+  var DIM_INSIGHT = {
+    "速度": { low: "速度素质反映神经肌肉的快速动员能力，是青少年运动表现的基础之一。当前水平提示快速用力能力仍需加强，可伴随生长发育逐步改善。", mid: "速度素质处于中等水平，快速反应与位移能力具备一定基础，随年龄增长仍有发展空间。", high: "速度素质表现良好，神经肌肉协调与快速发力能力突出，具备较好的运动基础。" },
+    "耐力": { low: "耐力素质反映心肺功能与能量代谢水平，是长时间运动能力的核心支撑。当前表现提示心肺耐力储备偏低，需要重视有氧能力的发展窗口期。", mid: "耐力素质处于中等水平，心肺功能具备基础储备，坚持规律活动后提升空间明显。", high: "耐力素质表现优秀，心肺功能与代谢能力在同龄人中处于前列，支撑长时间运动的能力突出。" },
+    "力量": { low: "力量素质反映肌肉克服阻力的能力，是跑、跳、投等动作的基础保障。当前水平提示肌肉力量储备不足，正值力量发展的关键年龄段，值得重点关注。", mid: "力量素质处于中等水平，肌肉力量具备一定基础，随着体能与动作模式成熟仍有较大提升空间。", high: "力量素质表现良好，肌肉力量储备充足，为各类运动项目提供了扎实基础。" },
+    "柔韧": { low: "柔韧素质反映关节活动幅度与肌肉延展性，影响动作完成质量与运动安全性。当前柔韧性偏低，建议在日常活动中注意拉伸放松习惯的养成。", mid: "柔韧素质处于中等水平，关节活动度具备基础，保持良好拉伸习惯可稳步改善。", high: "柔韧素质表现良好，关节活动度与肌肉延展性出色，有助于动作幅度与运动效率。" },
+    "协调": { low: "协调素质反映神经系统对多肌群的控制能力，是学习运动技能的重要基础。当前水平提示动作配合与节奏感仍有提升空间。", mid: "协调素质处于中等水平，动作学习与配合能力具备基础，多参与多样性活动可促进发展。", high: "协调素质表现良好，神经控制与动作配合能力突出，学习运动技能效率高。" },
+    "心肺": { low: "心肺功能反映呼吸循环系统的供能水平，是体质健康的核心指标之一。当前肺活量水平提示心肺储备偏低，值得关注。", mid: "心肺功能处于中等水平，呼吸循环系统具备基础储备，规律锻炼后改善明显。", high: "心肺功能表现优秀，呼吸循环系统供能能力突出，反映良好的有氧基础。" },
+    "体态": { low: "体态指标（BMI）反映身体成分的均衡程度。当前结果提示体成分需要关注，合理饮食与规律作息对体态改善至关重要。", mid: "体态指标处于可接受范围，身体成分基本均衡，保持良好生活规律即可维持。", high: "体态指标正常，身体成分比例理想，为运动能力发展提供了良好基础。" },
+    "爆发": { low: "爆发力反映肌肉快速发力能力，是跳跃、投掷等动作的关键素质。当前水平提示快速力量储备不足，正处于爆发力发展敏感期，值得重视。", mid: "爆发力处于中等水平，快速发力能力具备基础，随着体能与技术成熟仍有提升空间。", high: "爆发力表现良好，快速发力与弹性能力突出，为跳跃类、投掷类项目奠定优势。" },
+    "技能": { low: "运动技能类项目反映动作质量与专项熟练度，当前表现提示动作规范性与熟练程度仍需打磨。", mid: "运动技能类项目处于中等水平，动作基础具备，进一步提升动作质量可显著提高得分率。", high: "运动技能类项目表现良好，动作质量与专项表现稳定，具备较强的应试竞争力。" }
+  };
+
+  function dimInsight(r){
+    var dims = {}, dimCount = {};
+    r.items.forEach(function(it){
+      var d = (DIM_MAP[state.grade]||{})[it.key];
+      if (!d) return;
+      var sc = r.mode === "xc" ? (it.score / it.max * 100) : it.score;
+      if (!dims[d]) { dims[d] = 0; dimCount[d] = 0; }
+      dims[d] += sc; dimCount[d]++;
+    });
+    var out = [];
+    Object.keys(dims).forEach(function(d){
+      var v = dims[d] / dimCount[d];
+      var band = v >= 85 ? "high" : v >= 60 ? "mid" : "low";
+      var ins = (DIM_INSIGHT[d]||{})[band];
+      if (ins) out.push("【" + d + "】" + ins);
+    });
+    return out.join("");
+  }
+
+  /* 满分虎专业建议（软性引流） */
+  function brandAdvice(r){
+    var t = [];
+    var grade = state.grade;
+    if (grade === "9") {
+      t.push("九年级现场考试是中考体育的关键环节，选考组合与稳定性直接影响最终得分。满分虎体能教练团队熟悉北京中考体育评分细则，可提供现场考试项目选考分析与考前测评服务，帮助孩子把每一分都拿稳。");
+    } else if (grade === "8") {
+      t.push("八年级体质测试结果已计入中考过程性考核，本次测评得分距满分赋分线越近，中考体育越有保障。满分虎教练可结合孩子当前素质画像，给出阶段性的科学提升安排，欢迎带孩子到馆做一次专业体测与方案规划。");
+    } else {
+      t.push("四、六年级体质测试是中考体育过程性考核的起点，越早建立良好的体能基础，后续越从容。满分虎专注青少年体质提升，可针对孩子当前优势与待提升项制定个性化方案，欢迎到馆体验专业体测评估。");
+    }
+    t.push("扫码添加满分虎老师微信，获取专属测评解读与提升建议。");
+    return t.join("");
   }
 
   function describeLevel(pct){
@@ -1368,9 +1427,236 @@
       results = null;
     });
     $("copyBtn").addEventListener("click", copyReport);
+    $("imgBtn").addEventListener("click", generateImage);
+    $("imgClose").addEventListener("click", function(){
+      $("imgOverlay").classList.add("hidden");
+    });
   }
 
-  /* ---------- init ---------- */
+  /* ---------- 图片报告生成 ---------- */
+  function wrapText(ctx, text, x, y, maxW, lineH, maxLines){
+    var chars = String(text).split("");
+    var line = "", lines = 0, out = [];
+    for (var i=0;i<chars.length;i++){
+      var test = line + chars[i];
+      if (ctx.measureText(test).width > maxW && line){
+        out.push(line);
+        line = chars[i];
+        lines++;
+        if (lines >= maxLines) { out[out.length-1] = out[out.length-1].slice(0,-1) + "…"; break; }
+      } else {
+        line = test;
+      }
+    }
+    if (line && lines < maxLines) out.push(line);
+    out.forEach(function(l, idx){ ctx.fillText(l, x, y + idx*lineH); });
+    return out.length;
+  }
+
+  function fmtDisplay(it){
+    var disp = it.display;
+    if (typeof disp === "number" && (it.key==="run800"||it.key==="run508"||it.key==="run1000"||it.key==="swim")) disp = secToTime(disp);
+    if (it.sub) disp = disp + "（" + it.sub + "）";
+    return disp;
+  }
+
+  function generateImage(){
+    var r = results;
+    if (!r) { toast("请先生成测评报告"); return; }
+    var g = gradeOf(r.total, r.mode === "xc" ? r.pct : undefined);
+    /* 高度按单项数动态：顶部220 + 信息96 + 总分210 + 标题 + 单项行*46 + 评语 + 底部300 */
+    var W = 1080;
+    var H = 220 + 130 + 210 + 60 + r.items.length*46 + 220 + 300 + 80;
+    var canvas = document.createElement("canvas");
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext("2d");
+    var b = "#FF6B35", b2 = "#FF8A4C", b3 = "#F04E23";
+    var ink = "#2B2724", ink2 = "#6E655D", ink3 = "#A49A90";
+
+    /* 背景 */
+    ctx.fillStyle = "#FCF9F4";
+    ctx.fillRect(0, 0, W, H);
+
+    /* 顶部品牌渐变 */
+    var grad = ctx.createLinearGradient(0, 0, W, 0);
+    grad.addColorStop(0, b2); grad.addColorStop(0.5, b); grad.addColorStop(1, b3);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, 220);
+    /* 装饰圆 */
+    ctx.fillStyle = "rgba(255,255,255,.10)";
+    ctx.beginPath(); ctx.arc(W-90, 40, 130, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(-30, 250, 100, 0, Math.PI*2); ctx.fill();
+
+    /* LOGO 圆徽 + 标题 */
+    ctx.fillStyle = "rgba(255,255,255,.9)";
+    ctx.beginPath(); ctx.arc(90, 110, 52, 0, Math.PI*2); ctx.fill();
+    ctx.font = "bold 46px sans-serif"; ctx.fillStyle = b3; ctx.textAlign = "center";
+    ctx.fillText("🐯", 90, 126);
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#fff"; ctx.font = "bold 46px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.fillText("满分虎 · 体质测评报告", 160, 100);
+    ctx.font = "22px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,.92)";
+    ctx.fillText("专注青少年体质提升 · 数据源自官方标准", 160, 142);
+
+    /* 基本信息条 */
+    var y = 250;
+    ctx.fillStyle = "#fff";
+    roundRect(ctx, 40, y, W-80, 96, 18);
+    ctx.fill();
+    ctx.strokeStyle = "#F3E3D4"; ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.textAlign = "left";
+    ctx.font = "bold 30px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.fillStyle = ink;
+    ctx.fillText("年级：" + ({4:"四年级",6:"六年级",8:"八年级",9:"九年级"})[state.grade], 70, y+48);
+    ctx.fillText("性别：" + (state.sex==="M"?"男":"女"), 300, y+48);
+    ctx.fillText("测评日期：" + new Date().toISOString().slice(0,10).replace(/-/g,"."), 460, y+48);
+
+    /* 总分区 */
+    y += 130;
+    ctx.fillStyle = "#FFF3EA";
+    roundRect(ctx, 40, y, W-80, 210, 20);
+    ctx.fill();
+    ctx.strokeStyle = "#FBDDC6"; ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.textAlign = "center";
+    ctx.font = "bold 26px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.fillStyle = b3;
+    ctx.fillText("综合得分", W/2, y+55);
+    ctx.font = "bold 92px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.fillStyle = ink;
+    ctx.fillText(String(r.total), W/2-30, y+150);
+    ctx.font = "bold 34px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.fillStyle = ink3;
+    ctx.fillText(r.mode==="xc" ? "/"+r.max+"分" : "分", W/2+150, y+148);
+    ctx.font = "bold 28px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.fillStyle = g.cls==="tag-excellent" ? "#2FA25B" : g.cls==="tag-good" ? "#F5A623" : g.cls==="tag-pass" ? "#5B8DEF" : "#E0533D";
+    ctx.fillText("等级：" + g.name, W/2, y+190);
+    if (r.mode === "guoti" && r.stdScore !== undefined){
+      ctx.font = "22px 'PingFang SC','Microsoft YaHei',sans-serif";
+      ctx.fillStyle = ink2;
+      ctx.fillText("标准分 " + r.stdScore + " · 附加分 +" + r.bonus, W/2, y+215);
+    }
+
+    /* 单项得分（柱状图 → 简化为行列表） */
+    y += 250;
+    ctx.textAlign = "left";
+    ctx.font = "bold 32px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.fillStyle = ink;
+    ctx.fillText("▍单项得分", 60, y);
+    y += 24;
+    var plotW = W - 200;
+    r.items.forEach(function(it){
+      var pct = r.mode === "xc" ? it.score/it.max : it.score/100;
+      pct = Math.max(0, Math.min(1, pct));
+      var rowH = 46;
+      /* 项目名 */
+      ctx.font = "26px 'PingFang SC','Microsoft YaHei',sans-serif";
+      ctx.fillStyle = ink2;
+      ctx.fillText(it.name.slice(0, 8), 60, y+30);
+      /* 背景条 */
+      ctx.fillStyle = "#F3EDE4";
+      roundRect(ctx, 260, y+12, plotW, 26, 13);
+      ctx.fill();
+      /* 得分条 */
+      var col = pct >= 0.9 ? "#2FA25B" : pct >= 0.6 ? "#F5A623" : "#E0533D";
+      ctx.fillStyle = col;
+      roundRect(ctx, 260, y+12, Math.max(8, plotW*pct), 26, 13);
+      ctx.fill();
+      /* 分数 */
+      ctx.fillStyle = ink; ctx.font = "bold 26px 'PingFang SC','Microsoft YaHei',sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(r.mode==="xc" ? it.score+"分" : it.score, W-60, y+32);
+      ctx.textAlign = "left";
+      y += rowH;
+    });
+
+    /* 评语 */
+    y += 20;
+    ctx.font = "bold 32px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.fillStyle = ink;
+    ctx.fillText("▍专业点评", 60, y);
+    y += 24;
+    var comment = "";
+    var topItems = r.items.slice().sort(function(a,b){
+      var sa = r.mode==="xc" ? a.score/a.max : a.score;
+      var sb = r.mode==="xc" ? b.score/b.max : b.score;
+      return sb - sa;
+    });
+    var st = topItems[0], wk = topItems[topItems.length-1];
+    var sP = r.mode==="xc" ? Math.round(st.score/st.max*100) : st.score;
+    var wP = r.mode==="xc" ? Math.round(wk.score/wk.max*100) : wk.score;
+    var gap = Math.abs(sP - wP);
+    var allExc = r.items.every(function(it){ return (r.mode==="xc"?it.score/it.max*100:it.score) >= 90; });
+    var balanced = allExc || gap <= 10;
+    if (balanced) {
+      if (allExc) comment = "整体素质处于优秀水平，各项指标发展均衡、无明显短板，基础扎实，在同龄人中具备明显优势。";
+      else comment = "整体素质发展较为均衡、无明显短板，基础条件不错，可在此基础上稳步提升。";
+    } else {
+      comment = "「" + st.name + "」表现最佳（" + sP + (r.mode==="xc"?"%":"分") + "）；「" + wk.name + "」相对偏弱（" + wP + (r.mode==="xc"?"%":"分") + "），是后续重点关注方向。";
+    }
+    ctx.font = "26px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.fillStyle = ink2;
+    var linesUsed = wrapText(ctx, comment, 60, y+34, W-120, 40, 3);
+
+    /* 底部品牌 + 二维码 */
+    y += linesUsed*40 + 60;
+    var qrY = H - 330;
+    if (y > qrY - 40) y = qrY - 40;
+    /* 底部渐变条 */
+    var bg2 = ctx.createLinearGradient(0, H-300, 0, H);
+    bg2.addColorStop(0, "#FFF3EA"); bg2.addColorStop(1, "#FFE9D9");
+    ctx.fillStyle = bg2;
+    ctx.fillRect(0, H-300, W, 300);
+    /* 二维码 */
+    if (typeof qrcode !== "undefined" && typeof qrcode.generate !== "function"){
+      try {
+        var qr = qrcode(0, 'M');
+        qr.addData("https://www.manfenhu.com/contact/");
+        qr.make();
+        var qrImg = new Image();
+        qrImg.onload = function(){
+          var qs = 220;
+          ctx.drawImage(qrImg, 70, H-240, qs, qs);
+          drawQrText();
+        };
+        qrImg.src = qr.createDataURL(6, 14);
+      } catch(e){ drawQrText(); }
+    } else {
+      drawQrText();
+    }
+    function drawQrText(){
+      ctx.textAlign = "left";
+      ctx.font = "bold 34px 'PingFang SC','Microsoft YaHei',sans-serif";
+      ctx.fillStyle = b3;
+      ctx.fillText("满分虎 · 青少年体能", 340, H-200);
+      ctx.font = "26px 'PingFang SC','Microsoft YaHei',sans-serif";
+      ctx.fillStyle = ink2;
+      wrapText(ctx, "专业教练团队 · 定制提升方案\n扫码咨询课程，获取专属测评解读", 340, H-150, W-420, 38, 3);
+      ctx.font = "bold 24px 'PingFang SC','Microsoft YaHei',sans-serif";
+      ctx.fillStyle = ink3;
+      ctx.fillText("www.manfenhu.com", 340, H-70);
+      /* 完成 → 预览 */
+      showImage(canvas);
+    }
+  }
+
+  function roundRect(ctx, x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.arcTo(x+w, y, x+w, y+h, r);
+    ctx.arcTo(x+w, y+h, x, y+h, r);
+    ctx.arcTo(x, y+h, x, y, r);
+    ctx.arcTo(x, y, x+w, y, r);
+    ctx.closePath();
+  }
+
+  function showImage(canvas){
+    var url = canvas.toDataURL("image/png");
+    $("imgPreview").src = url;
+    $("imgOverlay").classList.remove("hidden");
+  }
   bindEvents();
   renderItems();
 })();
