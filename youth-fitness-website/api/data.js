@@ -69,42 +69,7 @@ export default async function handler(req, res) {
     });
   }
 
-  if (req.method === 'GET') {
-    let data = await kvGet();
-    if (!data) data = memoryStore;
-    return res.status(200).json(data);
-  }
-
-  if (req.method === 'POST') {
-    try {
-      const body = req.body;
-      if (!body || !body.people) {
-        return res.status(400).json({ error: 'Invalid data' });
-      }
-      // 按人合并：只更新有更新的学生，不整体覆盖
-      // 这样可以防止两个管理端同时操作互相覆盖
-      const existing = memoryStore;
-      Object.keys(body.people).forEach(name => {
-        if (!existing.people[name] ||
-            body.people[name].lastTimestamp > existing.people[name].lastTimestamp) {
-          existing.people[name] = body.people[name];
-        }
-      });
-      // 补充personOrder中新学生
-      if (body.personOrder) {
-        body.personOrder.forEach(n => {
-          if (existing.personOrder.indexOf(n) < 0) existing.personOrder.push(n);
-        });
-      }
-      memoryStore = existing;
-      await kvSet(existing);
-      return res.status(200).json({ ok: true, time: Date.now() });
-    } catch (e) {
-      return res.status(500).json({ error: e.message });
-    }
-  }
-
-  // Student assessment records routes
+  // Student assessment records routes (must be BEFORE elf data routes)
   if (req.query && req.query.students) {
     const action = req.query.students;
     let data = await kvGet();
@@ -191,6 +156,42 @@ export default async function handler(req, res) {
       data.students.index = data.students.index.filter(s => s.studentId !== studentId);
       await kvSet(data);
       return res.status(200).json({ ok: true });
+    }
+  }
+
+  // Elf data routes (legacy)
+  if (req.method === 'GET') {
+    let data = await kvGet();
+    if (!data) data = memoryStore;
+    return res.status(200).json(data);
+  }
+
+  if (req.method === 'POST') {
+    try {
+      const body = req.body;
+      if (!body || !body.people) {
+        return res.status(400).json({ error: 'Invalid data' });
+      }
+      // 按人合并：只更新有更新的学生，不整体覆盖
+      // 这样可以防止两个管理端同时操作互相覆盖
+      const existing = memoryStore;
+      Object.keys(body.people).forEach(name => {
+        if (!existing.people[name] ||
+            body.people[name].lastTimestamp > existing.people[name].lastTimestamp) {
+          existing.people[name] = body.people[name];
+        }
+      });
+      // 补充personOrder中新学生
+      if (body.personOrder) {
+        body.personOrder.forEach(n => {
+          if (existing.personOrder.indexOf(n) < 0) existing.personOrder.push(n);
+        });
+      }
+      memoryStore = existing;
+      await kvSet(existing);
+      return res.status(200).json({ ok: true, time: Date.now() });
+    } catch (e) {
+      return res.status(500).json({ error: e.message });
     }
   }
 
