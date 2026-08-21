@@ -23,9 +23,9 @@ export default async function handler(req, res) {
   }
 
   async function kvSet(key, data) {
-    if (!process.env.KV_REST_API_URL) return false;
+    if (!process.env.KV_REST_API_URL) return { ok: false, error: 'KV_REST_API_URL not configured' };
     try {
-      await fetch(process.env.KV_REST_API_URL + '/set/' + key, {
+      const res = await fetch(process.env.KV_REST_API_URL + '/set/' + key, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -33,9 +33,13 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify(data)
       });
-      return true;
+      if (!res.ok) {
+        const text = await res.text();
+        return { ok: false, error: 'HTTP ' + res.status, detail: text.slice(0, 200) };
+      }
+      return { ok: true };
     } catch (e) {
-      return false;
+      return { ok: false, error: e.message };
     }
   }
 
@@ -58,11 +62,11 @@ export default async function handler(req, res) {
       message: 'Test data from Hermes',
       timestamp: Date.now()
     };
-    const ok = await kvSet(testKey, testData);
-    return res.status(200).json({
-      ok: ok,
+    const result = await kvSet(testKey, testData);
+    return res.status(result.ok ? 200 : 500).json({
+      ok: result.ok,
       action: 'write',
-      message: ok ? 'Data written to KV' : 'KV write failed or not configured'
+      ...result
     });
   }
 
