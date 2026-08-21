@@ -183,6 +183,29 @@
       padding: 40px;
       color: #999;
     }
+    /* 移动端优化 */
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+      .header {
+        padding: 16px;
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+      }
+      .header h1 {
+        font-size: 22px;
+      }
+      .student-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .modal-content {
+        padding: 24px;
+        width: 95%;
+      }
+    }
   </style>
 </head>
 <body>
