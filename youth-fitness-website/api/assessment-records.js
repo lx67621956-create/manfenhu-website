@@ -31,9 +31,10 @@ export default async function handler(req, res) {
   }
 
   async function kvSet(key, data) {
-    if (!process.env.KV_REST_API_URL) return false;
+    if (!process.env.KV_REST_API_URL) return { ok: false, error: 'No KV_REST_API_URL' };
     try {
-      const res = await fetch(process.env.KV_REST_API_URL + '/set/' + key, {
+      const url = process.env.KV_REST_API_URL + '/set/' + key;
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -41,9 +42,13 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify(data)
       });
-      return res.ok;
-    } catch {
-      return false;
+      if (!res.ok) {
+        const text = await res.text();
+        return { ok: false, error: 'HTTP ' + res.status, detail: text.slice(0, 200) };
+      }
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e.message, stack: e.stack?.slice(0, 200) };
     }
   }
 
@@ -68,6 +73,17 @@ export default async function handler(req, res) {
   // Helper: update index
   async function updateIndex(index) {
     return await kvSet(INDEX_KEY, index);
+  }
+
+  // Diagnostic: test KV write
+  if (req.method === 'GET' && req.query.action === 'diag') {
+    const testResult = await kvSet('assessment:diag_test', { test: Date.now() });
+    return res.status(200).json({
+      ok: true,
+      diagnostic: testResult,
+      hasUrl: !!process.env.KV_REST_API_URL,
+      hasToken: !!process.env.KV_REST_API_TOKEN
+    });
   }
 
   // GET: list students or get one student
@@ -124,8 +140,8 @@ export default async function handler(req, res) {
         records: []
       };
       const ok1 = await kvSet('assessment:student:' + studentId, student);
-      if (!ok1) {
-        return res.status(500).json({ ok: false, error: 'KV write failed' });
+      if (!ok1 || !ok1.ok) {
+        return res.status(500).json({ ok: false, error: 'KV write failed', detail: ok1 });
       }
       
       // Update index
@@ -139,8 +155,8 @@ export default async function handler(req, res) {
         lastRecordDate: null
       });
       const ok2 = await updateIndex(index);
-      if (!ok2) {
-        return res.status(500).json({ ok: false, error: 'Index update failed' });
+      if (!ok2 || !ok2.ok) {
+        return res.status(500).json({ ok: false, error: 'Index update failed', detail: ok2 });
       }
       
       return res.status(200).json({
