@@ -441,6 +441,44 @@
 </header>
 
 <main>
+  <!-- 学员档案区（新增） -->
+  <div class="card" style="margin-bottom: 16px;">
+    <div class="card-title"><span class="ico">👤</span>学员档案<span class="sub">选择或新建学员</span></div>
+    
+    <div style="margin-bottom: 16px;">
+      <div style="font-size:12px;font-weight:700;color:var(--ink-2);margin-bottom:6px;">选择学员</div>
+      <select id="studentSelect" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:var(--r-md);font-size:14px;background:#fff;">
+        <option value="">-- 请选择学员 --</option>
+        <option value="__new__">➕ 新建学员档案</option>
+      </select>
+    </div>
+
+    <div id="newStudentForm" class="hidden" style="background:var(--brand-softer);padding:16px;border-radius:var(--r-md);margin-top:12px;">
+      <div style="font-size:13px;font-weight:700;color:var(--brand-3);margin-bottom:12px;">新建学员信息</div>
+      <div style="display:flex;gap:12px;margin-bottom:12px;">
+        <input type="text" id="newStudentName" placeholder="学员姓名" style="flex:2;padding:10px;border:1px solid var(--line);border-radius:var(--r-md);font-size:13px;">
+        <select id="newStudentGender" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:var(--r-md);font-size:13px;">
+          <option value="">性别</option>
+          <option value="M">男</option>
+          <option value="F">女</option>
+        </select>
+        <select id="newStudentGrade" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:var(--r-md);font-size:13px;">
+          <option value="">年级</option>
+          <option value="4">四年级</option>
+          <option value="6">六年级</option>
+          <option value="8">八年级</option>
+          <option value="9">九年级</option>
+        </select>
+      </div>
+      <button onclick="createStudent()" style="width:100%;padding:10px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;">确认新建</button>
+    </div>
+
+    <div id="studentInfo" class="hidden" style="background:var(--green-soft);padding:14px;border-radius:var(--r-md);margin-top:12px;font-size:13px;color:var(--ink);">
+      <div style="font-weight:700;margin-bottom:4px;">当前学员：<span id="currentStudentName"></span></div>
+      <div style="font-size:12px;color:var(--ink-2);">历史测评：<span id="currentStudentRecords">0</span> 次</div>
+    </div>
+  </div>
+
   <!-- 输入区 -->
   <div class="card">
     <div class="card-title"><span class="ico">📋</span>基础信息<span class="sub">选择年级与性别</span></div>
@@ -547,6 +585,140 @@
   var results = null;
   var toastTimer = null;
 
+  /* ========== 学员档案系统（新增） ========== */
+  var API = '/api/data';
+  var currentStudent = null;
+  var studentsList = [];
+
+  // 加载学员列表
+  async function loadStudents() {
+    try {
+      const res = await fetch(API + '?students=list');
+      const data = await res.json();
+      studentsList = data.students || [];
+      renderStudentOptions();
+    } catch (e) {
+      console.error('加载学员失败:', e);
+    }
+  }
+
+  // 渲染学员下拉选项
+  function renderStudentOptions() {
+    const select = $('studentSelect');
+    const currentVal = select.value;
+    select.innerHTML = '<option value="">-- 请选择学员 --</option><option value="__new__">➕ 新建学员档案</option>';
+    studentsList.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.studentId;
+      opt.textContent = `${s.name} (${s.gender === 'M' ? '男' : '女'}, ${s.currentGrade}年级)`;
+      select.appendChild(opt);
+    });
+    if (currentVal) select.value = currentVal;
+  }
+
+  // 学员选择变化
+  $('studentSelect').addEventListener('change', async function() {
+    const val = this.value;
+    $('newStudentForm').classList.toggle('hidden', val !== '__new__');
+    $('studentInfo').classList.add('hidden');
+    currentStudent = null;
+
+    if (val && val !== '__new__') {
+      // 加载学员详情
+      try {
+        const res = await fetch(API + `?students=get&id=${val}`);
+        const data = await res.json();
+        if (data.ok) {
+          currentStudent = data.student;
+          $('currentStudentName').textContent = currentStudent.name;
+          $('currentStudentRecords').textContent = currentStudent.records.length;
+          $('studentInfo').classList.remove('hidden');
+          
+          // 自动填充年级和性别
+          state.grade = currentStudent.currentGrade;
+          state.sex = currentStudent.gender;
+          renderGradeSex();
+        }
+      } catch (e) {
+        console.error('加载学员详情失败:', e);
+      }
+    }
+  });
+
+  // 创建新学员
+  window.createStudent = async function() {
+    const name = $('newStudentName').value.trim();
+    const gender = $('newStudentGender').value;
+    const grade = $('newStudentGrade').value;
+
+    if (!name || !gender || !grade) {
+      toast('请填写完整信息');
+      return;
+    }
+
+    try {
+      const res = await fetch(API + '?students=create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, gender, currentGrade: grade })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        toast('学员创建成功');
+        await loadStudents();
+        $('studentSelect').value = data.studentId;
+        $('studentSelect').dispatchEvent(new Event('change'));
+        
+        // 清空表单
+        $('newStudentName').value = '';
+        $('newStudentGender').value = '';
+        $('newStudentGrade').value = '';
+      } else {
+        toast('创建失败: ' + (data.error || '未知错误'));
+      }
+    } catch (e) {
+      toast('网络错误');
+      console.error(e);
+    }
+  };
+
+  // 保存测评记录到学员档案
+  async function saveToStudentArchive(resultData) {
+    if (!currentStudent) {
+      return false;
+    }
+
+    const record = {
+      date: new Date().toISOString().split('T')[0],
+      grade: state.grade,
+      gender: state.sex,
+      mode: resultData.mode, // 'guoti' or 'xianchang'
+      total: resultData.total,
+      max: resultData.max || 100,
+      level: resultData.level,
+      scores: resultData.scores || {}, // 各项目得分
+      dimensions: {}, // 可选：维度评分
+      rawData: resultData // 保存完整原始数据
+    };
+
+    try {
+      const res = await fetch(API + '?students=addRecord', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentId: currentStudent.studentId,
+          record: record
+        })
+      });
+      const data = await res.json();
+      return data.ok;
+    } catch (e) {
+      console.error('保存记录失败:', e);
+      return false;
+    }
+  }
+
+  /* ========== 原有逻辑 ========== */
   /* ---------- 工具 ---------- */
   function $(id){ return document.getElementById(id); }
   function toast(msg){
@@ -906,6 +1078,20 @@
     $("resultArea").classList.remove("hidden");
     $("fixedBar").classList.remove("hidden");
     $("genBtn").classList.add("hidden");
+    
+    // 保存到学员档案（新增）
+    if (currentStudent) {
+      saveToStudentArchive(results).then(function(success) {
+        if (success) {
+          toast('✅ 已保存到学员档案');
+          // 更新记录数
+          currentStudent.records = currentStudent.records || [];
+          currentStudent.records.push({});
+          $('currentStudentRecords').textContent = currentStudent.records.length;
+        }
+      });
+    }
+    
     setTimeout(function(){
       $("resultArea").scrollIntoView({ behavior:"smooth", block:"start" });
     }, 60);
@@ -1713,8 +1899,27 @@
     $("imgPreview").src = url;
     $("imgOverlay").classList.remove("hidden");
   }
+
+  // 渲染年级性别选择器（用于自动填充）
+  function renderGradeSex() {
+    // 更新年级选择
+    var gradeSegs = document.querySelectorAll('#gradeSeg .seg-item');
+    gradeSegs.forEach(function(item) {
+      item.classList.toggle('active', item.dataset.v === state.grade);
+    });
+    
+    // 更新性别选择
+    var sexSegs = document.querySelectorAll('#sexSeg .seg-item');
+    sexSegs.forEach(function(item) {
+      item.classList.toggle('active', item.dataset.v === state.sex);
+    });
+    
+    renderItems();
+  }
+
   bindEvents();
   renderItems();
+  loadStudents(); // 加载学员列表
 })();
 </script>
 </body>
