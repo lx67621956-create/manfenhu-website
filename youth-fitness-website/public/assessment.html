@@ -41,8 +41,16 @@
       margin-bottom: 24px;
       font-size: 24px;
     }
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #FF6B35;
+      margin: 24px 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #FFF5F0;
+    }
     .form-group {
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     .form-group label {
       display: block;
@@ -67,8 +75,30 @@
     }
     .form-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 16px;
+    }
+    .project-item {
+      background: #FFF5F0;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .project-name {
+      font-weight: 600;
+      color: #333;
+      font-size: 16px;
+    }
+    .project-score {
+      font-size: 20px;
+      font-weight: 700;
+      color: #FF6B35;
     }
     .result-card {
       background: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
@@ -118,9 +148,6 @@
       width: 100%;
       margin-top: 12px;
     }
-    .btn-secondary:hover {
-      background: #FFF5F0;
-    }
     .info-banner {
       background: #FFF5F0;
       padding: 16px;
@@ -129,68 +156,99 @@
       color: #666;
       font-size: 14px;
     }
-    .info-banner strong {
-      color: #FF6B35;
+    .quick-create {
+      display: none;
+      background: #E3F2FD;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+    .quick-create.active {
+      display: block;
+    }
+    .help-text {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
     }
     /* 移动端优化 */
     @media (max-width: 768px) {
-      body {
-        padding: 12px;
-      }
-      .card {
-        padding: 20px;
-      }
-      .card h2 {
-        font-size: 20px;
-      }
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-      .result-score {
-        font-size: 48px;
-      }
-      .result-level {
-        font-size: 20px;
-      }
+      body { padding: 12px; }
+      .card { padding: 20px; }
+      .card h2 { font-size: 20px; }
+      .form-row { grid-template-columns: 1fr; }
+      .result-score { font-size: 48px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <a href="#" id="backLink" class="back-btn">
-      ← 返回
-    </a>
+    <a href="/students.html" class="back-btn">← 返回学员列表</a>
 
     <div class="card">
       <h2>体能测评录入</h2>
       
-      <div id="studentInfo" class="info-banner" style="display: none;">
-        学员: <strong id="studentName"></strong> | 
-        性别: <strong id="studentGender"></strong> | 
-        年级: <strong id="studentGrade"></strong>
-      </div>
-
       <form id="assessmentForm">
+        <!-- 学员选择 -->
+        <div class="section-title">学员信息</div>
+        <div class="form-group">
+          <label>选择学员 *</label>
+          <select id="studentSelect" required>
+            <option value="">加载中...</option>
+          </select>
+          <div class="help-text">找不到？点击下方新建学员</div>
+        </div>
+        <button type="button" class="btn-secondary" onclick="toggleQuickCreate()">+ 快速新建学员</button>
+        
+        <div id="quickCreate" class="quick-create">
+          <div class="form-row">
+            <div class="form-group">
+              <label>姓名 *</label>
+              <input type="text" id="newName" placeholder="学员姓名">
+            </div>
+            <div class="form-group">
+              <label>性别 *</label>
+              <select id="newGender">
+                <option value="">请选择</option>
+                <option value="M">男</option>
+                <option value="F">女</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>年级 *</label>
+              <select id="newGrade">
+                <option value="">请选择</option>
+                <option value="4">四年级</option>
+                <option value="5">五年级</option>
+                <option value="6">六年级</option>
+                <option value="7">七年级</option>
+                <option value="8">八年级</option>
+                <option value="9">九年级</option>
+              </select>
+            </div>
+          </div>
+          <button type="button" class="btn-primary" onclick="createStudent()">确认新建</button>
+        </div>
+
         <!-- 基础信息 -->
+        <div class="section-title">测评信息</div>
         <div class="form-row">
           <div class="form-group">
             <label>测评日期 *</label>
             <input type="date" name="date" required>
           </div>
           <div class="form-group">
-            <label>年级 *</label>
+            <label>测评年级 *</label>
             <select name="grade" id="gradeSelect" required>
               <option value="">请选择</option>
               <option value="4">四年级</option>
-              <option value="5">五年级</option>
               <option value="6">六年级</option>
-              <option value="7">七年级</option>
               <option value="8">八年级</option>
               <option value="9">九年级</option>
             </select>
           </div>
           <div class="form-group">
-            <label>性别 *</label>
+            <label>测评性别 *</label>
             <select name="gender" id="genderSelect" required>
               <option value="">请选择</option>
               <option value="M">男</option>
@@ -199,115 +257,409 @@
           </div>
         </div>
 
-        <!-- 测评模式 -->
-        <div class="form-group">
-          <label>测评模式 *</label>
-          <select name="mode" required>
-            <option value="guoti">国家学生体质健康标准</option>
-            <option value="zhongkao">中考体育现场考试</option>
-          </select>
-        </div>
-
-        <!-- 成绩录入 -->
-        <div class="form-row">
-          <div class="form-group">
-            <label>总分 *</label>
-            <input type="number" name="total" step="0.1" min="0" max="100" required placeholder="例: 85.5">
+        <!-- 考试项目 -->
+        <div class="section-title">考试项目</div>
+        
+        <!-- BMI -->
+        <div class="project-item">
+          <div class="project-header">
+            <span class="project-name">BMI（身体质量指数）</span>
+            <span class="project-score" id="bmiScore">-</span>
           </div>
-          <div class="form-group">
-            <label>满分</label>
-            <input type="number" name="max" step="1" min="0" value="100" placeholder="例: 100">
-          </div>
-          <div class="form-group">
-            <label>等级</label>
-            <select name="level">
-              <option value="">自动判定</option>
-              <option value="优秀">优秀</option>
-              <option value="良好">良好</option>
-              <option value="及格">及格</option>
-              <option value="不及格">不及格</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- 维度评分（可选） -->
-        <div class="form-group">
-          <label>维度评分（可选，用于多维度分析）</label>
           <div class="form-row">
-            <input type="number" name="dim_speed" step="1" min="0" max="100" placeholder="速度">
-            <input type="number" name="dim_endurance" step="1" min="0" max="100" placeholder="耐力">
-            <input type="number" name="dim_strength" step="1" min="0" max="100" placeholder="力量">
-            <input type="number" name="dim_flexibility" step="1" min="0" max="100" placeholder="柔韧">
+            <div class="form-group">
+              <label>身高 (cm)</label>
+              <input type="number" step="0.1" name="height" placeholder="例: 165.5" oninput="calcBMI()">
+            </div>
+            <div class="form-group">
+              <label>体重 (kg)</label>
+              <input type="number" step="0.1" name="weight" placeholder="例: 52.5" oninput="calcBMI()">
+            </div>
+            <div class="form-group">
+              <label>BMI值</label>
+              <input type="text" id="bmiValue" readonly style="background: #f5f5f5;">
+            </div>
           </div>
         </div>
 
-        <!-- 备注 -->
-        <div class="form-group">
-          <label>备注</label>
-          <input type="text" name="notes" placeholder="记录特殊情况或注意事项">
+        <!-- 耐力 -->
+        <div class="project-item">
+          <div class="project-header">
+            <span class="project-name">耐力跑（1000米/800米）</span>
+            <span class="project-score" id="runScore">-</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>成绩 (分:秒)</label>
+              <input type="text" name="runTime" placeholder="例: 4:05 或 405" oninput="calcRun()">
+              <div class="help-text">男1000米 女800米</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 力量 -->
+        <div class="project-item">
+          <div class="project-header">
+            <span class="project-name">上肢力量（引体向上/斜身引体/仰卧起坐）</span>
+            <span class="project-score" id="strengthScore">-</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>项目类型</label>
+              <select name="strengthType" onchange="calcStrength()">
+                <option value="">请选择</option>
+                <option value="chinup">引体向上（男）</option>
+                <option value="incline">斜身引体（女）</option>
+                <option value="situp">仰卧起坐（女）</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>成绩 (次数)</label>
+              <input type="number" name="strengthCount" placeholder="例: 11" oninput="calcStrength()">
+            </div>
+          </div>
+        </div>
+
+        <!-- 投掷 -->
+        <div class="project-item">
+          <div class="project-header">
+            <span class="project-name">实心球</span>
+            <span class="project-score" id="throwScore">-</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>成绩 (米)</label>
+              <input type="number" step="0.1" name="throwDist" placeholder="例: 9.5" oninput="calcThrow()">
+            </div>
+          </div>
+        </div>
+
+        <!-- 跳绳 -->
+        <div class="project-item">
+          <div class="project-header">
+            <span class="project-name">1分钟跳绳</span>
+            <span class="project-score" id="ropeScore">-</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>成绩 (次数)</label>
+              <input type="number" name="ropeCount" placeholder="例: 180" oninput="calcRope()">
+            </div>
+          </div>
+        </div>
+
+        <!-- 立定跳远 -->
+        <div class="project-item">
+          <div class="project-header">
+            <span class="project-name">立定跳远</span>
+            <span class="project-score" id="jumpScore">-</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>成绩 (米)</label>
+              <input type="number" step="0.01" name="jumpDist" placeholder="例: 2.25" oninput="calcJump()">
+            </div>
+          </div>
+        </div>
+
+        <!-- 总分展示 -->
+        <div id="resultCard" class="result-card" style="display: none;">
+          <div class="result-level">总分</div>
+          <div class="result-score" id="totalScore">0</div>
+          <div class="result-level" id="totalLevel">-</div>
         </div>
 
         <button type="submit" class="btn btn-primary" id="submitBtn">保存测评记录</button>
-        <button type="button" class="btn btn-secondary" onclick="resetForm()">重置表单</button>
       </form>
     </div>
   </div>
 
   <script>
     const API = '/api/data';
-    const urlParams = new URLSearchParams(window.location.search);
-    const studentId = urlParams.get('studentId');
-    const studentName = urlParams.get('name');
-    const studentGender = urlParams.get('gender');
-    const studentGrade = urlParams.get('grade');
+    let students = [];
+    let currentScores = {};
 
-    // 初始化页面
-    function init() {
-      // 设置默认日期为今天
+    // 初始化
+    async function init() {
       document.querySelector('input[name="date"]').valueAsDate = new Date();
+      await loadStudents();
+    }
 
-      // 如果从学员详情页跳转，预填信息
-      if (studentId && studentName) {
-        document.getElementById('studentInfo').style.display = 'block';
-        document.getElementById('studentName').textContent = studentName;
-        document.getElementById('studentGender').textContent = studentGender === 'M' ? '男' : '女';
-        document.getElementById('studentGrade').textContent = studentGrade + '年级';
+    // 加载学员列表
+    async function loadStudents() {
+      try {
+        const res = await fetch(API + '?students=list');
+        const data = await res.json();
+        students = data.students || [];
         
-        document.getElementById('gradeSelect').value = studentGrade;
-        document.getElementById('genderSelect').value = studentGender;
-        
-        document.getElementById('backLink').href = '/student-detail.html?id=' + studentId;
-      } else {
-        document.getElementById('backLink').href = '/students.html';
+        const select = document.getElementById('studentSelect');
+        if (students.length === 0) {
+          select.innerHTML = '<option value="">暂无学员（请先新建）</option>';
+        } else {
+          select.innerHTML = '<option value="">请选择学员</option>' +
+            students.map(s => `<option value="${s.studentId}">${s.name} - ${s.gender === 'M' ? '男' : '女'} - ${s.currentGrade}年级</option>`).join('');
+        }
+      } catch (e) {
+        document.getElementById('studentSelect').innerHTML = '<option value="">加载失败</option>';
       }
+    }
+
+    // 快速新建学员
+    function toggleQuickCreate() {
+      document.getElementById('quickCreate').classList.toggle('active');
+    }
+
+    async function createStudent() {
+      const name = document.getElementById('newName').value.trim();
+      const gender = document.getElementById('newGender').value;
+      const grade = document.getElementById('newGrade').value;
+
+      if (!name || !gender || !grade) {
+        alert('请填写完整信息');
+        return;
+      }
+
+      try {
+        const res = await fetch(API + '?students=create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, gender, currentGrade: grade })
+        });
+        const result = await res.json();
+        if (result.ok) {
+          alert('创建成功！');
+          await loadStudents();
+          document.getElementById('studentSelect').value = result.studentId;
+          document.getElementById('quickCreate').classList.remove('active');
+          // 自动填充年级和性别
+          document.getElementById('gradeSelect').value = grade;
+          document.getElementById('genderSelect').value = gender;
+        } else {
+          alert('创建失败: ' + (result.error || '未知错误'));
+        }
+      } catch (e) {
+        alert('网络错误，请重试');
+      }
+    }
+
+    // 计算BMI
+    function calcBMI() {
+      const height = parseFloat(document.querySelector('[name="height"]').value) / 100;
+      const weight = parseFloat(document.querySelector('[name="weight"]').value);
+      if (height > 0 && weight > 0) {
+        const bmi = (weight / (height * height)).toFixed(1);
+        document.getElementById('bmiValue').value = bmi;
+        
+        const grade = document.querySelector('[name="grade"]').value;
+        const gender = document.querySelector('[name="gender"]').value;
+        const score = getBMIScore(parseFloat(bmi), grade, gender);
+        document.getElementById('bmiScore').textContent = score;
+        currentScores.bmi = score;
+        updateTotal();
+      }
+    }
+
+    // 计算跑步
+    function calcRun() {
+      const timeStr = document.querySelector('[name="runTime"]').value.trim();
+      if (!timeStr) return;
+      
+      let seconds = 0;
+      if (timeStr.includes(':')) {
+        const [min, sec] = timeStr.split(':').map(Number);
+        seconds = min * 60 + sec;
+      } else {
+        const num = parseInt(timeStr);
+        if (num > 100) {
+          seconds = Math.floor(num / 100) * 60 + (num % 100);
+        } else {
+          seconds = num;
+        }
+      }
+      
+      const gender = document.querySelector('[name="gender"]').value;
+      const score = getRunScore(seconds, gender);
+      document.getElementById('runScore').textContent = score;
+      currentScores.run = score;
+      updateTotal();
+    }
+
+    // 计算力量
+    function calcStrength() {
+      const type = document.querySelector('[name="strengthType"]').value;
+      const count = parseInt(document.querySelector('[name="strengthCount"]').value);
+      if (!type || !count) return;
+      
+      const score = getStrengthScore(count, type);
+      document.getElementById('strengthScore').textContent = score;
+      currentScores.strength = score;
+      updateTotal();
+    }
+
+    // 计算实心球
+    function calcThrow() {
+      const dist = parseFloat(document.querySelector('[name="throwDist"]').value);
+      if (!dist) return;
+      
+      const gender = document.querySelector('[name="gender"]').value;
+      const score = getThrowScore(dist, gender);
+      document.getElementById('throwScore').textContent = score;
+      currentScores.throw = score;
+      updateTotal();
+    }
+
+    // 计算跳绳
+    function calcRope() {
+      const count = parseInt(document.querySelector('[name="ropeCount"]').value);
+      if (!count) return;
+      
+      const score = getRopeScore(count);
+      document.getElementById('ropeScore').textContent = score;
+      currentScores.rope = score;
+      updateTotal();
+    }
+
+    // 计算立定跳远
+    function calcJump() {
+      const dist = parseFloat(document.querySelector('[name="jumpDist"]').value);
+      if (!dist) return;
+      
+      const gender = document.querySelector('[name="gender"]').value;
+      const score = getJumpScore(dist, gender);
+      document.getElementById('jumpScore').textContent = score;
+      currentScores.jump = score;
+      updateTotal();
+    }
+
+    // 更新总分
+    function updateTotal() {
+      const scores = Object.values(currentScores);
+      if (scores.length === 0) return;
+      
+      const total = scores.reduce((sum, s) => sum + s, 0);
+      document.getElementById('totalScore').textContent = total.toFixed(1);
+      document.getElementById('totalLevel').textContent = getLevel(total);
+      document.getElementById('resultCard').style.display = 'block';
+    }
+
+    // ===== 评分标准（简化版，实际应更详细） =====
+    function getBMIScore(bmi, grade, gender) {
+      // 简化：18.5-23.9 = 满分10
+      if (bmi >= 18.5 && bmi <= 23.9) return 10;
+      if (bmi >= 17 && bmi <= 25) return 8;
+      return 6;
+    }
+
+    function getRunScore(seconds, gender) {
+      // 男1000米 女800米 满分8分
+      if (gender === 'M') {
+        if (seconds <= 245) return 8; // 4:05
+        if (seconds <= 270) return 6;
+        return 4;
+      } else {
+        if (seconds <= 235) return 8; // 3:55
+        if (seconds <= 260) return 6;
+        return 4;
+      }
+    }
+
+    function getStrengthScore(count, type) {
+      // 满分8分
+      if (type === 'chinup') {
+        if (count >= 11) return 8;
+        if (count >= 8) return 6;
+        return 4;
+      }
+      if (type === 'incline') {
+        if (count >= 40) return 8;
+        if (count >= 30) return 6;
+        return 4;
+      }
+      if (type === 'situp') {
+        if (count >= 42) return 8;
+        if (count >= 35) return 6;
+        return 4;
+      }
+      return 0;
+    }
+
+    function getThrowScore(dist, gender) {
+      // 满分8分
+      if (gender === 'M') {
+        if (dist >= 9.5) return 8;
+        if (dist >= 8.0) return 6;
+        return 4;
+      } else {
+        if (dist >= 7.6) return 8;
+        if (dist >= 6.5) return 6;
+        return 4;
+      }
+    }
+
+    function getRopeScore(count) {
+      // 满分8分
+      if (count >= 180) return 8;
+      if (count >= 150) return 6;
+      return 4;
+    }
+
+    function getJumpScore(dist, gender) {
+      // 满分8分
+      if (gender === 'M') {
+        if (dist >= 2.25) return 8;
+        if (dist >= 2.10) return 6;
+        return 4;
+      } else {
+        if (dist >= 1.76) return 8;
+        if (dist >= 1.60) return 6;
+        return 4;
+      }
+    }
+
+    function getLevel(score) {
+      if (score >= 90) return '优秀';
+      if (score >= 80) return '良好';
+      if (score >= 60) return '及格';
+      return '不及格';
     }
 
     // 提交表单
     document.getElementById('assessmentForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const studentId = document.getElementById('studentSelect').value;
       if (!studentId) {
-        alert('缺少学员信息，无法保存记录');
+        alert('请选择学员');
         return;
       }
 
       const formData = new FormData(e.target);
-      const dimensions = {};
-      if (formData.get('dim_speed')) dimensions['速度'] = parseInt(formData.get('dim_speed'));
-      if (formData.get('dim_endurance')) dimensions['耐力'] = parseInt(formData.get('dim_endurance'));
-      if (formData.get('dim_strength')) dimensions['力量'] = parseInt(formData.get('dim_strength'));
-      if (formData.get('dim_flexibility')) dimensions['柔韧'] = parseInt(formData.get('dim_flexibility'));
-
       const record = {
         date: formData.get('date'),
         grade: formData.get('grade'),
         gender: formData.get('gender'),
-        mode: formData.get('mode'),
-        total: parseFloat(formData.get('total')),
-        max: parseInt(formData.get('max')) || 100,
-        level: formData.get('level') || autoLevel(parseFloat(formData.get('total'))),
-        dimensions: dimensions,
-        notes: formData.get('notes') || undefined
+        mode: 'manual',
+        total: parseFloat(document.getElementById('totalScore').textContent) || 0,
+        max: 100,
+        level: document.getElementById('totalLevel').textContent,
+        scores: currentScores,
+        dimensions: {
+          '耐力': currentScores.run || 0,
+          '力量': currentScores.strength || 0,
+          '速度': currentScores.rope || 0,
+          '爆发力': currentScores.jump || 0
+        },
+        details: {
+          height: formData.get('height'),
+          weight: formData.get('weight'),
+          bmi: document.getElementById('bmiValue').value,
+          runTime: formData.get('runTime'),
+          strengthType: formData.get('strengthType'),
+          strengthCount: formData.get('strengthCount'),
+          throwDist: formData.get('throwDist'),
+          ropeCount: formData.get('ropeCount'),
+          jumpDist: formData.get('jumpDist')
+        }
       };
 
       const submitBtn = document.getElementById('submitBtn');
@@ -318,10 +670,7 @@
         const res = await fetch(API + '?students=addRecord', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            studentId: studentId,
-            record: record
-          })
+          body: JSON.stringify({ studentId, record })
         });
 
         const result = await res.json();
@@ -339,20 +688,6 @@
         submitBtn.textContent = '保存测评记录';
       }
     });
-
-    // 自动判定等级
-    function autoLevel(score) {
-      if (score >= 90) return '优秀';
-      if (score >= 80) return '良好';
-      if (score >= 60) return '及格';
-      return '不及格';
-    }
-
-    // 重置表单
-    function resetForm() {
-      document.getElementById('assessmentForm').reset();
-      init();
-    }
 
     init();
   </script>
