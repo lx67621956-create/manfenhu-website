@@ -21,9 +21,9 @@ export default async function handler(req, res) {
   }
 
   async function kvSet(key, data) {
-    if (!process.env.KV_REST_API_URL) return;
+    if (!process.env.KV_REST_API_URL) return false;
     try {
-      await fetch(process.env.KV_REST_API_URL + '/set/' + key, {
+      const res = await fetch(process.env.KV_REST_API_URL + '/set/' + key, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -31,7 +31,10 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify(data)
       });
-    } catch {}
+      return res.ok;
+    } catch {
+      return false;
+    }
   }
 
   async function kvDel(key) {
@@ -54,7 +57,7 @@ export default async function handler(req, res) {
 
   // Helper: update index
   async function updateIndex(index) {
-    await kvSet(INDEX_KEY, index);
+    return await kvSet(INDEX_KEY, index);
   }
 
   // GET: list students or get one student
@@ -111,7 +114,10 @@ export default async function handler(req, res) {
         createdAt: new Date().toISOString(),
         records: []
       };
-      await kvSet('assessment:student:' + studentId, student);
+      const ok1 = await kvSet('assessment:student:' + studentId, student);
+      if (!ok1) {
+        return res.status(500).json({ ok: false, error: 'KV write failed' });
+      }
       
       // Update index
       const index = await getIndex();
@@ -123,7 +129,10 @@ export default async function handler(req, res) {
         recordCount: 0,
         lastRecordDate: null
       });
-      await updateIndex(index);
+      const ok2 = await updateIndex(index);
+      if (!ok2) {
+        return res.status(500).json({ ok: false, error: 'Index update failed' });
+      }
       
       return res.status(200).json({
         ok: true,
