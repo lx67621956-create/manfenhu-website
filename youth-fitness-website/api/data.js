@@ -5,7 +5,12 @@ let memoryStore = {
   people: {},
   personOrder: [],
   curPerson: null,
-  curSlot: null
+  curSlot: null,
+  // Student assessment records (new)
+  students: {
+    index: [],
+    records: {}
+  }
 };
 
 export default async function handler(req, res) {
@@ -96,6 +101,96 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, time: Date.now() });
     } catch (e) {
       return res.status(500).json({ error: e.message });
+    }
+  }
+
+  // Student assessment records routes
+  if (req.url?.startsWith('/api/data?students=')) {
+    const action = req.query.students;
+    let data = await kvGet();
+    if (!data) data = memoryStore;
+    if (!data.students) data.students = { index: [], records: {} };
+
+    // List students
+    if (req.method === 'GET' && action === 'list') {
+      return res.status(200).json({
+        ok: true,
+        students: data.students.index
+      });
+    }
+
+    // Get one student
+    if (req.method === 'GET' && action === 'get') {
+      const sid = req.query.id;
+      if (!sid || !data.students.records[sid]) {
+        return res.status(404).json({ ok: false, error: 'Student not found' });
+      }
+      return res.status(200).json({
+        ok: true,
+        student: data.students.records[sid]
+      });
+    }
+
+    // Create student
+    if (req.method === 'POST' && action === 'create') {
+      const { name, gender, currentGrade } = req.body;
+      if (!name || !gender || !currentGrade) {
+        return res.status(400).json({ ok: false, error: 'Missing fields' });
+      }
+      const studentId = 's_' + Date.now();
+      const student = {
+        studentId,
+        name,
+        gender,
+        currentGrade,
+        createdAt: new Date().toISOString(),
+        records: []
+      };
+      data.students.records[studentId] = student;
+      data.students.index.push({
+        studentId,
+        name,
+        gender,
+        currentGrade,
+        recordCount: 0,
+        lastRecordDate: null
+      });
+      await kvSet(data);
+      return res.status(200).json({ ok: true, studentId });
+    }
+
+    // Add record
+    if (req.method === 'POST' && action === 'addRecord') {
+      const { studentId, record } = req.body;
+      if (!studentId || !record || !data.students.records[studentId]) {
+        return res.status(400).json({ ok: false, error: 'Invalid request' });
+      }
+      const recordId = 'r_' + Date.now();
+      const newRecord = {
+        recordId,
+        date: record.date || new Date().toISOString().split('T')[0],
+        ...record
+      };
+      data.students.records[studentId].records.push(newRecord);
+      const idx = data.students.index.findIndex(s => s.studentId === studentId);
+      if (idx >= 0) {
+        data.students.index[idx].recordCount = data.students.records[studentId].records.length;
+        data.students.index[idx].lastRecordDate = newRecord.date;
+      }
+      await kvSet(data);
+      return res.status(200).json({ ok: true, recordId });
+    }
+
+    // Delete student
+    if (req.method === 'POST' && action === 'delete') {
+      const { studentId } = req.body;
+      if (!studentId) {
+        return res.status(400).json({ ok: false, error: 'Missing studentId' });
+      }
+      delete data.students.records[studentId];
+      data.students.index = data.students.index.filter(s => s.studentId !== studentId);
+      await kvSet(data);
+      return res.status(200).json({ ok: true });
     }
   }
 
