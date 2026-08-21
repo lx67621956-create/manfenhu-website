@@ -15,7 +15,8 @@ export default async function handler(req, res) {
       error: 'KV not configured',
       env: {
         hasUrl: !!KV_URL,
-        hasToken: !!KV_TOKEN
+        hasToken: !!KV_TOKEN,
+        urlPrefix: KV_URL ? KV_URL.slice(0, 30) + '...' : null
       }
     });
   }
@@ -40,6 +41,18 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify(testData)
       });
+      
+      if (!setRes.ok) {
+        const errorText = await setRes.text();
+        return res.status(500).json({
+          ok: false,
+          error: 'KV set failed',
+          status: setRes.status,
+          statusText: setRes.statusText,
+          response: errorText.slice(0, 200)
+        });
+      }
+      
       const setData = await setRes.json();
       return res.status(200).json({
         ok: true,
@@ -49,7 +62,8 @@ export default async function handler(req, res) {
     } catch (e) {
       return res.status(500).json({
         ok: false,
-        error: e.message
+        error: e.message,
+        stack: e.stack?.slice(0, 300)
       });
     }
   }
