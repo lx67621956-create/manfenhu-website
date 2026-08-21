@@ -130,6 +130,13 @@ export default async function handler(req, res) {
       if (!studentId || !record || !data.students.records[studentId]) {
         return res.status(400).json({ ok: false, error: 'Invalid request' });
       }
+      
+      // 限制国体总分最大值为 100（理论满分 120，实际按 100 计）
+      if (record.mode === 'guoti' && record.total > 100) {
+        record.total = Math.min(100, Math.round(record.total * 10) / 10);
+        record.max = 100;
+      }
+      
       const recordId = 'r_' + Date.now();
       const newRecord = {
         recordId,
