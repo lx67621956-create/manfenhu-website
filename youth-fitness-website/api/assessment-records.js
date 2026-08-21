@@ -8,6 +8,16 @@ export default async function handler(req, res) {
   
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  // Parse body for POST (Vercel auto-parses JSON but add safety)
+  let body = req.body;
+  if (req.method === 'POST' && typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch {
+      return res.status(400).json({ ok: false, error: 'Invalid JSON' });
+    }
+  }
+
   // KV helper functions (same pattern as api/data.js)
   async function kvGet(key) {
     if (!process.env.KV_REST_API_URL) return null;
@@ -92,7 +102,6 @@ export default async function handler(req, res) {
 
   // POST: create, addRecord, deleteRecord, deleteStudent
   if (req.method === 'POST') {
-    const body = req.body;
     if (!body || !body.action) {
       return res.status(400).json({ ok: false, error: 'Missing action' });
     }
