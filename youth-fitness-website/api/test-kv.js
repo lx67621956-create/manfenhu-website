@@ -1,4 +1,6 @@
-// Test KV availability
+// Test KV availability via @vercel/kv SDK
+import { kv } from '@vercel/kv';
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -6,26 +8,7 @@ export default async function handler(req, res) {
   
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const KV_URL = process.env.KV_REST_API_URL;
-  const KV_TOKEN = process.env.KV_REST_API_TOKEN;
-
-  if (!KV_URL || !KV_TOKEN) {
-    return res.status(500).json({
-      ok: false,
-      error: 'KV not configured',
-      env: {
-        hasUrl: !!KV_URL,
-        hasToken: !!KV_TOKEN,
-        urlPrefix: KV_URL ? KV_URL.slice(0, 30) + '...' : null
-      }
-    });
-  }
-
   const testKey = 'hermes_test_kv';
-  const testValue = JSON.stringify({
-    message: 'Test data from Hermes',
-    timestamp: Date.now()
-  });
 
   // POST: Write test data
   if (req.method === 'POST') {
@@ -34,36 +17,17 @@ export default async function handler(req, res) {
         message: 'Test data from Hermes',
         timestamp: Date.now()
       };
-      const setRes = await fetch(`${KV_URL}/set/${testKey}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${KV_TOKEN}`
-        },
-        body: JSON.stringify(testData)
-      });
-      
-      if (!setRes.ok) {
-        const errorText = await setRes.text();
-        return res.status(500).json({
-          ok: false,
-          error: 'KV set failed',
-          status: setRes.status,
-          statusText: setRes.statusText,
-          response: errorText.slice(0, 200)
-        });
-      }
-      
-      const setData = await setRes.json();
+      await kv.set(testKey, testData);
       return res.status(200).json({
         ok: true,
         action: 'write',
-        result: setData
+        message: 'Data written to KV'
       });
     } catch (e) {
       return res.status(500).json({
         ok: false,
         error: e.message,
-        stack: e.stack?.slice(0, 300)
+        code: e.code || 'unknown'
       });
     }
   }
@@ -74,15 +38,11 @@ export default async function handler(req, res) {
     
     if (action === 'delete') {
       try {
-        const delRes = await fetch(`${KV_URL}/del/${testKey}`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${KV_TOKEN}` }
-        });
-        const delData = await delRes.json();
+        await kv.del(testKey);
         return res.status(200).json({
           ok: true,
           action: 'delete',
-          result: delData
+          message: 'Test key deleted'
         });
       } catch (e) {
         return res.status(500).json({ ok: false, error: e.message });
@@ -91,21 +51,18 @@ export default async function handler(req, res) {
 
     // Default: read
     try {
-      const getRes = await fetch(`${KV_URL}/get/${testKey}`, {
-        headers: { 'Authorization': `Bearer ${KV_TOKEN}` }
-      });
-      const getData = await getRes.json();
-      const value = getData.result ? JSON.parse(getData.result) : null;
+      const value = await kv.get(testKey);
       return res.status(200).json({
         ok: true,
         action: 'read',
         value: value,
-        raw: getData
+        exists: value !== null
       });
     } catch (e) {
       return res.status(500).json({
         ok: false,
-        error: e.message
+        error: e.message,
+        code: e.code || 'unknown'
       });
     }
   }
