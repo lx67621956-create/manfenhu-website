@@ -1,6 +1,10 @@
 // Student Assessment Records API
 // CRUD for student archives with persistent storage in Vercel KV
 
+export const config = {
+  runtime: 'nodejs18.x'
+};
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
