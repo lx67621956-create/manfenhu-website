@@ -105,7 +105,7 @@ export default async function handler(req, res) {
   }
 
   // Student assessment records routes
-  if (req.url?.startsWith('/api/data?students=')) {
+  if (req.query && req.query.students) {
     const action = req.query.students;
     let data = await kvGet();
     if (!data) data = memoryStore;
