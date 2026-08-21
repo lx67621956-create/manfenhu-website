@@ -15,11 +15,11 @@ export default async function handler(req, res) {
   
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Try KV REST API (configured via Vercel dashboard)
-  async function kvGet() {
+  // Generic KV helpers (support any key)
+  async function kvGetKey(key) {
     if (!process.env.KV_REST_API_URL) return null;
     try {
-      const r = await fetch(process.env.KV_REST_API_URL + '/get/elf_data', {
+      const r = await fetch(process.env.KV_REST_API_URL + '/get/' + key, {
         headers: process.env.KV_REST_API_TOKEN ? { Authorization: 'Bearer ' + process.env.KV_REST_API_TOKEN } : {}
       });
       const d = await r.json();
@@ -27,10 +27,10 @@ export default async function handler(req, res) {
     } catch { return null; }
   }
 
-  async function kvSet(data) {
-    if (!process.env.KV_REST_API_URL) return;
+  async function kvSetKey(key, data) {
+    if (!process.env.KV_REST_API_URL) return false;
     try {
-      await fetch(process.env.KV_REST_API_URL + '/set/elf_data', {
+      await fetch(process.env.KV_REST_API_URL + '/set/' + key, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -38,7 +38,30 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify(data)
       });
-    } catch {}
+      return true;
+    } catch { return false; }
+  }
+
+  // Legacy helpers for elf_data
+  async function kvGet() {
+    return await kvGetKey('elf_data');
+  }
+
+  async function kvSet(data) {
+    await kvSetKey('elf_data', data);
+  }
+
+  // Test endpoint: can this file write to arbitrary keys?
+  if (req.method === 'GET' && req.query.test === 'kv') {
+    const testKey = 'data_api_test_' + Date.now();
+    const writeOk = await kvSetKey(testKey, { test: 'from data.js', timestamp: Date.now() });
+    const readBack = await kvGetKey(testKey);
+    return res.status(200).json({
+      ok: true,
+      writeOk: writeOk,
+      readBack: readBack,
+      canWriteArbitraryKeys: writeOk && readBack !== null
+    });
   }
 
   if (req.method === 'GET') {
