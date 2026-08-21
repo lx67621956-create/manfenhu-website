@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>学员详情 - 满分虎</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -183,6 +184,46 @@
       padding: 40px;
       color: #999;
     }
+    /* 移动端优化 */
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+      .container {
+        max-width: 100%;
+      }
+      .profile-card {
+        padding: 20px;
+      }
+      .profile-header {
+        flex-direction: column;
+        gap: 16px;
+      }
+      .profile-info h1 {
+        font-size: 24px;
+      }
+      .btn-group {
+        width: 100%;
+      }
+      .btn-group .btn {
+        flex: 1;
+      }
+      .section {
+        padding: 16px;
+      }
+      .section-title {
+        font-size: 18px;
+      }
+      .record-item {
+        padding: 16px;
+      }
+      .record-score {
+        font-size: 20px;
+      }
+      .record-details {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -192,6 +233,19 @@
     </a>
 
     <div id="profileSection" class="loading">加载中...</div>
+
+    <!-- 数据统计 -->
+    <div class="section" id="statsSection" style="display: none;">
+      <h2 class="section-title">数据统计</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        <div style="background: #FFF5F0; padding: 20px; border-radius: 12px;">
+          <canvas id="trendChart" style="max-height: 250px;"></canvas>
+        </div>
+        <div style="background: #FFF5F0; padding: 20px; border-radius: 12px;">
+          <canvas id="dimensionChart" style="max-height: 250px;"></canvas>
+        </div>
+      </div>
+    </div>
 
     <div class="section">
       <div class="section-header">
@@ -305,6 +359,109 @@
           </div>
         `;
       }).join('');
+
+      // 渲染图表（记录数 >= 2 时显示）
+      if (records.length >= 2) {
+        renderCharts(records);
+      }
+    }
+
+    // 渲染统计图表
+    function renderCharts(records) {
+      document.getElementById('statsSection').style.display = 'block';
+
+      // 按日期正序排列用于图表
+      const sorted = [...records].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      // 1. 总分趋势图
+      const trendCtx = document.getElementById('trendChart');
+      new Chart(trendCtx, {
+        type: 'line',
+        data: {
+          labels: sorted.map(r => r.date),
+          datasets: [{
+            label: '总分',
+            data: sorted.map(r => r.total),
+            borderColor: '#FF6B35',
+            backgroundColor: 'rgba(255, 107, 53, 0.1)',
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            pointRadius: 5,
+            pointHoverRadius: 7
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: '总分趋势',
+              font: { size: 16, weight: 'bold' },
+              color: '#333'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: { color: '#666' },
+              grid: { color: 'rgba(0,0,0,0.05)' }
+            },
+            x: {
+              ticks: { color: '#666' },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+
+      // 2. 维度雷达图（如果有维度数据）
+      const latestWithDimensions = sorted.reverse().find(r => r.dimensions && Object.keys(r.dimensions).length > 0);
+      if (latestWithDimensions) {
+        const dims = latestWithDimensions.dimensions;
+        const dimCtx = document.getElementById('dimensionChart');
+        new Chart(dimCtx, {
+          type: 'radar',
+          data: {
+            labels: Object.keys(dims),
+            datasets: [{
+              label: '最近测评',
+              data: Object.values(dims),
+              borderColor: '#FF6B35',
+              backgroundColor: 'rgba(255, 107, 53, 0.2)',
+              borderWidth: 2,
+              pointBackgroundColor: '#FF6B35',
+              pointBorderColor: '#fff',
+              pointRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: { display: false },
+              title: {
+                display: true,
+                text: '维度雷达图',
+                font: { size: 16, weight: 'bold' },
+                color: '#333'
+              }
+            },
+            scales: {
+              r: {
+                beginAtZero: true,
+                max: 100,
+                ticks: { color: '#666', stepSize: 20 },
+                grid: { color: 'rgba(0,0,0,0.1)' },
+                pointLabels: { color: '#333', font: { size: 12, weight: 'bold' } }
+              }
+            }
+          }
+        });
+      }
     }
 
     // 新增测评

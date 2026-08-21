@@ -132,6 +132,27 @@
     .info-banner strong {
       color: #FF6B35;
     }
+    /* 移动端优化 */
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+      .card {
+        padding: 20px;
+      }
+      .card h2 {
+        font-size: 20px;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .result-score {
+        font-size: 48px;
+      }
+      .result-level {
+        font-size: 20px;
+      }
+    }
   </style>
 </head>
 <body>
