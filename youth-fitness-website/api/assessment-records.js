@@ -77,10 +77,17 @@ export default async function handler(req, res) {
 
   // Diagnostic: test KV write
   if (req.method === 'GET' && req.query.action === 'diag') {
-    const testResult = await kvSet('assessment:diag_test', { test: Date.now() });
+    // Test 1: simple key (no colon)
+    const test1 = await kvSet('assessment_diag_test', { test: Date.now() });
+    // Test 2: key with colon
+    const test2 = await kvSet('assessment:diag:test', { test: Date.now() });
+    // Test 3: read back test1
+    const read1 = await kvGet('assessment_diag_test');
     return res.status(200).json({
       ok: true,
-      diagnostic: testResult,
+      test1_simple: test1,
+      test2_colon: test2,
+      read1: read1,
       hasUrl: !!process.env.KV_REST_API_URL,
       hasToken: !!process.env.KV_REST_API_TOKEN
     });
