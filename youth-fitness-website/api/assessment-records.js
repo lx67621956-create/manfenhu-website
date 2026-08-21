@@ -79,19 +79,33 @@ export default async function handler(req, res) {
     return await kvSet(INDEX_KEY, index);
   }
 
-  // Diagnostic: test KV write
+  // Diagnostic: test KV write with hardcoded key (like api/data.js)
   if (req.method === 'GET' && req.query.action === 'diag') {
-    // Test 1: simple key (no colon)
-    const test1 = await kvSet('assessment_diag_test', { test: Date.now() });
-    // Test 2: key with colon
-    const test2 = await kvSet('assessment:diag:test', { test: Date.now() });
-    // Test 3: read back test1
-    const read1 = await kvGet('assessment_diag_test');
+    // Test: exactly copy api/data.js pattern (hardcoded key)
+    let testResult = { ok: false, error: 'not tested' };
+    if (process.env.KV_REST_API_URL) {
+      try {
+        await fetch(process.env.KV_REST_API_URL + '/set/assessment_test_hardcoded', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            ...(process.env.KV_REST_API_TOKEN ? { Authorization: 'Bearer ' + process.env.KV_REST_API_TOKEN } : {})
+          },
+          body: JSON.stringify({ test: Date.now() })
+        });
+        testResult = { ok: true, message: 'No error thrown' };
+      } catch (e) {
+        testResult = { ok: false, error: e.message, stack: e.stack?.slice(0, 200) };
+      }
+    }
+    
+    // Also test our kvSet wrapper
+    const test2 = await kvSet('assessment_diag_test', { test: Date.now() });
+    
     return res.status(200).json({
       ok: true,
-      test1_simple: test1,
-      test2_colon: test2,
-      read1: read1,
+      hardcoded_direct_fetch: testResult,
+      kvSet_wrapper: test2,
       hasUrl: !!process.env.KV_REST_API_URL,
       hasToken: !!process.env.KV_REST_API_TOKEN
     });
