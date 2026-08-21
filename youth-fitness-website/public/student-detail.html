@@ -512,6 +512,44 @@
       }
     }
 
+    // 导出学员报告
+    function exportStudent() {
+      if (!currentStudent || currentStudent.records.length === 0) {
+        alert('暂无测评记录，无法导出');
+        return;
+      }
+
+      // 生成 CSV 格式数据
+      let csv = '\uFEFF'; // BOM for Excel UTF-8
+      csv += '学员姓名,性别,年级,测评日期,测评模式,总分,满分,等级\n';
+      
+      currentStudent.records.forEach(r => {
+        const genderText = currentStudent.gender === 'M' ? '男' : '女';
+        const modeText = r.mode === 'guoti' ? '国体' : r.mode === 'xianchang' ? '现场' : r.mode;
+        csv += `${currentStudent.name},${genderText},${r.grade || currentStudent.currentGrade}年级,${r.date},${modeText},${r.total},${r.max || 100},${r.level || '-'}\n`;
+        
+        // 单项得分
+        if (r.items && r.items.length > 0) {
+          csv += ',,,单项得分:,项目,得分,权重,单位\n';
+          r.items.forEach(item => {
+            csv += `,,,,${item.name || item.key},${item.score || 0},${item.weight || '-'},${item.unit || '-'}\n`;
+          });
+        }
+        csv += '\n';
+      });
+
+      // 下载文件
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${currentStudent.name}_测评报告_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
     // 页面加载
     loadStudent();
   </script>

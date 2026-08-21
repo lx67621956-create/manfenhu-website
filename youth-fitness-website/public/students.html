@@ -212,7 +212,10 @@
   <div class="container">
     <div class="header">
       <h1>学员档案管理</h1>
-      <button class="btn-primary" onclick="openCreateModal()">+ 新增学员</button>
+      <div style="display: flex; gap: 12px;">
+        <button class="btn-primary" onclick="exportAllStudents()" style="background: #2FA25B;">批量导出</button>
+        <button class="btn-primary" onclick="openCreateModal()">+ 新增学员</button>
+      </div>
     </div>
 
     <div id="studentList" class="student-grid">
@@ -345,6 +348,57 @@
     // 查看学员详情
     function viewStudent(id) {
       window.location.href = '/student-detail.html?id=' + id;
+    }
+
+    // 批量导出所有学员
+    async function exportAllStudents() {
+      if (studentsList.length === 0) {
+        alert('暂无学员数据');
+        return;
+      }
+
+      // 获取所有学员的完整数据
+      const allData = [];
+      for (const s of studentsList) {
+        try {
+          const res = await fetch(API + `?students=get&id=${s.studentId}`);
+          const data = await res.json();
+          if (data.ok) {
+            allData.push(data.student);
+          }
+        } catch (e) {
+          console.error('获取学员数据失败:', s.studentId, e);
+        }
+      }
+
+      // 生成 CSV
+      let csv = '\uFEFF'; // BOM for Excel UTF-8
+      csv += '学员姓名,性别,当前年级,创建时间,测评次数,最近测评日期,最近总分,最近等级\n';
+      
+      allData.forEach(student => {
+        const genderText = student.gender === 'M' ? '男' : '女';
+        const createdDate = new Date(student.createdAt).toLocaleDateString('zh-CN');
+        const recordCount = student.records.length;
+        const latestRecord = student.records[student.records.length - 1];
+        const latestDate = latestRecord ? latestRecord.date : '-';
+        const latestScore = latestRecord ? latestRecord.total : '-';
+        const latestLevel = latestRecord ? latestRecord.level : '-';
+        
+        csv += `${student.name},${genderText},${student.currentGrade}年级,${createdDate},${recordCount},${latestDate},${latestScore},${latestLevel}\n`;
+      });
+
+      // 下载
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `学员档案汇总_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      alert(`已导出 ${allData.length} 名学员数据`);
     }
 
     // 页面加载
