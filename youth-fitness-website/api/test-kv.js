@@ -29,13 +29,16 @@ export default async function handler(req, res) {
   // POST: Write test data
   if (req.method === 'POST') {
     try {
+      const testData = {
+        message: 'Test data from Hermes',
+        timestamp: Date.now()
+      };
       const setRes = await fetch(`${KV_URL}/set/${testKey}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${KV_TOKEN}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${KV_TOKEN}`
         },
-        body: JSON.stringify(testValue)
+        body: JSON.stringify(testData)
       });
       const setData = await setRes.json();
       return res.status(200).json({
