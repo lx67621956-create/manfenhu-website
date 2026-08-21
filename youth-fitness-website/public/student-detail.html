@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学员详情 - 满分虎</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, #FFF5F0 0%, #FFE8DD 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #FF6B35;
+      text-decoration: none;
+      margin-bottom: 20px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+    .back-btn:hover {
+      transform: translateX(-4px);
+    }
+    .profile-card {
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(255, 107, 53, 0.08);
+      margin-bottom: 24px;
+    }
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+    .profile-info h1 {
+      font-size: 32px;
+      color: #333;
+      margin-bottom: 12px;
+    }
+    .profile-tags {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .tag {
+      background: #FFF5F0;
+      padding: 6px 16px;
+      border-radius: 16px;
+      color: #FF6B35;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .profile-meta {
+      font-size: 14px;
+      color: #999;
+      margin-top: 8px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: #FF6B35;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #E55A2B;
+      transform: translateY(-2px);
+    }
+    .btn-danger {
+      background: white;
+      color: #ff4444;
+      border: 2px solid #ff4444;
+    }
+    .btn-danger:hover {
+      background: #ff4444;
+      color: white;
+    }
+    .section {
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(255, 107, 53, 0.08);
+      margin-bottom: 24px;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+    }
+    .records-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .record-item {
+      padding: 20px;
+      border: 2px solid #f0f0f0;
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+    .record-item:hover {
+      border-color: #FF6B35;
+      background: #FFFAF8;
+    }
+    .record-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .record-date {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+    .record-score {
+      font-size: 24px;
+      font-weight: 700;
+      color: #FF6B35;
+    }
+    .record-level {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      margin-left: 8px;
+    }
+    .level-优秀 { background: #E8F5E9; color: #2E7D32; }
+    .level-良好 { background: #E3F2FD; color: #1565C0; }
+    .level-及格 { background: #FFF3E0; color: #E65100; }
+    .level-不及格 { background: #FFEBEE; color: #C62828; }
+    .record-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #f0f0f0;
+    }
+    .detail-item {
+      font-size: 14px;
+      color: #666;
+    }
+    .detail-item strong {
+      color: #333;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/students.html" class="back-btn">
+      ← 返回学员列表
+    </a>
+
+    <div id="profileSection" class="loading">加载中...</div>
+
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">测评记录</h2>
+        <button class="btn btn-primary" onclick="addRecord()">+ 新增测评</button>
+      </div>
+      <div id="recordsList" class="records-list">
+        <div class="loading">加载中...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = '/api/data';
+    const urlParams = new URLSearchParams(window.location.search);
+    const studentId = urlParams.get('id');
+
+    let currentStudent = null;
+
+    if (!studentId) {
+      alert('缺少学员ID');
+      window.location.href = '/students.html';
+    }
+
+    // 加载学员详情
+    async function loadStudent() {
+      try {
+        const res = await fetch(API + `?students=get&id=${studentId}`);
+        const data = await res.json();
+        if (!data.ok) {
+          alert('学员不存在');
+          window.location.href = '/students.html';
+          return;
+        }
+        currentStudent = data.student;
+        renderProfile(currentStudent);
+        renderRecords(currentStudent.records || []);
+      } catch (e) {
+        document.getElementById('profileSection').innerHTML = '<div class="empty-state">加载失败</div>';
+      }
+    }
+
+    // 渲染学员信息
+    function renderProfile(student) {
+      const genderText = student.gender === 'M' ? '男' : '女';
+      const createdDate = new Date(student.createdAt).toLocaleDateString('zh-CN');
+      
+      document.getElementById('profileSection').innerHTML = `
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="profile-info">
+              <h1>${student.name}</h1>
+              <div class="profile-tags">
+                <span class="tag">${genderText}</span>
+                <span class="tag">${student.currentGrade}年级</span>
+                <span class="tag">测评 ${student.records.length} 次</span>
+              </div>
+              <div class="profile-meta">
+                学员ID: ${student.studentId} | 创建时间: ${createdDate}
+              </div>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-danger" onclick="deleteStudent()">删除学员</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 渲染测评记录
+    function renderRecords(records) {
+      const container = document.getElementById('recordsList');
+      if (records.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p>暂无测评记录</p>
+            <p style="font-size: 12px; margin-top: 8px;">点击「新增测评」开始记录</p>
+          </div>
+        `;
+        return;
+      }
+
+      // 按日期倒序排列
+      const sorted = [...records].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      container.innerHTML = sorted.map(r => {
+        const levelClass = r.level ? `level-${r.level}` : '';
+        const dimensions = r.dimensions || {};
+        const scores = r.scores || {};
+        
+        return `
+          <div class="record-item">
+            <div class="record-header">
+              <div>
+                <span class="record-date">${r.date}</span>
+                ${r.level ? `<span class="record-level ${levelClass}">${r.level}</span>` : ''}
+              </div>
+              <div>
+                <span class="record-score">${r.total || '-'}</span>
+                ${r.max ? `<span style="color: #999; font-size: 14px;">/${r.max}</span>` : ''}
+              </div>
+            </div>
+            <div class="record-details">
+              ${r.grade ? `<div class="detail-item"><strong>年级:</strong> ${r.grade}</div>` : ''}
+              ${r.mode ? `<div class="detail-item"><strong>模式:</strong> ${r.mode === 'guoti' ? '国体' : r.mode}</div>` : ''}
+              ${Object.keys(dimensions).length > 0 ? 
+                Object.entries(dimensions).map(([k, v]) => 
+                  `<div class="detail-item"><strong>${k}:</strong> ${v}</div>`
+                ).join('') : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 新增测评
+    function addRecord() {
+      // 跳转到测评工具，携带学员信息
+      const params = new URLSearchParams({
+        studentId: studentId,
+        name: currentStudent.name,
+        gender: currentStudent.gender,
+        grade: currentStudent.currentGrade
+      });
+      window.location.href = '/assessment.html?' + params.toString();
+    }
+
+    // 删除学员
+    async function deleteStudent() {
+      if (!confirm(`确认删除学员「${currentStudent.name}」？\n\n此操作将删除该学员的所有测评记录，且不可恢复。`)) {
+        return;
+      }
+
+      try {
+        const res = await fetch(API + '?students=delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentId: studentId })
+        });
+        const result = await res.json();
+        if (result.ok) {
+          alert('删除成功');
+          window.location.href = '/students.html';
+        } else {
+          alert('删除失败: ' + (result.error || '未知错误'));
+        }
+      } catch (e) {
+        alert('网络错误，请重试');
+      }
+    }
+
+    // 页面加载
+    loadStudent();
+  </script>
+</body>
+</html>
