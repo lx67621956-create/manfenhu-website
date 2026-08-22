@@ -1,7 +1,7 @@
 // Elf data persistence API
 // Uses Vercel Blob for durable cross-deployment storage
 
-import { put, head } from '@vercel/blob';
+import { put, head, del } from '@vercel/blob';
 
 const memoryStore = {
   people: {},
@@ -65,11 +65,16 @@ async function persist() {
   }
   try {
     const json = JSON.stringify(store);
+    // Delete existing blob first to avoid "already exists" error
+    try {
+      await del(BLOB_PATH, { token: process.env.BLOB_READ_WRITE_TOKEN });
+    } catch (e) {
+      // Ignore if blob doesn't exist
+    }
     const blob = await put(BLOB_PATH, json, {
       access: 'private',
       token: process.env.BLOB_READ_WRITE_TOKEN,
-      contentType: 'application/json',
-      addRandomSuffix: false
+      contentType: 'application/json'
     });
     console.log('[data] persisted to blob, url=', blob.url.slice(0, 60));
     return { ok: true, url: blob.url };
