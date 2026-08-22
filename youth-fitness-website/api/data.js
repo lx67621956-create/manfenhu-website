@@ -1,9 +1,14 @@
 // Elf data persistence API
-// Uses Vercel Blob for durable cross-deployment storage
+// Hybrid: seed from JSON file + memory runtime cache
+// Note: writes during runtime are NOT persisted across deployments
+// To persist data permanently, manually update seed-data.json and redeploy
 
-import { put, list } from '@vercel/blob';
+import fs from 'fs';
+import path from 'path';
 
-const memoryStore = {
+const SEED_FILE = path.join(process.cwd(), 'api', 'seed-data.json');
+
+const defaultStore = {
   people: {},
   personOrder: [],
   curPerson: null,
@@ -14,67 +19,24 @@ const memoryStore = {
   }
 };
 
-const BLOB_FILENAME = 'elf_data.json';
+let store = defaultStore;
+let initialized = false;
 
-let blobReady = false;
-let blobProbe = null;
-let store = memoryStore;
-let currentBlobUrl = null;
-
-async function initStore() {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  if (!token) {
-    blobProbe = { ok: false, reason: 'no token' };
-    blobReady = false;
-    return;
-  }
+function initStore() {
+  if (initialized) return;
   
   try {
-    const result = await list({ token, limit: 100 });
-    const existing = result.blobs.find(b => b.pathname === BLOB_FILENAME);
-    
-    if (existing) {
-      currentBlobUrl = existing.url;
-      const res = await fetch(existing.url);
-      const text = await res.text();
-      store = JSON.parse(text);
-      blobReady = true;
-      blobProbe = { ok: true, loaded: true };
-      console.log('[data] loaded from blob, students=', (store.students?.index || []).length);
+    if (fs.existsSync(SEED_FILE)) {
+      const data = fs.readFileSync(SEED_FILE, 'utf8');
+      store = JSON.parse(data);
+      console.log('[data] loaded from seed, students=', (store.students?.index || []).length);
     } else {
-      blobReady = true;
-      blobProbe = { ok: true, firstRun: true };
-      console.log('[data] first run, will create blob on write');
+      console.log('[data] no seed file, using defaults');
     }
   } catch (e) {
-    blobReady = false;
-    blobProbe = { ok: false, reason: e.message };
-    console.error('[data] init failed:', e.message);
+    console.error('[data] seed load failed:', e.message);
   }
-}
-
-async function persist() {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  if (!blobReady || !token) {
-    return { ok: false, reason: 'unavailable' };
-  }
-  
-  try {
-    const json = JSON.stringify(store);
-    // Use random suffix to create new blob, then we'll clean up old ones periodically
-    const blob = await put(BLOB_FILENAME, json, {
-      access: 'public',
-      token,
-      contentType: 'application/json'
-    });
-    
-    currentBlobUrl = blob.url;
-    console.log('[data] persisted');
-    return { ok: true };
-  } catch (e) {
-    console.error('[data] persist error:', e.message);
-    return { ok: false, reason: e.message };
-  }
+  initialized = true;
 }
 
 export default async function handler(req, res) {
@@ -83,16 +45,15 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  await initStore();
+  initStore();
 
   // Diagnostic
   if (req.method === 'GET' && req.query.diag === '1') {
     return res.status(200).json({
       ok: true,
-      blobReady,
-      backend: blobReady ? 'blob' : 'memory',
-      blobProbe,
-      hasBlobToken: !!process.env.BLOB_READ_WRITE_TOKEN,
+      backend: 'memory+seed',
+      persistent: false,
+      warning: 'Data resets on cold start. Export regularly.',
       studentCount: (store.students?.index || []).length
     });
   }
@@ -127,8 +88,6 @@ export default async function handler(req, res) {
       store.students.index.push({
         studentId, name, gender, currentGrade, recordCount: 0, lastRecordDate: null
       });
-      const p = await persist();
-      if (!p.ok) return res.status(500).json({ ok: false, error: 'Persist failed', detail: p });
       return res.status(200).json({ ok: true, studentId });
     }
 
@@ -149,8 +108,6 @@ export default async function handler(req, res) {
         store.students.index[idx].recordCount = store.students.records[studentId].records.length;
         store.students.index[idx].lastRecordDate = newRecord.date;
       }
-      const p = await persist();
-      if (!p.ok) return res.status(500).json({ ok: false, error: 'Persist failed', detail: p });
       return res.status(200).json({ ok: true, recordId });
     }
 
@@ -159,9 +116,14 @@ export default async function handler(req, res) {
       if (!studentId) return res.status(400).json({ ok: false, error: 'Missing studentId' });
       delete store.students.records[studentId];
       store.students.index = store.students.index.filter(s => s.studentId !== studentId);
-      const p = await persist();
-      if (!p.ok) return res.status(500).json({ ok: false, error: 'Persist failed', detail: p });
       return res.status(200).json({ ok: true });
+    }
+    
+    // Export current state (for manual backup)
+    if (req.method === 'GET' && action === 'export') {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', 'attachment; filename=students-backup.json');
+      return res.status(200).json(store.students);
     }
   }
 
@@ -196,8 +158,6 @@ export default async function handler(req, res) {
       if (body.students) {
         store.students = body.students;
       }
-      const p = await persist();
-      if (!p.ok) return res.status(500).json({ ok: false, error: 'Persist failed', detail: p });
       return res.status(200).json({ ok: true, time: Date.now() });
     } catch (e) {
       return res.status(500).json({ error: e.message });
