@@ -174,7 +174,7 @@ const shareImage = new URL(ogImage, Astro.site).href;
     transition: border-color .2s, box-shadow .2s;
   }
   .related-list a:hover { border-color: var(--c-primary); box-shadow: 0 4px 16px rgba(255,107,53,0.1); }
-  .related-list img { width: 64px; height: 48px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+  .related-list img { width: 64px; height: 48px; object-fit: cover; object-position: center top; border-radius: 6px; flex-shrink: 0; }
   .related-list strong {
     font-size: .85rem; font-weight: 600; color: var(--c-text);
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
