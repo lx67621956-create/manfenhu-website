@@ -59,18 +59,24 @@ export default async function handler(req, res) {
   await initStore();
 
   // Diagnostic: report storage backend status (read-only)
-  if (req.method === 'GET' && req.query.diag === '1') {
-    return res.status(200).json({
-      ok: true,
-      kvReady,
-      backend: kvReady ? 'verb/kv' : 'memory',
-      hasKVUrl: !!process.env.KV_URL,
-      hasRedisUrl: !!process.env.REDIS_URL,
-      hasRestUrl: !!process.env.KV_REST_API_URL,
-      hasRestToken: !!process.env.KV_REST_API_TOKEN,
-      studentCount: (store.students?.index || []).length
-    });
-  }
+    if (req.method === 'GET' && req.query.diag === '1') {
+      let restHost = null;
+      try {
+        const u = new URL(process.env.KV_REST_API_URL || '');
+        restHost = u.hostname;
+      } catch {}
+      return res.status(200).json({
+        ok: true,
+        kvReady,
+        backend: kvReady ? 'verb/kv' : 'memory',
+        hasKVUrl: !!process.env.KV_URL,
+        hasRedisUrl: !!process.env.REDIS_URL,
+        hasRestUrl: !!process.env.KV_REST_API_URL,
+        hasRestToken: !!process.env.KV_REST_API_TOKEN,
+        restHost,
+        studentCount: (store.students?.index || []).length
+      });
+    }
 
   // Student assessment records routes
   if (req.query && req.query.students) {
