@@ -1,176 +1,154 @@
 // Elf data persistence API
-// Uses Vercel KV REST API if configured, falls back to in-memory store
+// Uses Vercel KV (via @vercel/kv SDK, reads KV_URL env) with in-memory fallback.
 
-let memoryStore = {
+import { kv } from '@vercel/kv';
+
+const memoryStore = {
   people: {},
   personOrder: [],
   curPerson: null,
   curSlot: null,
-  // Student assessment records (new)
   students: {
     index: [],
     records: {}
   }
 };
 
+const KEY = 'elf_data';
+
+// --- Storage abstraction: try KV/Redis, fall back to memory (never silently) ---
+let kvReady = false;
+let store = memoryStore;
+
+async function initStore() {
+  try {
+    // @vercel/kv auto-uses KV_URL / REDIS_URL / KV_REST_API_URL
+    const exists = await kv.exists(KEY);
+    kvReady = true;
+    if (exists) {
+      try { store = (await kv.get(KEY)) || memoryStore; } catch { store = memoryStore; }
+    } else {
+      store = memoryStore;
+      await kv.set(KEY, store);
+    }
+    console.log('[data] KV ready:', kvReady);
+  } catch (e) {
+    kvReady = false;
+    store = memoryStore;
+    console.error('[data] KV init failed, using memory:', e.message);
+  }
+}
+
+async function persist(force = false) {
+  if (!kvReady) return { ok: false, reason: 'kv-unavailable' };
+  try {
+    await kv.set(KEY, store);
+    return { ok: true };
+  } catch (e) {
+    console.error('[data] persist failed:', e.message);
+    return { ok: false, reason: e.message };
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Generic KV helpers (support any key)
-  async function kvGetKey(key) {
-    if (!process.env.KV_REST_API_URL) return null;
-    try {
-      const r = await fetch(process.env.KV_REST_API_URL + '/get/' + key, {
-        headers: process.env.KV_REST_API_TOKEN ? { Authorization: 'Bearer ' + process.env.KV_REST_API_TOKEN } : {}
-      });
-      const d = await r.json();
-      return d.result ? JSON.parse(d.result) : null;
-    } catch { return null; }
-  }
+  await initStore();
 
-  async function kvSetKey(key, data) {
-    if (!process.env.KV_REST_API_URL) return false;
-    try {
-      await fetch(process.env.KV_REST_API_URL + '/set/' + key, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          ...(process.env.KV_REST_API_TOKEN ? { Authorization: 'Bearer ' + process.env.KV_REST_API_TOKEN } : {})
-        },
-        body: JSON.stringify(data)
-      });
-      return true;
-    } catch { return false; }
-  }
-
-  // Legacy helpers for elf_data
-  async function kvGet() {
-    return await kvGetKey('elf_data');
-  }
-
-  async function kvSet(data) {
-    await kvSetKey('elf_data', data);
-  }
-
-  // Test endpoint: can this file write to arbitrary keys?
-  if (req.method === 'GET' && req.query.test === 'kv') {
-    const testKey = 'data_api_test_' + Date.now();
-    const writeOk = await kvSetKey(testKey, { test: 'from data.js', timestamp: Date.now() });
-    const readBack = await kvGetKey(testKey);
+  // Diagnostic: report storage backend status (read-only)
+  if (req.method === 'GET' && req.query.diag === '1') {
     return res.status(200).json({
       ok: true,
-      writeOk: writeOk,
-      readBack: readBack,
-      canWriteArbitraryKeys: writeOk && readBack !== null
+      kvReady,
+      backend: kvReady ? 'verb/kv' : 'memory',
+      hasKVUrl: !!process.env.KV_URL,
+      hasRedisUrl: !!process.env.REDIS_URL,
+      hasRestUrl: !!process.env.KV_REST_API_URL,
+      hasRestToken: !!process.env.KV_REST_API_TOKEN,
+      studentCount: (store.students?.index || []).length
     });
   }
 
-  // Student assessment records routes (must be BEFORE elf data routes)
+  // Student assessment records routes
   if (req.query && req.query.students) {
     const action = req.query.students;
-    let data = await kvGet();
-    if (!data) data = memoryStore;
-    if (!data.students) data.students = { index: [], records: {} };
+    if (!store.students) store.students = { index: [], records: {} };
 
-    // List students
     if (req.method === 'GET' && action === 'list') {
-      return res.status(200).json({
-        ok: true,
-        students: data.students.index
-      });
+      return res.status(200).json({ ok: true, students: store.students.index });
     }
 
-    // Get one student
     if (req.method === 'GET' && action === 'get') {
       const sid = req.query.id;
-      if (!sid || !data.students.records[sid]) {
+      if (!sid || !store.students.records[sid]) {
         return res.status(404).json({ ok: false, error: 'Student not found' });
       }
-      return res.status(200).json({
-        ok: true,
-        student: data.students.records[sid]
-      });
+      return res.status(200).json({ ok: true, student: store.students.records[sid] });
     }
 
-    // Create student
     if (req.method === 'POST' && action === 'create') {
       const { name, gender, currentGrade } = req.body;
       if (!name || !gender || !currentGrade) {
         return res.status(400).json({ ok: false, error: 'Missing fields' });
       }
       const studentId = 's_' + Date.now();
-      const student = {
-        studentId,
-        name,
-        gender,
-        currentGrade,
-        createdAt: new Date().toISOString(),
-        records: []
+      store.students.records[studentId] = {
+        studentId, name, gender, currentGrade,
+        createdAt: new Date().toISOString(), records: []
       };
-      data.students.records[studentId] = student;
-      data.students.index.push({
-        studentId,
-        name,
-        gender,
-        currentGrade,
-        recordCount: 0,
-        lastRecordDate: null
+      store.students.index.push({
+        studentId, name, gender, currentGrade, recordCount: 0, lastRecordDate: null
       });
-      await kvSet(data);
+      const p = await persist(true);
+      if (!p.ok) return res.status(500).json({ ok: false, error: 'Persist failed', detail: p });
       return res.status(200).json({ ok: true, studentId });
     }
 
-    // Add record
     if (req.method === 'POST' && action === 'addRecord') {
       const { studentId, record } = req.body;
-      if (!studentId || !record || !data.students.records[studentId]) {
+      if (!studentId || !record || !store.students.records[studentId]) {
         return res.status(400).json({ ok: false, error: 'Invalid request' });
       }
-      
-      // 限制国体总分最大值为 100（理论满分 120，实际按 100 计）
       if (record.mode === 'guoti' && record.total > 100) {
         record.total = Math.min(100, Math.round(record.total * 10) / 10);
         record.max = 100;
       }
-      
       const recordId = 'r_' + Date.now();
-      const newRecord = {
-        recordId,
-        date: record.date || new Date().toISOString().split('T')[0],
-        ...record
-      };
-      data.students.records[studentId].records.push(newRecord);
-      const idx = data.students.index.findIndex(s => s.studentId === studentId);
+      const newRecord = { recordId, date: record.date || new Date().toISOString().split('T')[0], ...record };
+      store.students.records[studentId].records.push(newRecord);
+      const idx = store.students.index.findIndex(s => s.studentId === studentId);
       if (idx >= 0) {
-        data.students.index[idx].recordCount = data.students.records[studentId].records.length;
-        data.students.index[idx].lastRecordDate = newRecord.date;
+        store.students.index[idx].recordCount = store.students.records[studentId].records.length;
+        store.students.index[idx].lastRecordDate = newRecord.date;
       }
-      await kvSet(data);
+      const p = await persist();
+      if (!p.ok) return res.status(500).json({ ok: false, error: 'Persist failed', detail: p });
       return res.status(200).json({ ok: true, recordId });
     }
 
-    // Delete student
     if (req.method === 'POST' && action === 'delete') {
       const { studentId } = req.body;
-      if (!studentId) {
-        return res.status(400).json({ ok: false, error: 'Missing studentId' });
-      }
-      delete data.students.records[studentId];
-      data.students.index = data.students.index.filter(s => s.studentId !== studentId);
-      await kvSet(data);
+      if (!studentId) return res.status(400).json({ ok: false, error: 'Missing studentId' });
+      delete store.students.records[studentId];
+      store.students.index = store.students.index.filter(s => s.studentId !== studentId);
+      const p = await persist(true);
+      if (!p.ok) return res.status(500).json({ ok: false, error: 'Persist failed', detail: p });
       return res.status(200).json({ ok: true });
     }
   }
 
   // Elf data routes (legacy)
   if (req.method === 'GET') {
-    let data = await kvGet();
-    if (!data) data = memoryStore;
-    return res.status(200).json(data);
+    return res.status(200).json({
+      people: store.people,
+      personOrder: store.personOrder,
+      curPerson: store.curPerson,
+      curSlot: store.curSlot,
+      students: store.students || { index: [], records: {} }
+    });
   }
 
   if (req.method === 'POST') {
@@ -179,23 +157,22 @@ export default async function handler(req, res) {
       if (!body || !body.people) {
         return res.status(400).json({ error: 'Invalid data' });
       }
-      // 按人合并：只更新有更新的学生，不整体覆盖
-      // 这样可以防止两个管理端同时操作互相覆盖
-      const existing = memoryStore;
       Object.keys(body.people).forEach(name => {
-        if (!existing.people[name] ||
-            body.people[name].lastTimestamp > existing.people[name].lastTimestamp) {
-          existing.people[name] = body.people[name];
+        const incoming = body.people[name];
+        if (!store.people[name] || incoming.lastTimestamp > store.people[name].lastTimestamp) {
+          store.people[name] = incoming;
         }
       });
-      // 补充personOrder中新学生
       if (body.personOrder) {
         body.personOrder.forEach(n => {
-          if (existing.personOrder.indexOf(n) < 0) existing.personOrder.push(n);
+          if (store.personOrder.indexOf(n) < 0) store.personOrder.push(n);
         });
       }
-      memoryStore = existing;
-      await kvSet(existing);
+      if (body.students) {
+        store.students = body.students;
+      }
+      const p = await persist();
+      if (!p.ok) return res.status(500).json({ ok: false, error: 'Persist failed', detail: p });
       return res.status(200).json({ ok: true, time: Date.now() });
     } catch (e) {
       return res.status(500).json({ error: e.message });
