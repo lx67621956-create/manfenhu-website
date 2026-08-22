@@ -1,5 +1,7 @@
 // Elf data persistence API
-// Uses Vercel KV REST API (KV_REST_API_URL + KV_REST_API_TOKEN) with in-memory fallback.
+// Uses Vercel Blob for durable cross-deployment storage
+
+import { put, head } from '@vercel/blob';
 
 const memoryStore = {
   people: {},
@@ -12,64 +14,64 @@ const memoryStore = {
   }
 };
 
-const KEY = 'elf_data';
+const BLOB_PATH = 'elf_data.json';
 
-// --- Storage abstraction: try KV via REST URL+Token, fall back to memory ---
-let kvReady = false;
-let kvProbe = null;
+let blobReady = false;
+let blobProbe = null;
 let store = memoryStore;
 
 async function initStore() {
-  const REST_URL = process.env.KV_REST_API_URL;
-  const REST_TOKEN = process.env.KV_REST_API_TOKEN;
-  if (!REST_URL || !REST_TOKEN) {
-    kvProbe = { ok: false, reason: 'no REST env' };
-    kvReady = false;
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    blobProbe = { ok: false, reason: 'no BLOB_READ_WRITE_TOKEN' };
+    blobReady = false;
+    console.log('[data] Blob unavailable, using memory');
     return;
   }
   try {
-    // Ping via GET /get/elf_data returns result when key exists
-    const r = await fetch(REST_URL + '/get/' + KEY, {
-      headers: { Authorization: 'Bearer ' + REST_TOKEN }
-    });
-    kvProbe = { ok: true, http: r.status };
-    if (r.ok) {
-      kvReady = true;
-      const txt = await r.text();
-      try {
-        const d = JSON.parse(txt);
-        if (d.result) store = JSON.parse(d.result);
-        console.log('[data] KV loaded, students=', (store.students?.index || []).length);
-      } catch (e) { console.error('[data] parse elf:', e.message); }
+    // Try to fetch existing blob
+    const checkBlob = await head(BLOB_PATH, { token: process.env.BLOB_READ_WRITE_TOKEN });
+    if (checkBlob && checkBlob.url) {
+      const res = await fetch(checkBlob.url);
+      if (res.ok) {
+        const text = await res.text();
+        store = JSON.parse(text);
+        blobReady = true;
+        blobProbe = { ok: true, size: checkBlob.size };
+        console.log('[data] Blob loaded, students=', (store.students?.index || []).length);
+      }
     } else {
-      kvReady = false;
-      console.error('[data] KV GET http', r.status);
+      // Blob doesn't exist yet, will create on first write
+      blobReady = true;
+      blobProbe = { ok: true, size: 0, firstRun: true };
+      console.log('[data] Blob empty, will create on write');
     }
   } catch (e) {
-    kvReady = false;
-    kvProbe = { ok: false, reason: e.message };
-    console.error('[data] KV init failed:', e.message);
+    if (e.message?.includes('BlobNotFoundError') || e.message?.includes('404')) {
+      // Blob doesn't exist yet
+      blobReady = true;
+      blobProbe = { ok: true, size: 0, firstRun: true };
+      console.log('[data] Blob not found, will create');
+    } else {
+      blobReady = false;
+      blobProbe = { ok: false, reason: e.message };
+      console.error('[data] Blob init failed:', e.message);
+    }
   }
 }
 
 async function persist() {
-  const REST_URL = process.env.KV_REST_API_URL;
-  const REST_TOKEN = process.env.KV_REST_API_TOKEN;
-  if (!kvReady || !REST_URL || !REST_TOKEN) return { ok: false, reason: 'kv-unavailable' };
+  if (!blobReady || !process.env.BLOB_READ_WRITE_TOKEN) {
+    return { ok: false, reason: 'blob-unavailable' };
+  }
   try {
-    const r = await fetch(REST_URL + '/set/' + KEY, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + REST_TOKEN
-      },
-      body: JSON.stringify(store)
+    const json = JSON.stringify(store);
+    const blob = await put(BLOB_PATH, json, {
+      access: 'public',
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+      contentType: 'application/json'
     });
-    if (!r.ok) {
-      console.error('[data] persist http', r.status);
-      return { ok: false, reason: 'http:' + r.status };
-    }
-    return { ok: true };
+    console.log('[data] persisted to blob, url=', blob.url.slice(0, 60));
+    return { ok: true, url: blob.url };
   } catch (e) {
     console.error('[data] persist failed:', e.message);
     return { ok: false, reason: e.message };
@@ -84,26 +86,17 @@ export default async function handler(req, res) {
 
   await initStore();
 
-  // Diagnostic: report storage backend status (read-only)
-    if (req.method === 'GET' && req.query.diag === '1') {
-      let restHost = null;
-      try {
-        const u = new URL(process.env.KV_REST_API_URL || '');
-        restHost = u.hostname;
-      } catch {}
-      return res.status(200).json({
-        ok: true,
-        kvReady,
-        backend: kvReady ? 'rest' : 'memory',
-        kvProbe,
-        hasKVUrl: !!process.env.KV_URL,
-        hasRedisUrl: !!process.env.REDIS_URL,
-        hasRestUrl: !!process.env.KV_REST_API_URL,
-        hasRestToken: !!process.env.KV_REST_API_TOKEN,
-        restHost,
-        studentCount: (store.students?.index || []).length
-      });
-    }
+  // Diagnostic
+  if (req.method === 'GET' && req.query.diag === '1') {
+    return res.status(200).json({
+      ok: true,
+      blobReady,
+      backend: blobReady ? 'blob' : 'memory',
+      blobProbe,
+      hasBlobToken: !!process.env.BLOB_READ_WRITE_TOKEN,
+      studentCount: (store.students?.index || []).length
+    });
+  }
 
   // Student assessment records routes
   if (req.query && req.query.students) {
@@ -135,7 +128,7 @@ export default async function handler(req, res) {
       store.students.index.push({
         studentId, name, gender, currentGrade, recordCount: 0, lastRecordDate: null
       });
-      const p = await persist(true);
+      const p = await persist();
       if (!p.ok) return res.status(500).json({ ok: false, error: 'Persist failed', detail: p });
       return res.status(200).json({ ok: true, studentId });
     }
@@ -167,7 +160,7 @@ export default async function handler(req, res) {
       if (!studentId) return res.status(400).json({ ok: false, error: 'Missing studentId' });
       delete store.students.records[studentId];
       store.students.index = store.students.index.filter(s => s.studentId !== studentId);
-      const p = await persist(true);
+      const p = await persist();
       if (!p.ok) return res.status(500).json({ ok: false, error: 'Persist failed', detail: p });
       return res.status(200).json({ ok: true });
     }
