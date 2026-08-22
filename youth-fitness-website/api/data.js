@@ -1,7 +1,7 @@
 // Elf data persistence API
 // Uses Vercel Blob for durable cross-deployment storage
 
-import { put, head, del } from '@vercel/blob';
+import { put, head, list, del } from '@vercel/blob';
 
 const memoryStore = {
   people: {},
@@ -28,34 +28,29 @@ async function initStore() {
     return;
   }
   try {
-    // Try to fetch existing blob
-    const checkBlob = await head(BLOB_PATH, { token: process.env.BLOB_READ_WRITE_TOKEN });
-    if (checkBlob && checkBlob.url) {
-      const res = await fetch(checkBlob.url);
+    // List all blobs and find our data file
+    const { blobs } = await list({ token: process.env.BLOB_READ_WRITE_TOKEN, prefix: BLOB_PATH });
+    
+    if (blobs && blobs.length > 0) {
+      // Blob exists, fetch it
+      const res = await fetch(blobs[0].url);
       if (res.ok) {
         const text = await res.text();
         store = JSON.parse(text);
         blobReady = true;
-        blobProbe = { ok: true, size: checkBlob.size };
+        blobProbe = { ok: true, size: blobs[0].size };
         console.log('[data] Blob loaded, students=', (store.students?.index || []).length);
       }
     } else {
-      // Blob doesn't exist yet, will create on first write
-      blobReady = true;
-      blobProbe = { ok: true, size: 0, firstRun: true };
-      console.log('[data] Blob empty, will create on write');
-    }
-  } catch (e) {
-    // Blob not found is OK on first run
-    if (e.message?.includes('does not exist') || e.message?.includes('BlobNotFoundError') || e.message?.includes('404')) {
+      // Blob doesn't exist yet
       blobReady = true;
       blobProbe = { ok: true, size: 0, firstRun: true };
       console.log('[data] Blob not found (first run), will create on write');
-    } else {
-      blobReady = false;
-      blobProbe = { ok: false, reason: e.message };
-      console.error('[data] Blob init failed:', e.message);
     }
+  } catch (e) {
+    blobReady = false;
+    blobProbe = { ok: false, reason: e.message };
+    console.error('[data] Blob init failed:', e.message);
   }
 }
 
@@ -65,18 +60,13 @@ async function persist() {
   }
   try {
     const json = JSON.stringify(store);
-    // Delete existing blob first to avoid "already exists" error
-    try {
-      await del(BLOB_PATH, { token: process.env.BLOB_READ_WRITE_TOKEN });
-    } catch (e) {
-      // Ignore if blob doesn't exist
-    }
     const blob = await put(BLOB_PATH, json, {
       access: 'private',
       token: process.env.BLOB_READ_WRITE_TOKEN,
-      contentType: 'application/json'
+      contentType: 'application/json',
+      addRandomSuffix: false
     });
-    console.log('[data] persisted to blob, url=', blob.url.slice(0, 60));
+    console.log('[data] persisted to blob');
     return { ok: true, url: blob.url };
   } catch (e) {
     console.error('[data] persist failed:', e.message);
