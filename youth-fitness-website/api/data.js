@@ -1,7 +1,5 @@
 // Elf data persistence API
-// Uses Vercel KV (via @vercel/kv SDK, reads KV_URL env) with in-memory fallback.
-
-import { kv } from '@vercel/kv';
+// Uses Vercel KV REST API (KV_REST_API_URL + KV_REST_API_TOKEN) with in-memory fallback.
 
 const memoryStore = {
   people: {},
@@ -16,33 +14,61 @@ const memoryStore = {
 
 const KEY = 'elf_data';
 
-// --- Storage abstraction: try KV/Redis, fall back to memory (never silently) ---
+// --- Storage abstraction: try KV via REST URL+Token, fall back to memory ---
 let kvReady = false;
+let kvProbe = null;
 let store = memoryStore;
 
 async function initStore() {
+  const REST_URL = process.env.KV_REST_API_URL;
+  const REST_TOKEN = process.env.KV_REST_API_TOKEN;
+  if (!REST_URL || !REST_TOKEN) {
+    kvProbe = { ok: false, reason: 'no REST env' };
+    kvReady = false;
+    return;
+  }
   try {
-    // @vercel/kv auto-uses KV_URL / REDIS_URL / KV_REST_API_URL
-    const exists = await kv.exists(KEY);
-    kvReady = true;
-    if (exists) {
-      try { store = (await kv.get(KEY)) || memoryStore; } catch { store = memoryStore; }
+    // Ping via GET /get/elf_data returns result when key exists
+    const r = await fetch(REST_URL + '/get/' + KEY, {
+      headers: { Authorization: 'Bearer ' + REST_TOKEN }
+    });
+    kvProbe = { ok: true, http: r.status };
+    if (r.ok) {
+      kvReady = true;
+      const txt = await r.text();
+      try {
+        const d = JSON.parse(txt);
+        if (d.result) store = JSON.parse(d.result);
+        console.log('[data] KV loaded, students=', (store.students?.index || []).length);
+      } catch (e) { console.error('[data] parse elf:', e.message); }
     } else {
-      store = memoryStore;
-      await kv.set(KEY, store);
+      kvReady = false;
+      console.error('[data] KV GET http', r.status);
     }
-    console.log('[data] KV ready:', kvReady);
   } catch (e) {
     kvReady = false;
-    store = memoryStore;
-    console.error('[data] KV init failed, using memory:', e.message);
+    kvProbe = { ok: false, reason: e.message };
+    console.error('[data] KV init failed:', e.message);
   }
 }
 
-async function persist(force = false) {
-  if (!kvReady) return { ok: false, reason: 'kv-unavailable' };
+async function persist() {
+  const REST_URL = process.env.KV_REST_API_URL;
+  const REST_TOKEN = process.env.KV_REST_API_TOKEN;
+  if (!kvReady || !REST_URL || !REST_TOKEN) return { ok: false, reason: 'kv-unavailable' };
   try {
-    await kv.set(KEY, store);
+    const r = await fetch(REST_URL + '/set/' + KEY, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + REST_TOKEN
+      },
+      body: JSON.stringify(store)
+    });
+    if (!r.ok) {
+      console.error('[data] persist http', r.status);
+      return { ok: false, reason: 'http:' + r.status };
+    }
     return { ok: true };
   } catch (e) {
     console.error('[data] persist failed:', e.message);
@@ -68,7 +94,8 @@ export default async function handler(req, res) {
       return res.status(200).json({
         ok: true,
         kvReady,
-        backend: kvReady ? 'verb/kv' : 'memory',
+        backend: kvReady ? 'rest' : 'memory',
+        kvProbe,
         hasKVUrl: !!process.env.KV_URL,
         hasRedisUrl: !!process.env.REDIS_URL,
         hasRestUrl: !!process.env.KV_REST_API_URL,
