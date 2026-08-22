@@ -66,7 +66,7 @@ async function persist() {
   try {
     const json = JSON.stringify(store);
     const blob = await put(BLOB_PATH, json, {
-      access: 'public',
+      access: 'private',
       token: process.env.BLOB_READ_WRITE_TOKEN,
       contentType: 'application/json'
     });
