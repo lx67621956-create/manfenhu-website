@@ -68,7 +68,8 @@ async function persist() {
     const blob = await put(BLOB_PATH, json, {
       access: 'private',
       token: process.env.BLOB_READ_WRITE_TOKEN,
-      contentType: 'application/json'
+      contentType: 'application/json',
+      addRandomSuffix: false
     });
     console.log('[data] persisted to blob, url=', blob.url.slice(0, 60));
     return { ok: true, url: blob.url };
