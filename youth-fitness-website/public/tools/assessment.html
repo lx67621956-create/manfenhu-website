@@ -693,6 +693,30 @@
       ? Math.min(100, Math.round(resultData.total * 10) / 10)
       : Math.round(resultData.total * 10) / 10;
 
+    // 提取维度数据（从 items 聚合）
+    var DIM_MAP = {
+      "4": { "run50":"速度", "rope":"协调", "situp":"力量", "sitreach":"柔韧", "vital":"心肺", "bmi":"体态" },
+      "6": { "run50":"速度", "run508":"耐力", "rope":"协调", "situp":"力量", "sitreach":"柔韧", "vital":"心肺", "bmi":"体态" },
+      "8": { "run50":"速度", "run800":"耐力", "longjump":"爆发", "sitreach":"柔韧", "vital":"心肺", "bmi":"体态", "power":"力量" },
+      "9": { "run1000":"耐力", "run800":"耐力", "pullup":"力量", "xieshen":"力量", "shuangg":"力量", "situp":"力量", "ball":"力量", "rope":"协调", "jump":"爆发", "longjump":"爆发", "foot":"协调", "basket":"协调", "volley":"协调", "ping":"协调", "badm":"协调", "shuangg1":"技能", "shuangg2":"技能", "jiqiao1":"技能", "jiqiao2":"技能", "changquan":"技能", "nanquan":"技能", "swim":"耐力" }
+    };
+    
+    var dimensions = {};
+    var dimCount = {};
+    var items = resultData.items || [];
+    items.forEach(function(it) {
+      var d = (DIM_MAP[state.grade] || {})[it.key];
+      if (!d) return;
+      var sc = resultData.mode === "xc" ? (it.score / it.max * 100) : it.score;
+      if (!dimensions[d]) { dimensions[d] = 0; dimCount[d] = 0; }
+      dimensions[d] += sc;
+      dimCount[d]++;
+    });
+    // 计算平均值
+    Object.keys(dimensions).forEach(function(d) {
+      dimensions[d] = Math.round(dimensions[d] / dimCount[d]);
+    });
+
     const record = {
       date: new Date().toISOString().split('T')[0],
       grade: state.grade,
@@ -703,7 +727,7 @@
       level: resultData.level,
       scores: resultData.scores || {}, // 各项目得分
       items: resultData.items || [], // 项目详情列表
-      dimensions: {}, // 可选：维度评分
+      dimensions: dimensions, // 维度评分（聚合后）
       rawData: resultData // 保存完整原始数据
     };
 
