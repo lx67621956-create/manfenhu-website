@@ -46,11 +46,11 @@ async function initStore() {
       console.log('[data] Blob empty, will create on write');
     }
   } catch (e) {
-    if (e.message?.includes('BlobNotFoundError') || e.message?.includes('404')) {
-      // Blob doesn't exist yet
+    // Blob not found is OK on first run
+    if (e.message?.includes('does not exist') || e.message?.includes('BlobNotFoundError') || e.message?.includes('404')) {
       blobReady = true;
       blobProbe = { ok: true, size: 0, firstRun: true };
-      console.log('[data] Blob not found, will create');
+      console.log('[data] Blob not found (first run), will create on write');
     } else {
       blobReady = false;
       blobProbe = { ok: false, reason: e.message };
