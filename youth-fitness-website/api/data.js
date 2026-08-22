@@ -1,7 +1,7 @@
 // Elf data persistence API
 // Uses Vercel Blob for durable cross-deployment storage
 
-import { put, head, list, del } from '@vercel/blob';
+import { put, list } from '@vercel/blob';
 
 const memoryStore = {
   people: {},
@@ -14,62 +14,65 @@ const memoryStore = {
   }
 };
 
-const BLOB_PATH = 'elf_data.json';
+const BLOB_FILENAME = 'elf_data.json';
 
 let blobReady = false;
 let blobProbe = null;
 let store = memoryStore;
+let currentBlobUrl = null;
 
 async function initStore() {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    blobProbe = { ok: false, reason: 'no BLOB_READ_WRITE_TOKEN' };
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!token) {
+    blobProbe = { ok: false, reason: 'no token' };
     blobReady = false;
-    console.log('[data] Blob unavailable, using memory');
     return;
   }
+  
   try {
-    // List all blobs and find our data file
-    const { blobs } = await list({ token: process.env.BLOB_READ_WRITE_TOKEN, prefix: BLOB_PATH });
+    const result = await list({ token, limit: 100 });
+    const existing = result.blobs.find(b => b.pathname === BLOB_FILENAME);
     
-    if (blobs && blobs.length > 0) {
-      // Blob exists, fetch it
-      const res = await fetch(blobs[0].url);
-      if (res.ok) {
-        const text = await res.text();
-        store = JSON.parse(text);
-        blobReady = true;
-        blobProbe = { ok: true, size: blobs[0].size };
-        console.log('[data] Blob loaded, students=', (store.students?.index || []).length);
-      }
-    } else {
-      // Blob doesn't exist yet
+    if (existing) {
+      currentBlobUrl = existing.url;
+      const res = await fetch(existing.url);
+      const text = await res.text();
+      store = JSON.parse(text);
       blobReady = true;
-      blobProbe = { ok: true, size: 0, firstRun: true };
-      console.log('[data] Blob not found (first run), will create on write');
+      blobProbe = { ok: true, loaded: true };
+      console.log('[data] loaded from blob, students=', (store.students?.index || []).length);
+    } else {
+      blobReady = true;
+      blobProbe = { ok: true, firstRun: true };
+      console.log('[data] first run, will create blob on write');
     }
   } catch (e) {
     blobReady = false;
     blobProbe = { ok: false, reason: e.message };
-    console.error('[data] Blob init failed:', e.message);
+    console.error('[data] init failed:', e.message);
   }
 }
 
 async function persist() {
-  if (!blobReady || !process.env.BLOB_READ_WRITE_TOKEN) {
-    return { ok: false, reason: 'blob-unavailable' };
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!blobReady || !token) {
+    return { ok: false, reason: 'unavailable' };
   }
+  
   try {
     const json = JSON.stringify(store);
-    const blob = await put(BLOB_PATH, json, {
-      access: 'private',
-      token: process.env.BLOB_READ_WRITE_TOKEN,
-      contentType: 'application/json',
-      addRandomSuffix: false
+    // Use random suffix to create new blob, then we'll clean up old ones periodically
+    const blob = await put(BLOB_FILENAME, json, {
+      access: 'public',
+      token,
+      contentType: 'application/json'
     });
-    console.log('[data] persisted to blob');
-    return { ok: true, url: blob.url };
+    
+    currentBlobUrl = blob.url;
+    console.log('[data] persisted');
+    return { ok: true };
   } catch (e) {
-    console.error('[data] persist failed:', e.message);
+    console.error('[data] persist error:', e.message);
     return { ok: false, reason: e.message };
   }
 }
@@ -94,7 +97,7 @@ export default async function handler(req, res) {
     });
   }
 
-  // Student assessment records routes
+  // Student routes
   if (req.query && req.query.students) {
     const action = req.query.students;
     if (!store.students) store.students = { index: [], records: {} };
@@ -162,7 +165,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // Elf data routes (legacy)
+  // Elf routes
   if (req.method === 'GET') {
     return res.status(200).json({
       people: store.people,
