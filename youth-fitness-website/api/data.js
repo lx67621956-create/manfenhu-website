@@ -103,12 +103,20 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  /* 兼容不同运行时的 body 形式：Vercel serverless 可能把 JSON body 作为已解析对象，
+   * 也可能作为字符串（老式 node runtime）。统一解析。 */
+  let body = req.body;
+  if (req.method === 'POST' && typeof body === 'string') {
+    try { body = JSON.parse(body); } catch { /* 保留原字符串，下游会判 400 */ }
+  }
+
   const store = await loadStore();
 
   // Diagnostic
   if (req.method === 'GET' && req.query.diag === '1') {
     return res.status(200).json({
       ok: true,
+      version: '2.1',
       backend: blobToken() ? 'blob+seed' : 'memory+seed',
       persistent: !!blobToken(),
       warning: blobToken() ? 'Data persisted to Vercel Blob.' : 'Data resets on cold start. Export regularly.',
@@ -134,7 +142,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST' && action === 'create') {
-      const { name, gender, currentGrade } = req.body;
+      const { name, gender, currentGrade } = body;
       if (!name || !gender || !currentGrade) {
         return res.status(400).json({ ok: false, error: 'Missing fields' });
       }
@@ -151,7 +159,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST' && action === 'addRecord') {
-      const { studentId, record } = req.body;
+      const { studentId, record } = body;
       if (!studentId || !record || !store.students.records[studentId]) {
         return res.status(400).json({ ok: false, error: 'Invalid request' });
       }
@@ -172,7 +180,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST' && action === 'delete') {
-      const { studentId } = req.body;
+      const { studentId } = body;
       if (!studentId) return res.status(400).json({ ok: false, error: 'Missing studentId' });
       delete store.students.records[studentId];
       store.students.index = store.students.index.filter(s => s.studentId !== studentId);
@@ -202,23 +210,23 @@ export default async function handler(req, res) {
   // Generic POST: merge people/personOrder/students (elf pages)
   if (req.method === 'POST') {
     try {
-      const body = req.body;
-      if (!body || !body.people) {
+      const body2 = body;
+      if (!body2 || !body2.people) {
         return res.status(400).json({ error: 'Invalid data' });
       }
-      Object.keys(body.people).forEach(name => {
-        const incoming = body.people[name];
+      Object.keys(body2.people).forEach(name => {
+        const incoming = body2.people[name];
         if (!store.people[name] || incoming.lastTimestamp > store.people[name].lastTimestamp) {
           store.people[name] = incoming;
         }
       });
-      if (body.personOrder) {
-        body.personOrder.forEach(n => {
+      if (body2.personOrder) {
+        body2.personOrder.forEach(n => {
           if (store.personOrder.indexOf(n) < 0) store.personOrder.push(n);
         });
       }
-      if (body.students) {
-        store.students = body.students;
+      if (body2.students) {
+        store.students = body2.students;
       }
       await saveStore(store);
       return res.status(200).json({ ok: true, time: Date.now() });
