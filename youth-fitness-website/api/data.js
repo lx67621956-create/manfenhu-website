@@ -70,7 +70,10 @@ async function loadStore() {
       memCache = s;
       return s;
     }
-    const resp = await fetch(blobs[0].url);
+    /* 私有 blob 的 URL 需带 AccessToken 查询参数才能读取（Vercel Blob 鉴权规则） */
+    const u = new URL(blobs[0].url);
+    u.searchParams.set('AccessToken', blobToken());
+    const resp = await fetch(u.toString());
     if (!resp.ok) throw new Error('blob fetch HTTP ' + resp.status);
     const raw = await resp.text();
     const s = normalizeStore(JSON.parse(raw));
