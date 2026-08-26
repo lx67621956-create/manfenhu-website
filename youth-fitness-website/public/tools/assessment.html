@@ -1237,8 +1237,12 @@
           currentStudent.records = currentStudent.records || [];
           currentStudent.records.push({});
           $('currentStudentRecords').textContent = currentStudent.records.length;
+        } else {
+          toast('❌ 保存失败：网络错误或服务暂不可用，请稍后重试');
         }
       });
+    } else {
+      toast('未选择学员：如需保存，请先在「学员档案」选择或新建学员');
     }
     
     setTimeout(function(){
@@ -2006,9 +2010,10 @@
     ctx.fillStyle = bg2;
     ctx.fillRect(0, H-300, W, 300);
     /* 二维码 */
-    if (typeof qrcode !== "undefined" && typeof qrcode.generate !== "function"){
+    if (typeof qrcode !== "undefined") {
       try {
         var qr = qrcode(0, 'M');
+        if (!qr || typeof qr.createDataURL !== "function") { drawQrText(); return; }
         qr.addData("https://www.manfenhu.com/contact/");
         qr.make();
         var qrImg = new Image();
@@ -2017,6 +2022,7 @@
           ctx.drawImage(qrImg, 70, H-240, qs, qs);
           drawQrText();
         };
+        qrImg.onerror = function(){ drawQrText(); };
         qrImg.src = qr.createDataURL(6, 14);
       } catch(e){ drawQrText(); }
     } else {
@@ -2073,7 +2079,19 @@
 
   bindEvents();
   renderItems();
-  loadStudents(); // 加载学员列表
+  // 加载学员列表；若 URL 携带 studentId（来自学员详情页「新增测评」跳转），
+  // 列表加载完成后自动预选该学员（复用 select 的 change 处理，联动年级/性别与档案显示）
+  loadStudents().then(function() {
+    var qs = new URLSearchParams(window.location.search);
+    var sid = qs.get('studentId');
+    if (sid) {
+      var opt = $('studentSelect').querySelector('option[value="' + sid + '"]');
+      if (opt) {
+        $('studentSelect').value = sid;
+        $('studentSelect').dispatchEvent(new Event('change'));
+      }
+    }
+  });
 })();
 </script>
 </body>

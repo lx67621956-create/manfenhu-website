@@ -262,13 +262,15 @@
 
   <script>
     const API = '/api/data';
+    let studentsList = [];
 
     // 加载学员列表
     async function loadStudents() {
       try {
         const res = await fetch(API + '?students=list');
         const data = await res.json();
-        renderStudents(data.students || []);
+        studentsList = data.students || [];
+        renderStudents(studentsList);
       } catch (e) {
         document.getElementById('studentList').innerHTML = '<div class="empty-state">加载失败，请刷新重试</div>';
       }
@@ -373,7 +375,7 @@
 
       // 生成 CSV
       let csv = '\uFEFF'; // BOM for Excel UTF-8
-      csv += '学员姓名,性别,当前年级,创建时间,测评次数,最近测评日期,最近总分,最近等级\n';
+      csv += '学员ID,学员姓名,性别,当前年级,创建时间,测评次数,最近测评日期,最近总分,最近等级\n';
       
       allData.forEach(student => {
         const genderText = student.gender === 'M' ? '男' : '女';
@@ -384,7 +386,7 @@
         const latestScore = latestRecord ? latestRecord.total : '-';
         const latestLevel = latestRecord ? latestRecord.level : '-';
         
-        csv += `${student.name},${genderText},${student.currentGrade}年级,${createdDate},${recordCount},${latestDate},${latestScore},${latestLevel}\n`;
+        csv += `${student.studentId},${student.name},${genderText},${student.currentGrade}年级,${createdDate},${recordCount},${latestDate},${latestScore},${latestLevel}\n`;
       });
 
       // 下载

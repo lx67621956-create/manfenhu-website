@@ -159,6 +159,7 @@
     .level-良好 { background: #E3F2FD; color: #1565C0; }
     .level-及格 { background: #FFF3E0; color: #E65100; }
     .level-不及格 { background: #FFEBEE; color: #C62828; }
+    .level-待提升 { background: #FFEBEE; color: #C62828; }
     .record-details {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -361,7 +362,7 @@
             </div>
             <div class="record-details">
               ${r.grade ? `<div class="detail-item"><strong>年级:</strong> ${r.grade}</div>` : ''}
-              ${r.mode ? `<div class="detail-item"><strong>模式:</strong> ${r.mode === 'guoti' ? '国体' : r.mode === 'xianchang' ? '现场' : r.mode}</div>` : ''}
+              ${r.mode ? `<div class="detail-item"><strong>模式:</strong> ${r.mode === 'guoti' ? '国体' : r.mode === 'xc' || r.mode === 'xianchang' ? '现场' : r.mode === 'manual' ? '手动' : r.mode}</div>` : ''}
               ${Object.keys(dimensions).length > 0 ? 
                 Object.entries(dimensions).map(([k, v]) => 
                   `<div class="detail-item"><strong>${k}:</strong> ${v}</div>`
@@ -418,7 +419,7 @@
           scales: {
             y: {
               beginAtZero: true,
-              max: 100,
+              max: 120,
               ticks: { color: '#666' },
               grid: { color: 'rgba(0,0,0,0.05)' }
             },
@@ -485,7 +486,7 @@
         gender: currentStudent.gender,
         grade: currentStudent.currentGrade
       });
-      window.location.href = '/assessment.html?' + params.toString();
+      window.location.href = '/tools/assessment.html?' + params.toString();
     }
 
     // 删除学员
@@ -525,7 +526,7 @@
       
       currentStudent.records.forEach(r => {
         const genderText = currentStudent.gender === 'M' ? '男' : '女';
-        const modeText = r.mode === 'guoti' ? '国体' : r.mode === 'xianchang' ? '现场' : r.mode;
+        const modeText = r.mode === 'guoti' ? '国体' : r.mode === 'xc' || r.mode === 'xianchang' ? '现场' : r.mode === 'manual' ? '手动' : r.mode;
         csv += `${currentStudent.name},${genderText},${r.grade || currentStudent.currentGrade}年级,${r.date},${modeText},${r.total},${r.max || 100},${r.level || '-'}\n`;
         
         // 单项得分

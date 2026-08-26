@@ -95,18 +95,73 @@ async function loadStore() {
   }
 }
 
-/* 将整个 store 原子覆盖写入 Blob（无 token 时仅更新内存缓存，保持内存存储） */
+/* 将整个 store 原子覆盖写入 Blob（无 token 时仅更新内存缓存，保持内存存储）。
+ * 返回 boolean：成功（含无 token 内存模式）→ true；Blob 写入失败 → false。
+ * @vercel/blob 对相同 pathname 重复 put 必须 allowOverwrite:true，否则第二次起抛
+ * "blob already exists"；如果不暴露失败，会被 catch 吞掉造成「假成功、数据未持久化」。 */
 async function saveStore(s) {
-  if (!blobToken()) { memCache = s; return; }
+  if (!blobToken()) { memCache = s; return true; }
   try {
     await put(STORE_KEY, JSON.stringify(s), {
       access: 'private',
       addRandomSuffix: false,
+      allowOverwrite: true,
       token: blobToken()
     });
+    return true;
   } catch (e) {
     console.error('[data] blob save failed:', e.message);
+    return false;
   }
+}
+
+/* 将请求 body 归一化为 JS 对象（兼容不同 runtime 的 body 交付方式）：
+ * - Vercel Node bridge 已解析 JSON → req.body 是普通对象，直接返回；
+ * - req.body 缺失/undefined（老式 runtime 或 bodyParser 未命中）→ 流式读取原生请求体再 JSON.parse；
+ * - req.body 是 web 风格 ReadableStream（新式 runtime）→ 读流拿到原始字符串；
+ * - req.body 是 string/Buffer → 原样返回，由 handler 统一归一化。
+ * 任何读取/解析异常都回退为空对象，绝不让 handler 因 body 解析崩溃或挂起。 */
+function readBody(req) {
+  return new Promise((resolve) => {
+    if (req.body !== undefined && req.body !== null) {
+      // 新式 runtime 的 body 是 ReadableStream：读流后按字符串交给 handler 归一化
+      if (typeof req.body.getReader === 'function') {
+        const reader = req.body.getReader();
+        const chunks = [];
+        const pump = async () => {
+          for (;;) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(Buffer.from(value));
+          }
+          resolve(Buffer.concat(chunks).toString('utf8'));
+        };
+        pump().catch(() => resolve({}));
+        return;
+      }
+      return resolve(req.body);
+    }
+    // 流只有真正 end 过才不会再触发事件；req.complete 只表示消息完整到达，
+    // Vercel runtime 下 complete=true 时 body 可能仍可读，用它误判会导致 body 丢失。
+    // 未 end 时订阅 data/end 即可（5s 超时兜底防挂起）。
+    if (req.readableEnded) {
+      return resolve({});
+    }
+    let data = '';
+    req.on('data', (chunk) => {
+      data += chunk;
+      if (data.length > 1024 * 1024) { // 1MB 上限保护
+        try { req.destroy(); } catch { /* ignore */ }
+        return resolve({});
+      }
+    });
+    req.on('end', () => {
+      try { resolve(data.trim() ? JSON.parse(data) : {}); } catch { resolve({}); }
+    });
+    req.on('error', () => resolve({}));
+    // 防挂起兜底：Vercel 请求体在函数被调用前已缓冲，正常 <50ms 到达；5s 无数据视为空 body
+    setTimeout(() => resolve({}), 5000);
+  });
 }
 
 export default async function handler(req, res) {
@@ -115,16 +170,18 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  /* 兼容不同运行时的 body 形式：Vercel serverless 可能把 JSON body 作为已解析对象，
-   * 也可能作为字符串（老式 node runtime）。统一解析。 */
-  let body = req.body;
+  /* 兼容不同运行时的 body 形式：Vercel serverless 可能把 JSON body 作为已解析对象、
+   * 原始字符串、未解析（undefined，需手动读流）或 web ReadableStream。统一解析为对象。 */
+  let body = await readBody(req);
   if (req.method === 'POST') {
     if (typeof body === 'string') {
       try { body = JSON.parse(body); } catch { /* 保留原字符串，下游会判 400 */ }
     } else if (Buffer.isBuffer(body)) {
       try { body = JSON.parse(body.toString('utf8')); } catch { /* kept as-is */ }
     }
-    console.log('[data] POST bodyType=' + typeof req.body + ' keys=' + (body && typeof body === 'object' && !Array.isArray(body) ? Object.keys(body).join(',') : 'n/a'));
+    // 兜底：非对象 body（null / 数字 / 解析失败的字符串等）统一视为空对象，避免字段解构崩溃
+    if (body === null || typeof body !== 'object') body = {};
+    console.log('[data] POST reqBodyType=' + typeof req.body + ' keys=' + Object.keys(body).join(','));
   }
 
   const store = await loadStore();
@@ -171,7 +228,8 @@ export default async function handler(req, res) {
       store.students.index.push({
         studentId, name, gender, currentGrade, recordCount: 0, lastRecordDate: null
       });
-      await saveStore(store);
+      const saved = await saveStore(store);
+      if (!saved) return res.status(500).json({ ok: false, error: 'save failed' });
       return res.status(200).json({ ok: true, studentId });
     }
 
@@ -192,7 +250,8 @@ export default async function handler(req, res) {
         store.students.index[idx].recordCount = store.students.records[studentId].records.length;
         store.students.index[idx].lastRecordDate = newRecord.date;
       }
-      await saveStore(store);
+      const saved = await saveStore(store);
+      if (!saved) return res.status(500).json({ ok: false, error: 'save failed' });
       return res.status(200).json({ ok: true, recordId });
     }
 
@@ -201,7 +260,8 @@ export default async function handler(req, res) {
       if (!studentId) return res.status(400).json({ ok: false, error: 'Missing studentId' });
       delete store.students.records[studentId];
       store.students.index = store.students.index.filter(s => s.studentId !== studentId);
-      await saveStore(store);
+      const saved = await saveStore(store);
+      if (!saved) return res.status(500).json({ ok: false, error: 'save failed' });
       return res.status(200).json({ ok: true });
     }
 
@@ -245,7 +305,8 @@ export default async function handler(req, res) {
       if (body2.students) {
         store.students = body2.students;
       }
-      await saveStore(store);
+      const saved = await saveStore(store);
+      if (!saved) return res.status(500).json({ ok: false, error: 'save failed' });
       return res.status(200).json({ ok: true, time: Date.now() });
     } catch (e) {
       return res.status(500).json({ error: e.message });
