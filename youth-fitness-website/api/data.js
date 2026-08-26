@@ -48,30 +48,44 @@ function blobToken() {
   return process.env.BLOB_READ_WRITE_TOKEN || '';
 }
 
+/* 无 token（内存模式）时使用的模块级缓存：
+ * 首次请求从种子加载，之后写入/读取都走这份缓存，保证同一实例内数据持续存在。
+ * 有 token（Blob 模式）时每次请求从 Blob 拉最新，保证多实例一致。 */
+let memCache = null;
+
 /* 从 Blob 读取整个 store（每次请求都读最新，保证多实例一致）。
- * 无 token / 读失败 → 回退种子文件。 */
+ * 无 token → 使用模块级内存缓存（首请求读种子文件）；读失败 → 回退种子。
+ * 读失败回退时若已有内存缓存，则继续用缓存避免覆盖内存中的数据。 */
 async function loadStore() {
-  if (!blobToken()) return seedStore();
+  if (!blobToken()) {
+    if (memCache) return memCache;
+    memCache = seedStore();
+    return memCache;
+  }
   try {
     const { blobs } = await list({ token: blobToken(), prefix: STORE_KEY });
     if (!blobs.length) {
       const s = seedStore();
       await saveStore(s);
+      memCache = s;
       return s;
     }
     const resp = await fetch(blobs[0].url);
     if (!resp.ok) throw new Error('blob fetch HTTP ' + resp.status);
     const raw = await resp.text();
-    return normalizeStore(JSON.parse(raw));
+    const s = normalizeStore(JSON.parse(raw));
+    memCache = s;
+    return s;
   } catch (e) {
     console.error('[data] blob load failed:', e.message);
+    if (memCache) return memCache;
     return seedStore();
   }
 }
 
-/* 将整个 store 原子覆盖写入 Blob（无 token 时跳过，保持内存存储） */
+/* 将整个 store 原子覆盖写入 Blob（无 token 时仅更新内存缓存，保持内存存储） */
 async function saveStore(s) {
-  if (!blobToken()) return;
+  if (!blobToken()) { memCache = s; return; }
   try {
     await put(STORE_KEY, JSON.stringify(s), {
       access: 'private',
