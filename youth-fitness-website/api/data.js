@@ -6,7 +6,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { list, put, get } from '@vercel/blob';
+import { put, get } from '@vercel/blob';
 
 const SEED_FILE = path.join(process.cwd(), 'api', 'seed-data.json');
 const STORE_KEY = 'manfenhu-store.json';
@@ -55,7 +55,11 @@ let memCache = null;
 
 /* 从 Blob 读取整个 store（每次请求都读最新，保证多实例一致）。
  * 无 token → 使用模块级内存缓存（首请求读种子文件）；读失败 → 回退种子。
- * 读失败回退时若已有内存缓存，则继续用缓存避免覆盖内存中的数据。 */
+ * 读失败回退时若已有内存缓存，则继续用缓存避免覆盖内存中的数据。
+ * 有 token → 直接按 pathname 读取：与 put(STORE_KEY,...) 写入的是同一对象，
+ * 避免 list 前缀命中历史文件（早期随机后缀/旧格式）导致读写不同 blob；
+ * useCache:false 绕过 CDN 缓存读源站最新，保证 put 后立刻读不回旧缓存。
+ * 文件不存在（首次运行）→ 种子落盘后返回。 */
 async function loadStore() {
   if (!blobToken()) {
     if (memCache) return memCache;
@@ -63,19 +67,13 @@ async function loadStore() {
     return memCache;
   }
   try {
-    const { blobs } = await list({ token: blobToken(), prefix: STORE_KEY });
-    if (!blobs.length) {
+    const g = await get(STORE_KEY, { access: 'private', useCache: false, token: blobToken() });
+    if (!g) {
       const s = seedStore();
       await saveStore(s);
       memCache = s;
       return s;
     }
-    /* 私有 blob 用 SDK get()（内部 Bearer 鉴权）读取，返回 stream */
-    const g = await get(blobs[0].url, {
-      access: 'private',
-      token: blobToken()
-    });
-    if (!g) throw new Error('blob get returned null');
     const chunks = [];
     const reader = g.stream.getReader();
     for (;;) {
