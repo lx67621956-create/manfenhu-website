@@ -1,12 +1,15 @@
-// Elf data persistence API
-// Hybrid: seed from JSON file + memory runtime cache
-// Note: writes during runtime are NOT persisted across deployments
-// To persist data permanently, manually update seed-data.json and redeploy
+// Student data persistence API
+// Storage: Vercel Blob (persistent) + seed file fallback
+// - 有 BLOB_READ_WRITE_TOKEN 时：整个 store 作为一个 JSON blob 读写（重启/重新部署不丢）
+// - 无 token 时：自动 fallback 到内存 + 种子文件（本地开发可用）
+// 写入为原子覆盖整个 store；内部低频工具场景足够（极端并发时最后写入者生效）
 
 import fs from 'fs';
 import path from 'path';
+import { list, put } from '@vercel/blob';
 
 const SEED_FILE = path.join(process.cwd(), 'api', 'seed-data.json');
+const STORE_KEY = 'manfenhu-store.json';
 
 const defaultStore = {
   people: {},
@@ -19,24 +22,65 @@ const defaultStore = {
   }
 };
 
-let store = defaultStore;
-let initialized = false;
+function normalizeStore(s) {
+  const out = Object.assign({}, defaultStore, s || {});
+  if (!out.people || typeof out.people !== 'object') out.people = {};
+  if (!Array.isArray(out.personOrder)) out.personOrder = [];
+  if (!out.students || typeof out.students !== 'object') out.students = { index: [], records: {} };
+  if (!Array.isArray(out.students.index)) out.students.index = [];
+  if (!out.students.records || typeof out.students.records !== 'object') out.students.records = {};
+  return out;
+}
 
-function initStore() {
-  if (initialized) return;
-  
+function seedStore() {
   try {
     if (fs.existsSync(SEED_FILE)) {
-      const data = fs.readFileSync(SEED_FILE, 'utf8');
-      store = JSON.parse(data);
-      console.log('[data] loaded from seed, students=', (store.students?.index || []).length);
-    } else {
-      console.log('[data] no seed file, using defaults');
+      const data = JSON.parse(fs.readFileSync(SEED_FILE, 'utf8'));
+      if (data && typeof data === 'object') return normalizeStore(data);
     }
   } catch (e) {
     console.error('[data] seed load failed:', e.message);
   }
-  initialized = true;
+  return normalizeStore(defaultStore);
+}
+
+function blobToken() {
+  return process.env.BLOB_READ_WRITE_TOKEN || '';
+}
+
+/* 从 Blob 读取整个 store（每次请求都读最新，保证多实例一致）。
+ * 无 token / 读失败 → 回退种子文件。 */
+async function loadStore() {
+  if (!blobToken()) return seedStore();
+  try {
+    const { blobs } = await list({ token: blobToken(), prefix: STORE_KEY });
+    if (!blobs.length) {
+      const s = seedStore();
+      await saveStore(s);
+      return s;
+    }
+    const resp = await fetch(blobs[0].url);
+    if (!resp.ok) throw new Error('blob fetch HTTP ' + resp.status);
+    const raw = await resp.text();
+    return normalizeStore(JSON.parse(raw));
+  } catch (e) {
+    console.error('[data] blob load failed:', e.message);
+    return seedStore();
+  }
+}
+
+/* 将整个 store 原子覆盖写入 Blob（无 token 时跳过，保持内存存储） */
+async function saveStore(s) {
+  if (!blobToken()) return;
+  try {
+    await put(STORE_KEY, JSON.stringify(s), {
+      access: 'private',
+      addRandomSuffix: false,
+      token: blobToken()
+    });
+  } catch (e) {
+    console.error('[data] blob save failed:', e.message);
+  }
 }
 
 export default async function handler(req, res) {
@@ -45,15 +89,15 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  initStore();
+  const store = await loadStore();
 
   // Diagnostic
   if (req.method === 'GET' && req.query.diag === '1') {
     return res.status(200).json({
       ok: true,
-      backend: 'memory+seed',
-      persistent: false,
-      warning: 'Data resets on cold start. Export regularly.',
+      backend: blobToken() ? 'blob+seed' : 'memory+seed',
+      persistent: !!blobToken(),
+      warning: blobToken() ? 'Data persisted to Vercel Blob.' : 'Data resets on cold start. Export regularly.',
       studentCount: (store.students?.index || []).length
     });
   }
@@ -88,6 +132,7 @@ export default async function handler(req, res) {
       store.students.index.push({
         studentId, name, gender, currentGrade, recordCount: 0, lastRecordDate: null
       });
+      await saveStore(store);
       return res.status(200).json({ ok: true, studentId });
     }
 
@@ -96,9 +141,9 @@ export default async function handler(req, res) {
       if (!studentId || !record || !store.students.records[studentId]) {
         return res.status(400).json({ ok: false, error: 'Invalid request' });
       }
-      if (record.mode === 'guoti' && record.total > 100) {
-        record.total = Math.min(100, Math.round(record.total * 10) / 10);
-        record.max = 100;
+      if (record.mode === 'guoti' && record.total > 120) {
+        record.total = Math.min(120, Math.round(record.total * 10) / 10);
+        record.max = 120;
       }
       const recordId = 'r_' + Date.now();
       const newRecord = { recordId, date: record.date || new Date().toISOString().split('T')[0], ...record };
@@ -108,6 +153,7 @@ export default async function handler(req, res) {
         store.students.index[idx].recordCount = store.students.records[studentId].records.length;
         store.students.index[idx].lastRecordDate = newRecord.date;
       }
+      await saveStore(store);
       return res.status(200).json({ ok: true, recordId });
     }
 
@@ -116,9 +162,10 @@ export default async function handler(req, res) {
       if (!studentId) return res.status(400).json({ ok: false, error: 'Missing studentId' });
       delete store.students.records[studentId];
       store.students.index = store.students.index.filter(s => s.studentId !== studentId);
+      await saveStore(store);
       return res.status(200).json({ ok: true });
     }
-    
+
     // Export current state (for manual backup)
     if (req.method === 'GET' && action === 'export') {
       res.setHeader('Content-Type', 'application/json');
@@ -127,7 +174,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // Elf routes
+  // Generic GET: full store snapshot (elf pages)
   if (req.method === 'GET') {
     return res.status(200).json({
       people: store.people,
@@ -138,6 +185,7 @@ export default async function handler(req, res) {
     });
   }
 
+  // Generic POST: merge people/personOrder/students (elf pages)
   if (req.method === 'POST') {
     try {
       const body = req.body;
@@ -158,6 +206,7 @@ export default async function handler(req, res) {
       if (body.students) {
         store.students = body.students;
       }
+      await saveStore(store);
       return res.status(200).json({ ok: true, time: Date.now() });
     } catch (e) {
       return res.status(500).json({ error: e.message });
