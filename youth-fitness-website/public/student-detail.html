@@ -239,10 +239,10 @@
     <div class="section" id="statsSection" style="display: none;">
       <h2 class="section-title">数据统计</h2>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-        <div style="background: #FFF5F0; padding: 20px; border-radius: 12px;">
+        <div style="background: linear-gradient(160deg, #FFF7F1 0%, #FFEDE0 100%); padding: 20px 20px 14px; border-radius: 16px; box-shadow: 0 6px 18px rgba(240, 78, 35, 0.08); border: 1px solid #FBE3D0;">
           <canvas id="trendChart" style="max-height: 250px;"></canvas>
         </div>
-        <div style="background: #FFF5F0; padding: 20px; border-radius: 12px;">
+        <div style="background: linear-gradient(160deg, #FFF7F1 0%, #FFEDE0 100%); padding: 20px 20px 14px; border-radius: 16px; box-shadow: 0 6px 18px rgba(240, 78, 35, 0.08); border: 1px solid #FBE3D0;">
           <canvas id="dimensionChart" style="max-height: 250px;"></canvas>
         </div>
       </div>
@@ -265,6 +265,25 @@
     const studentId = urlParams.get('id');
 
     let currentStudent = null;
+
+    // roundRect 兼容垫片（旧浏览器无 CanvasRenderingContext2D.roundRect）
+    if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+        if (typeof r === 'number') r = { tl: r, tr: r, br: r, bl: r };
+        else r = r || {};
+        const tl = r.tl || 0, tr = r.tr || 0, br = r.br || 0, bl = r.bl || 0;
+        this.moveTo(x + tl, y);
+        this.lineTo(x + w - tr, y);
+        this.quadraticCurveTo(x + w, y, x + w, y + tr);
+        this.lineTo(x + w, y + h - br);
+        this.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+        this.lineTo(x + bl, y + h);
+        this.quadraticCurveTo(x, y + h, x, y + h - bl);
+        this.lineTo(x, y + tl);
+        this.quadraticCurveTo(x, y, x + tl, y);
+        return this;
+      };
+    }
 
     if (!studentId) {
       alert('缺少学员ID');
@@ -436,6 +455,36 @@
       if (latestWithDimensions) {
         const dims = latestWithDimensions.dimensions;
         const dimCtx = document.getElementById('dimensionChart');
+        const gCtx = dimCtx.getContext('2d');
+        // 竖向渐变填充：中心品牌色 → 边缘淡出
+        const fillGrad = gCtx.createLinearGradient(0, 0, 0, 260);
+        fillGrad.addColorStop(0, 'rgba(255,107,53,0.38)');
+        fillGrad.addColorStop(1, 'rgba(255,107,53,0.05)');
+        // 数据标注插件：每个顶点上方显示分值
+        const radarLabelsPlugin = {
+          id: 'radarValueLabels',
+          afterDatasetsDraw(chart) {
+            const meta = chart.getDatasetMeta(0);
+            const ds = chart.data.datasets[0];
+            const ctx = chart.ctx;
+            ctx.save();
+            ctx.font = "bold 12px 'PingFang SC','Microsoft YaHei',sans-serif";
+            meta.data.forEach((pt, i) => {
+              const val = ds.data[i];
+              if (val === undefined || val === null) return;
+              ctx.fillStyle = 'rgba(255,255,255,0.95)';
+              const tw = ctx.measureText(String(val)).width;
+              ctx.beginPath();
+              ctx.roundRect(pt.x - tw / 2 - 6, pt.y - 26, tw + 12, 18, 9);
+              ctx.fill();
+              ctx.fillStyle = '#FF6B35';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(val, pt.x, pt.y - 17);
+            });
+            ctx.restore();
+          }
+        };
         new Chart(dimCtx, {
           type: 'radar',
           data: {
@@ -444,11 +493,17 @@
               label: '最近测评',
               data: Object.values(dims),
               borderColor: '#FF6B35',
-              backgroundColor: 'rgba(255, 107, 53, 0.2)',
-              borderWidth: 2,
+              backgroundColor: fillGrad,
+              borderWidth: 2.5,
+              borderJoinStyle: 'round',
+              tension: 0.35,
               pointBackgroundColor: '#FF6B35',
               pointBorderColor: '#fff',
-              pointRadius: 4
+              pointBorderWidth: 2,
+              pointRadius: 4.5,
+              pointHoverRadius: 7,
+              pointShadowColor: 'rgba(255,107,53,0.45)',
+              pointShadowBlur: 8
             }]
           },
           options: {
@@ -458,21 +513,44 @@
               legend: { display: false },
               title: {
                 display: true,
-                text: '维度雷达图',
-                font: { size: 16, weight: 'bold' },
-                color: '#333'
+                text: '素质维度分析',
+                color: '#4A3F35',
+                font: { size: 15, weight: 700, family: "'PingFang SC','Microsoft YaHei',sans-serif" },
+                padding: { bottom: 12 }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(43,39,36,0.9)',
+                padding: 10,
+                titleFont: { size: 13, weight: 'bold' },
+                bodyFont: { size: 12.5 },
+                callbacks: {
+                  label: function(ctx) {
+                    return ctx.dataset.label + '：' + ctx.parsed.r + ' 分';
+                  }
+                }
               }
             },
             scales: {
               r: {
                 beginAtZero: true,
                 max: 100,
-                ticks: { color: '#666', stepSize: 20 },
-                grid: { color: 'rgba(0,0,0,0.1)' },
-                pointLabels: { color: '#333', font: { size: 12, weight: 'bold' } }
+                min: 0,
+                ticks: { display: false, stepSize: 20 },
+                grid: {
+                  circular: true,
+                  color: 'rgba(120,110,100,0.14)',
+                  lineWidth: 1
+                },
+                angleLines: { color: 'rgba(120,110,100,0.10)' },
+                pointLabels: {
+                  color: '#4A3F35',
+                  font: { size: 13, weight: 'bold', family: "'PingFang SC','Microsoft YaHei',sans-serif" },
+                  padding: 6
+                }
               }
             }
-          }
+          },
+          plugins: [radarLabelsPlugin]
         });
       }
     }
