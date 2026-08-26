@@ -118,8 +118,13 @@ export default async function handler(req, res) {
   /* 兼容不同运行时的 body 形式：Vercel serverless 可能把 JSON body 作为已解析对象，
    * 也可能作为字符串（老式 node runtime）。统一解析。 */
   let body = req.body;
-  if (req.method === 'POST' && typeof body === 'string') {
-    try { body = JSON.parse(body); } catch { /* 保留原字符串，下游会判 400 */ }
+  if (req.method === 'POST') {
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch { /* 保留原字符串，下游会判 400 */ }
+    } else if (Buffer.isBuffer(body)) {
+      try { body = JSON.parse(body.toString('utf8')); } catch { /* kept as-is */ }
+    }
+    console.log('[data] POST bodyType=' + typeof req.body + ' keys=' + (body && typeof body === 'object' && !Array.isArray(body) ? Object.keys(body).join(',') : 'n/a'));
   }
 
   const store = await loadStore();
