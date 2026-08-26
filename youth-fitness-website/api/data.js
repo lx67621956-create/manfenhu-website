@@ -6,7 +6,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { list, put } from '@vercel/blob';
+import { list, put, get } from '@vercel/blob';
 
 const SEED_FILE = path.join(process.cwd(), 'api', 'seed-data.json');
 const STORE_KEY = 'manfenhu-store.json';
@@ -70,12 +70,21 @@ async function loadStore() {
       memCache = s;
       return s;
     }
-    /* 私有 blob 的 URL 需带 AccessToken 查询参数才能读取（Vercel Blob 鉴权规则） */
-    const u = new URL(blobs[0].url);
-    u.searchParams.set('AccessToken', blobToken());
-    const resp = await fetch(u.toString());
-    if (!resp.ok) throw new Error('blob fetch HTTP ' + resp.status);
-    const raw = await resp.text();
+    /* 私有 blob 用 SDK get()（内部 Bearer 鉴权）读取，返回 stream */
+    const g = await get(blobs[0].url, {
+      access: 'private',
+      token: blobToken()
+    });
+    if (!g) throw new Error('blob get returned null');
+    const chunks = [];
+    const reader = g.stream.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+    const raw = Buffer.concat(chunks.map(c => Buffer.from(c))).toString('utf8');
+    if (!raw) throw new Error('blob empty');
     const s = normalizeStore(JSON.parse(raw));
     memCache = s;
     return s;
