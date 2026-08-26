@@ -206,28 +206,57 @@
   .bmi-zone {
     flex: 0 0 auto;
     width: 158px;
-    display: flex; align-items: center; gap: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
     min-width: 0;
   }
-  .bmi-zone input {
+  .bmi-field {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .bmi-field input {
     flex: 1 1 0;
     min-width: 0;
     width: 100%;
     padding: 8px 4px;
     border: 1px solid var(--line);
     border-radius: 9px;
-    font-size: 13.5px; font-weight: 700; text-align: center;
+    font-size: 13px; font-weight: 700; text-align: center;
     background: #FBF8F2; color: var(--ink);
     outline: none;
     transition: border-color .15s;
     font-family: inherit;
   }
-  .bmi-zone input:focus { border-color: var(--brand); background:#fff; }
-  .bmi-zone .u {
-    flex: 0 0 24px;
-    width: 24px;
+  .bmi-field input:focus { border-color: var(--brand); background:#fff; }
+  .bmi-field .u {
+    flex: 0 0 20px;
+    width: 20px;
     font-size: 10px; color: var(--ink-3); white-space: nowrap;
     text-align: center;
+  }
+  /* 输入区包裹列：输入框 + 下方参考成绩行 */
+  .input-wrap {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-width: 0;
+  }
+  .input-wrap .item-ref {
+    width: 100%;
+    font-size: 9.5px;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0;
+    color: var(--ink-3);
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: break-word;
   }
   .item .score-pill {
     flex: 0 0 46px;
@@ -688,9 +717,9 @@
       return false;
     }
 
-    // 限制总分最大值为 100（国体理论满分 120，但实际按 100 计）
+    // 限制总分最大值为 120（国体标准分 100 + 附加分 20）
     var displayTotal = resultData.mode === 'guoti' 
-      ? Math.min(100, Math.round(resultData.total * 10) / 10)
+      ? Math.min(120, Math.round(resultData.total * 10) / 10)
       : Math.round(resultData.total * 10) / 10;
 
     // 提取维度数据（从 items 聚合）
@@ -723,8 +752,8 @@
       gender: state.sex,
       mode: resultData.mode, // 'guoti' or 'xianchang'
       total: displayTotal,
-      max: resultData.mode === 'guoti' ? 100 : (resultData.max || 100),
-      level: resultData.level,
+      max: resultData.mode === 'guoti' ? 120 : (resultData.max || 100),
+      level: resultData.level || gradeOf(resultData.total, resultData.mode === 'xc' ? resultData.pct : undefined).name,
       scores: resultData.scores || {}, // 各项目得分
       items: resultData.items || [], // 项目详情列表
       dimensions: dimensions, // 维度评分（聚合后）
@@ -903,8 +932,8 @@
     var inputHtml = "";
     if (def.input === "bmi") {
       inputHtml = '<div class="bmi-zone">' +
-        '<input type="text" inputmode="decimal" data-in="h" placeholder="身高cm">' +
-        '<input type="text" inputmode="decimal" data-in="w" placeholder="体重kg">' +
+        '<div class="bmi-field"><input type="text" inputmode="decimal" data-in="h" placeholder="身高"><span class="u">cm</span></div>' +
+        '<div class="bmi-field"><input type="text" inputmode="decimal" data-in="w" placeholder="体重"><span class="u">kg</span></div>' +
         '</div>';
     } else if (def.input === "manual") {
       inputHtml = '<div class="input-zone"><input type="text" inputmode="decimal" data-in="1" placeholder="'+def.ph+'"><span class="u">0-6分</span></div>';
@@ -914,9 +943,13 @@
       inputHtml = '<div class="input-zone"><input type="text" inputmode="decimal" data-in="1" placeholder="'+def.ph+'"><span class="u">'+esc(def.unit)+'</span></div>';
     }
     var scorePill = '<div class="score-pill" data-pill="1">—</div>';
+    var refHtml = '';
+    var refText = itemRefText(def, state.grade, state.sex);
+    if (refText) refHtml = '<div class="item-ref">' + esc(refText) + '</div>';
     row.innerHTML =
       '<div class="item-name">'+esc(def.name)+'</div>' +
-      inputHtml + scorePill;
+      '<div class="input-wrap">' + inputHtml + refHtml + '</div>' +
+      scorePill;
     /* 输入时实时评分预览 */
     if (def.input === "bmi") {
       var ih = row.querySelector('input[data-in="h"]');
@@ -981,6 +1014,92 @@
       if (groups[i].items.indexOf(key) >= 0) return groups[i].max;
     }
     return 8;
+  }
+
+  /* ---------- 评分参考：满分 / 50分(或类别半档) / 最低 ---------- */
+  /* 参考行单位：优先精简单位（与输入区一致），time 类自动转 分:秒 */
+  var REF_UNIT_OVERRIDE = {
+    run50: "s", foot: "s", basket: "s",
+    rope: "个", situp: "个",
+    ping: "次"
+  };
+  function fmtRef(def, val){
+    if (def.input === "time") return secToTime(val);
+    var u = REF_UNIT_OVERRIDE[def.key] || def.unit || "";
+    return val + u;
+  }
+  /* 国体数值表行（run800f 复用 run800 表的 F 列；性别跳档回退） */
+  function guotiRefRows(grade, key, sex){
+    if (key === "bmi") return null;
+    var tkey = key === "run800f" ? "run800" : key;
+    var table = D.guoti.tables[grade][tkey];
+    if (!table) return null;
+    return table[sex] || table.M || table.F || null;
+  }
+  /* 现场考试数值表行（manual 型无表 → null） */
+  function xianchangRefRows(key, sex){
+    var item = D.xianchang.items[key];
+    if (!item || item.type === "manual") return null;
+    var table = D.xianchang.tables[key];
+    if (!table) return null;
+    return table[sex] || table.M || table.F || null;
+  }
+  /* 从降序表取 最高(首行) / 指定分数档(最近行) / 最低(末行) */
+  function pickRefTriple(rows, midScore){
+    if (!rows || !rows.length) return null;
+    var maxVal = rows[0][1];
+    var minVal = rows[rows.length-1][1];
+    var midVal = null;
+    for (var i=0;i<rows.length;i++){
+      if (rows[i][0] === midScore) { midVal = rows[i][1]; break; }
+    }
+    if (midVal === null) {
+      /* 无精确档：取分数最接近 midScore 的行 */
+      var best = null, bd = Infinity;
+      for (var j=0;j<rows.length;j++){
+        var d = Math.abs(rows[j][0] - midScore);
+        if (d < bd) { bd = d; best = rows[j]; }
+      }
+      midVal = best ? best[1] : null;
+    }
+    return { max: maxVal, mid: midVal, min: minVal };
+  }
+  /* BMI 分档文案：按分数分组（100分→"正常"） */
+  function bmiRefText(grade, sex){
+    var t = D.guoti.tables[grade].bmi[sex];
+    if (!t || !t.length) return "";
+    var groups = [];
+    t.forEach(function(r){
+      var label = r[1] === 100 ? "正常" : r[1] + "分";
+      var found = null;
+      for (var i=0;i<groups.length;i++){ if (groups[i][0] === label){ found = groups[i]; break; } }
+      if (!found) { found = [label, []]; groups.push(found); }
+      found[1].push(r[2]);
+    });
+    return groups.map(function(g){ return g[0] + " " + g[1].join("/"); }).join(" · ");
+  }
+  /* 单项目参考行文案 */
+  function itemRefText(def, grade, sex){
+    if (def.key === "bmi") return bmiRefText(grade, sex);
+    if (grade === "9") {
+      var item = D.xianchang.items[def.key];
+      if (item && item.type === "manual") return "手动评分 0-6 分";
+      var xrows = xianchangRefRows(def.key, sex);
+      if (!xrows) return "";
+      var half = catMax(def.key) * 0.5; /* 类别满分 8→4分、6→3分 */
+      var xt = pickRefTriple(xrows, half);
+      if (!xt) return "";
+      return "满分 " + fmtRef(def, xt.max) +
+             " · " + half + "分 " + fmtRef(def, xt.mid) +
+             " · 最低 " + fmtRef(def, xt.min);
+    }
+    var grows = guotiRefRows(grade, def.key, sex);
+    if (!grows) return "";
+    var gt = pickRefTriple(grows, 50);
+    if (!gt) return "";
+    return "满分 " + fmtRef(def, gt.max) +
+           " · 50分 " + fmtRef(def, gt.mid) +
+           " · 最低 " + fmtRef(def, gt.min);
   }
 
   /* ---------- 国体评分 ---------- */
@@ -1132,51 +1251,53 @@
     var grade = state.grade;
     var weights = D.guoti.weights[grade];
     var items = [];
-    var filled = 0, total = 0, totalW = 0, bonusTotal = 0;
+    var filled = 0, total = 0, totalW = 0, bonusTotal = 0, missing = 0;
     var keys = Object.keys(weights);
+    /* 分母 = 该年级全部项目权重总和（恒为 100）：缺录项目按 0 分计，但权重仍计入分母 */
+    keys.forEach(function(key){ totalW += weights[key]; });
     keys.forEach(function(key){
       var w = weights[key];
       if (key === "bmi") {
-        if (!bmiInfo) return;
+        if (!bmiInfo) { missing++; return; } /* BMI 缺录 → 0 分计权重 */
         var sc = scoreBMI(bmiInfo.bmi);
         items.push({ key:"bmi", name:"BMI", score: sc, weight: w, unit:"kg/m²", display: bmiInfo.bmi.toFixed(1), sub: bmiInfo.height+"cm/"+bmiInfo.weight+"kg" });
-        total += sc * w; totalW += w; filled++;
+        total += sc * w; filled++;
         return;
       }
       if (grade === "8" && key === "power") {
         /* 力量权重：男→引体向上，女→仰卧起坐 */
         var pk = state.sex === "M" ? "pullup" : "situp";
         var pv = inputs[pk];
-        if (pv === undefined) return;
+        if (pv === undefined) { missing++; return; } /* 缺录 → 0 分计权重 */
         var pr = scoreGuoti(pk, pv);
-        if (!pr) return;
+        if (!pr) { missing++; return; }
         items.push({ key:"power", name: state.sex==="M"?"引体向上":"仰卧起坐", score: pr.score, weight: w, unit: state.sex==="M"?"次":"个/分", display: pv });
-        total += pr.score * w; totalW += w; filled++;
+        total += pr.score * w; filled++;
         return;
       }
       if (grade === "8" && key === "run800") {
         /* 耐力权重：男→1000米(run800)，女→800米(run800f) */
         var rk = state.sex === "M" ? "run800" : "run800f";
         var rv = inputs[rk];
-        if (rv === undefined) return;
+        if (rv === undefined) { missing++; return; } /* 缺录 → 0 分计权重 */
         var rr = scoreGuoti("run800", rv);
-        if (!rr) return;
+        if (!rr) { missing++; return; }
         items.push({ key:"run800", name: state.sex==="M"?"1000米跑":"800米跑", score: rr.score, weight: w, unit:"分:秒", display: rv });
-        total += rr.score * w; totalW += w; filled++;
+        total += rr.score * w; filled++;
         return;
       }
       var val = inputs[key];
-      if (val === undefined) return;
+      if (val === undefined) { missing++; return; } /* 缺录 → 0 分计权重 */
       var r = scoreGuoti(key, val);
-      if (!r) return;
+      if (!r) { missing++; return; }
       var nm = { vital:"肺活量", sitreach:"坐位体前屈", run50:"50米跑", rope:"一分钟跳绳", situp:"一分钟仰卧起坐", run508:"50米×8往返跑", longjump:"立定跳远" }[key] || key;
       items.push({ key:key, name:nm, score:r.score, weight:w, unit:"", display: val, standard: r.standard });
-      total += r.score * w; totalW += w; filled++;
+      total += r.score * w; filled++;
     });
-    if (totalW === 0) return null;
-    /* 加权总分：Σ(得分×权重)/Σ权重 → 标准分（百分制） */
+    if (filled === 0) return null; /* 全部缺录：无任何输入 → 保持原有提示 */
+    /* 加权总分：Σ(得分×权重)/Σ全权重 → 标准分（百分制，缺录按 0 分） */
     var std = total / totalW;
-    /* 附加分：六年级跳绳 / 八年级力量与耐力 */
+    /* 附加分：六年级跳绳 / 八年级力量与耐力（仅已填且达标时生效） */
     if (grade === "6" && inputs.rope !== undefined) {
       var ropeFull = D.guoti.ropeBonusFull[state.sex];
       var extra = Math.floor((inputs.rope - ropeFull) / 2);
@@ -1222,13 +1343,15 @@
       }
     }
     var finalScore = Math.round((std + bonusTotal) * 10) / 10;
-    return { mode:"guoti", items: items, stdScore: Math.round(std*10)/10, bonus: bonusTotal, total: finalScore, max: 120 };
+    return { mode:"guoti", items: items, stdScore: Math.round(std*10)/10, bonus: bonusTotal, total: finalScore, max: 120, missing: missing };
   }
 
   /* 现场考试总分计算 */
   function computeXianchang(inputs, bmiInfo){
     var groups = CAT_GROUPS["9"];
-    var items = [], total = 0, totalMax = 0, filledGroups = 0;
+    var items = [], total = 0, totalMax = 0, filledGroups = 0, missing = 0;
+    /* 分母 = 全部类别满分总和（8+8+8+6=30）：缺录类别按 0 分计，满分仍计入分母 */
+    groups.forEach(function(grp){ totalMax += grp.max; });
     groups.forEach(function(grp){
       var best = null;
       grp.items.forEach(function(key){
@@ -1243,13 +1366,14 @@
       if (best) {
         items.push({ key:best.key, name:best.name, score:best.score, max: grp.max, weight: grp.max, unit:best.unit, display:best.val, cat: grp.cat });
         total += best.score;
-        totalMax += grp.max;
         filledGroups++;
+      } else {
+        missing++; /* 缺录类别 → 0 分计，满分已入分母 */
       }
     });
-    if (filledGroups === 0) return null;
+    if (filledGroups === 0) return null; /* 全部类别缺录 → 保持原有提示 */
     var pct = total / totalMax * 100;
-    return { mode:"xc", items: items, total: Math.round(total*10)/10, max: totalMax, pct: pct };
+    return { mode:"xc", items: items, total: Math.round(total*10)/10, max: totalMax, pct: pct, missing: missing };
   }
 
   /* ---------- 等级 ---------- */
@@ -1291,10 +1415,10 @@
     /* 头 */
     var gradeInfo = gradeOf(r.total, r.mode === "xc" ? r.pct : undefined);
     $("rhGradeLabel").textContent = "综合等级 · " + gradeInfo.name;
-    $("rhScore").innerHTML = r.total + "<small> " + (r.mode==="xc" ? "/"+r.max+"分" : "分") + "</small>";
+    $("rhScore").innerHTML = r.total + "<small> " + (r.mode==="xc" ? "/"+r.max+"分" : "/120分") + "</small>";
     $("rhSub").textContent = r.mode === "xc"
-      ? ("已选 " + r.items.length + " 类项目 · 得分率 " + Math.round(r.pct) + "%")
-      : (r.stdScore !== undefined ? "标准分 " + r.stdScore + " · 附加分 +" + r.bonus : "");
+      ? ("已选 " + r.items.length + " 类项目 · 得分率 " + Math.round(r.pct) + "%" + (r.missing ? " · 缺录 " + r.missing + " 项按 0 分计" : ""))
+      : ("满分 120（标准分100+附加分20）· 标准分 " + r.stdScore + " + 附加分 " + r.bonus) + (r.missing ? " · 缺录 " + r.missing + " 项按 0 分计" : "");
     $("rhTagBox").innerHTML = '<span class="rh-tag ' + gradeInfo.cls + '">' + gradeInfo.name + '</span>';
 
     renderBar(r);
@@ -1624,8 +1748,8 @@
     var lines = [];
     lines.push("【满分虎 · 体质测评报告】");
     lines.push("年级：" + ({4:"四年级",6:"六年级",8:"八年级",9:"九年级"})[state.grade] + "　性别：" + (state.sex==="M"?"男":"女"));
-    lines.push("综合得分：" + r.total + (r.mode==="xc"?"/"+r.max+"分":"分") + "　等级：" + g.name);
-    if (r.mode === "guoti") lines.push("标准分 " + r.stdScore + " · 附加分 +" + r.bonus);
+    lines.push("综合得分：" + r.total + (r.mode==="xc"?"/"+r.max+"分":"/120分") + "　等级：" + g.name);
+    if (r.mode === "guoti") lines.push("满分 120 · 标准分 " + r.stdScore + " · 附加分 +" + r.bonus);
     lines.push("── 单项成绩 ──");
     r.items.forEach(function(it){
       var disp = it.display;
@@ -1801,14 +1925,14 @@
     ctx.fillText(String(r.total), W/2-30, y+150);
     ctx.font = "bold 34px 'PingFang SC','Microsoft YaHei',sans-serif";
     ctx.fillStyle = ink3;
-    ctx.fillText(r.mode==="xc" ? "/"+r.max+"分" : "分", W/2+150, y+148);
+    ctx.fillText(r.mode==="xc" ? "/"+r.max+"分" : "/120分", W/2+150, y+148);
     ctx.font = "bold 28px 'PingFang SC','Microsoft YaHei',sans-serif";
     ctx.fillStyle = g.cls==="tag-excellent" ? "#2FA25B" : g.cls==="tag-good" ? "#F5A623" : g.cls==="tag-pass" ? "#5B8DEF" : "#E0533D";
     ctx.fillText("等级：" + g.name, W/2, y+190);
     if (r.mode === "guoti" && r.stdScore !== undefined){
       ctx.font = "22px 'PingFang SC','Microsoft YaHei',sans-serif";
       ctx.fillStyle = ink2;
-      ctx.fillText("标准分 " + r.stdScore + " · 附加分 +" + r.bonus, W/2, y+215);
+      ctx.fillText("满分 120 · 标准分 " + r.stdScore + " · 附加分 +" + r.bonus, W/2, y+215);
     }
 
     /* 单项得分（柱状图 → 简化为行列表） */
@@ -1932,16 +2056,16 @@
 
   // 渲染年级性别选择器（用于自动填充）
   function renderGradeSex() {
-    // 更新年级选择
-    var gradeSegs = document.querySelectorAll('#gradeSeg .seg-item');
+    // 更新年级选择（DOM: #gradeSeg .opt[data-g]）
+    var gradeSegs = document.querySelectorAll('#gradeSeg .opt');
     gradeSegs.forEach(function(item) {
-      item.classList.toggle('active', item.dataset.v === state.grade);
+      item.classList.toggle('on', item.dataset.g === state.grade);
     });
     
-    // 更新性别选择
-    var sexSegs = document.querySelectorAll('#sexSeg .seg-item');
+    // 更新性别选择（DOM: #genderRow .gender[data-s]）
+    var sexSegs = document.querySelectorAll('#genderRow .gender');
     sexSegs.forEach(function(item) {
-      item.classList.toggle('active', item.dataset.v === state.sex);
+      item.classList.toggle('on', item.dataset.s === state.sex);
     });
     
     renderItems();
