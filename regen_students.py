@@ -2,7 +2,7 @@ import requests, base64, os, time, io
 from PIL import Image
 
 API_URL = 'https://aiapi.up.railway.app/v1/images/generations'
-API_KEY = 'REDACTED_IMG_API_KEY'
+API_KEY = __import__('os').environ.get('IMG_API_KEY', '')
 
 out_dir = r'C:\Users\lx676\.qclaw\workspace-agent-c6cfa962\manfenhu-website\youth-fitness-website\public\images\students'
 

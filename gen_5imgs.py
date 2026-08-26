@@ -1,6 +1,6 @@
 import urllib.request, json, base64, pathlib, time
 
-API_KEY = 'REDACTED_IMG_API_KEY'
+API_KEY = __import__('os').environ.get('IMG_API_KEY', '')
 API_URL = 'https://aiapi.up.railway.app/v1/images/generations'
 
 ARTICLES = [

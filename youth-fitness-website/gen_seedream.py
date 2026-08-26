@@ -7,7 +7,7 @@ import httpx, json, base64, sys, os
 from PIL import Image, ImageFilter
 import io
 
-API_KEY = "REDACTED_ARK_API_KEY"
+API_KEY = os.environ.get("ARK_API_KEY", "")
 MODEL = "doubao-seedream-4-5-251128"
 URL = "https://ark.cn-beijing.volces.com/api/v3/images/generations"
 

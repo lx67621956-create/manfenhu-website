@@ -3,7 +3,7 @@ from PIL import Image
 import io
 
 API_URL = 'https://aiapi.up.railway.app/v1/images/generations'
-API_KEY = 'REDACTED_IMG_API_KEY'
+API_KEY = __import__('os').environ.get('IMG_API_KEY', '')
 
 # 10 articles with their prompts
 articles = [

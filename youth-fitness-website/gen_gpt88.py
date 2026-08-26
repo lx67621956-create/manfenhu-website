@@ -7,7 +7,7 @@ import httpx, json, base64, sys, os
 from PIL import Image, ImageFilter
 import io
 
-API_KEY = "REDACTED_GPT88_API_KEY"
+API_KEY = os.environ.get("GPT88_API_KEY", "")
 URL = "https://img.gpt88.cc/v1/images/generations"
 
 def generate(prompt, output_path, size="1024x1024", quality="high", n=1,

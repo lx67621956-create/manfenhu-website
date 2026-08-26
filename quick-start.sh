@@ -37,8 +37,12 @@ case $choice in
         echo ""
         read -p "⚠️  确认部署到生产环境？(y/n): " confirm
         if [ "$confirm" = "y" ]; then
+            if [ -z "$VERCEL_TOKEN" ]; then
+                echo "❌ 未设置 VERCEL_TOKEN 环境变量，无法部署。"
+                echo "   请先执行：export VERCEL_TOKEN=你的token"
+                exit 1
+            fi
             echo "📦 部署中..."
-            export VERCEL_TOKEN="REDACTED_VERCEL_TOKEN"
             npx vercel@58.9.0 --prod --yes
             echo ""
             echo "✅ 部署完成！"

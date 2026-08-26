@@ -1,7 +1,7 @@
 import requests, base64, os, time, io
 
 API_URL = 'https://aiapi.up.railway.app/v1/images/generations'
-API_KEY = 'REDACTED_IMG_API_KEY'
+API_KEY = __import__('os').environ.get('IMG_API_KEY', '')
 
 prompts = [
     ('students-running', 'Photo of Chinese teenagers running on a school track field, athletic training, sunny day, sports clothing, dynamic action shot, realistic photography, 4k'),

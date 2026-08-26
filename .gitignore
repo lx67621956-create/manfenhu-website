@@ -7,3 +7,17 @@ scripts/test_api*.py
 .env
 __pycache__/
 *.pyc
+
+# ── 密钥安全 ──
+# 硬编码过密钥的脚本（历史已泄漏，禁止再提交；如确需保留请恢复后删除）
+# 密钥一律通过环境变量读取（IMG_API_KEY / SPARK_API_KEY / GPT88_API_KEY / ARK_API_KEY / SENSENOVA_API_KEY / VERCEL_TOKEN）
+*.secret
+id_rsa*
+*.pem
+*.p12
+
+# ── 本地目录（不入库）──
+backups/
+.agent-teams/
+punk-skill-repo/
+.deeplx/

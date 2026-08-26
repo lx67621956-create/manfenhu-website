@@ -55,8 +55,13 @@ goto end
 echo.
 set /p confirm="⚠️  确认部署到生产环境？(y/n): "
 if /i "%confirm%"=="y" (
+    if "%VERCEL_TOKEN%"=="" (
+        echo ❌ 未设置 VERCEL_TOKEN 环境变量，无法部署。
+        echo   请先执行：set VERCEL_TOKEN=你的token
+        pause
+        goto end
+    )
     echo 📦 部署中...
-    set VERCEL_TOKEN=REDACTED_VERCEL_TOKEN
     call npx vercel@58.9.0 --prod --yes
     echo.
     echo ✅ 部署完成！

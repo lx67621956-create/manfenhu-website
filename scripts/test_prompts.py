@@ -1,7 +1,7 @@
 """Test each prompt individually"""
-import urllib.request, urllib.error, json, time, sys
+import urllib.request, urllib.error, json, time, sys, os
 
-KEY="sk-qPg...dN8Z"
+KEY=os.environ.get("SENSENOVA_API_KEY", "")
 ENDPOINT="https://token.sensenova.cn/v1/images/generations"
 
 prompts = {

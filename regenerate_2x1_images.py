@@ -11,7 +11,7 @@ import os, json, base64, time, glob
 import requests
 
 API_URL = "https://api.sparkadmin.vip/v1/images/generations"
-API_KEY = "REDACTED_SPARK_API_KEY"
+API_KEY = os.environ.get("SPARK_API_KEY", "")
 MODEL = "gpt-image-2"
 SIZE = "1792x1024"  # 2:1 aspect ratio
 

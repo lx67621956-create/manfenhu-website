@@ -6,7 +6,7 @@ import httpx, base64, os
 from PIL import Image
 import io
 
-API_KEY = "REDACTED_ARK_API_KEY"
+API_KEY = os.environ.get("ARK_API_KEY", "")
 MODEL = "doubao-seedream-5-0-260128"  # 豆包5.0
 
 def generate(prompt: str, output_path: str, size: str = "2560x1440", max_w: int = None, 
