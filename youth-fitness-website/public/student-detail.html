@@ -405,15 +405,26 @@
       // 按日期正序排列用于图表
       const sorted = [...records].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-      // 1. 总分趋势图
+      // 1. 总分趋势图（国体满分120 / 9年级现场满分30，统一按得分率百分比绘制）
+      // 记录里存了 max（guoti→120、xc→30）；历史数据可能无 max，按模式回退
+      function scoreMax(r) {
+        if (r.max && r.max > 0) return r.max;
+        if (r.mode === 'guoti') return 120;
+        if (r.mode === 'xc') return 30;
+        return 100; // 旧版手动计分按百分制
+      }
+      function scorePct(r) {
+        const m = scoreMax(r);
+        return m > 0 ? Math.round(Math.min(r.total, m) / m * 100) : 0;
+      }
       const trendCtx = document.getElementById('trendChart');
       new Chart(trendCtx, {
         type: 'line',
         data: {
           labels: sorted.map(r => r.date),
           datasets: [{
-            label: '总分',
-            data: sorted.map(r => r.total),
+            label: '得分率',
+            data: sorted.map(scorePct),
             borderColor: '#FF6B35',
             backgroundColor: 'rgba(255, 107, 53, 0.1)',
             borderWidth: 3,
@@ -430,16 +441,32 @@
             legend: { display: false },
             title: {
               display: true,
-              text: '总分趋势',
-              font: { size: 16, weight: 'bold' },
-              color: '#333'
+              text: '总分趋势（得分率 %）',
+              font: { size: 15, weight: 'bold', family: "'PingFang SC','Microsoft YaHei',sans-serif" },
+              color: '#4A3F35',
+              padding: { bottom: 8 }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(43,39,36,0.9)',
+              padding: 10,
+              callbacks: {
+                label: function(ctx) {
+                  const r = sorted[ctx.dataIndex];
+                  const m = scoreMax(r);
+                  const modeTxt = r.mode === 'xc' ? '现场' : (r.mode === 'guoti' ? '国体' : '手动');
+                  return modeTxt + '：' + r.total + '/' + m + '分（得分率 ' + ctx.parsed.y + '%）';
+                }
+              }
             }
           },
           scales: {
             y: {
               beginAtZero: true,
-              max: 120,
-              ticks: { color: '#666' },
+              max: 100,
+              ticks: {
+                color: '#666',
+                callback: function(v) { return v + '%'; }
+              },
               grid: { color: 'rgba(0,0,0,0.05)' }
             },
             x: {
