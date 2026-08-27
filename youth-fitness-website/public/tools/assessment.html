@@ -155,33 +155,46 @@
   }
   .tip .ico { flex-shrink:0; }
 
-  /* ───── 项目输入：固定两列网格 ─────
-   * 左列项目名固定宽度；右列输入区固定宽度，内部所有输入框统一等宽 */
+  /* ───── 项目输入：三行布局 ─────
+   * 行1 项目名 | 行2 输入框+得分 | 行3 参考区间（移动端垂直堆叠，桌面保持紧凑） */
   .item {
-    display: flex; align-items: center; flex-wrap: wrap;
-    gap: 8px;
-    padding: 9px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 12px 2px;
     border-bottom: 1px dashed var(--line);
     width: 100%;
     max-width: 100%;
-    overflow: hidden;
   }
   .item:last-child { border-bottom: none; }
   .item-name {
-    flex: 0 0 108px;
-    min-width: 0;
-    font-size: 13px; font-weight: 700;
+    font-size: 13.5px; font-weight: 800;
     line-height: 1.3;
+    color: var(--ink);
     white-space: normal;
-    overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
   }
-  /* 输入区容器：固定宽度，所有输入框统一 */
+  /* 行2：输入框 + 得分胶囊 */
+  .item-input-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+  }
+  .item-input-line .input-zone,
+  .item-input-line .bmi-zone {
+    flex: 1 1 auto;
+    width: auto;
+  }
+  .item-input-line .score-pill {
+    flex: 0 0 52px;
+  }
+  /* 输入区容器：所有输入框统一 */
   .input-zone {
-    flex: 0 0 auto;
-    width: 158px;
     display: flex; align-items: center; gap: 5px;
     min-width: 0;
   }
@@ -189,7 +202,7 @@
     flex: 1 1 0;
     min-width: 0;
     width: 100%;
-    padding: 8px 6px;
+    padding: 9px 6px;
     border: 1px solid var(--line);
     border-radius: 9px;
     font-size: 14px; font-weight: 700; text-align: center;
@@ -205,10 +218,8 @@
     font-size: 10px; color: var(--ink-3); white-space: nowrap;
     text-align: center;
   }
-  /* BMI 双输入：两个输入框等宽，与单输入框同总宽 */
+  /* BMI 双输入：两个输入框等宽 */
   .bmi-zone {
-    flex: 0 0 auto;
-    width: 158px;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -220,12 +231,13 @@
     display: flex;
     align-items: center;
     gap: 2px;
+    max-width: 130px;
   }
   .bmi-field input {
     flex: 1 1 0;
     min-width: 0;
     width: 100%;
-    padding: 8px 4px;
+    padding: 9px 4px;
     border: 1px solid var(--line);
     border-radius: 9px;
     font-size: 13px; font-weight: 700; text-align: center;
@@ -245,11 +257,10 @@
   .bmi-live {
     width: 100%;
     text-align: center;
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 700;
     line-height: 1.4;
     color: var(--ink-3);
-    margin-top: 3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -257,20 +268,12 @@
   .bmi-live.done { color: var(--green); }
   .bmi-live.mid { color: #C07C00; }
   .bmi-live.low { color: var(--red); }
-  /* 输入区包裹列：输入框 + 下方参考成绩行 */
-  .input-wrap {
-    flex: 0 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    min-width: 0;
-  }
-  .input-wrap .item-ref {
+  /* 行3：参考成绩行 */
+  .item-ref {
     width: 100%;
-    font-size: 9.5px;
+    font-size: 10.5px;
     font-weight: 600;
-    line-height: 1.4;
+    line-height: 1.5;
     letter-spacing: 0;
     color: var(--ink-3);
     text-align: center;
@@ -278,9 +281,8 @@
     overflow-wrap: break-word;
   }
   .item .score-pill {
-    flex: 0 0 46px;
-    font-size: 12px; font-weight: 800; text-align: center;
-    padding: 5px 4px; border-radius: 999px;
+    font-size: 13px; font-weight: 800; text-align: center;
+    padding: 8px 8px; border-radius: 999px;
     background: #F3EDE4; color: var(--ink-3);
     white-space: nowrap;
   }
@@ -288,26 +290,17 @@
   .item .score-pill.mid { background: var(--amber-soft); color: #C07C00; }
   .item .score-pill.low { background: var(--red-soft); color: var(--red); }
 
-  /* ───── 移动端响应式 ───── */
+  /* ───── 移动端响应式：三行布局下的微调 ───── */
   @media (max-width: 400px) {
-    .item { gap: 6px; }
-    .item-name { flex: 0 0 88px; font-size: 12.5px; }
-    .input-zone { width: 138px; }
-    .bmi-zone { width: 138px; }
-    .item .score-pill { flex: 0 0 38px; font-size: 11.5px; padding: 5px 2px; }
+    .item { gap: 5px; padding: 11px 2px; }
+    .item-name { font-size: 13px; }
+    .item-input-line { gap: 8px; }
+    .item .score-pill { flex: 0 0 48px; font-size: 12.5px; padding: 7px 6px; }
+    .item-ref { font-size: 10px; }
   }
   @media (max-width: 360px) {
-    .item { gap: 4px; }
-    .item-name { flex: 0 0 74px; font-size: 12px; }
-    .input-zone { width: 122px; }
-    .bmi-zone { width: 122px; }
-    .item .score-pill { flex: 0 0 34px; font-size: 11px; padding: 4px 2px; }
-  }
-  @media (max-width: 320px) {
-    .item-name { flex: 0 0 64px; font-size: 11.5px; }
-    .input-zone { width: 108px; }
-    .bmi-zone { width: 108px; }
-    .item .score-pill { flex: 0 0 30px; font-size: 10.5px; }
+    .item-input-line { gap: 7px; }
+    .item .score-pill { flex: 0 0 44px; font-size: 12px; padding: 6px 5px; }
   }
 
   /* 类别标题（9年级） */
@@ -956,12 +949,13 @@
     row.className = "item";
     row.dataset.key = def.key;
     var inputHtml = "";
+    var liveHtml = "";
     if (def.input === "bmi") {
       inputHtml = '<div class="bmi-zone">' +
         '<div class="bmi-field"><input type="text" inputmode="decimal" data-in="h" placeholder="身高"><span class="u">cm</span></div>' +
         '<div class="bmi-field"><input type="text" inputmode="decimal" data-in="w" placeholder="体重"><span class="u">kg</span></div>' +
-        '</div>' +
-        '<div class="bmi-live" data-bmi-live="1">填写身高体重后自动计算 BMI</div>';
+        '</div>';
+      liveHtml = '<div class="bmi-live" data-bmi-live="1">填写身高体重后自动计算 BMI</div>';
     } else if (def.input === "manual") {
       inputHtml = '<div class="input-zone"><input type="text" inputmode="decimal" data-in="1" placeholder="'+def.ph+'"><span class="u">0-6分</span></div>';
     } else if (def.input === "time") {
@@ -973,10 +967,11 @@
     var refHtml = '';
     var refText = itemRefText(def, state.grade, state.sex);
     if (refText) refHtml = '<div class="item-ref">' + esc(refText) + '</div>';
+    /* 三行布局：项目名(行1) + 输入框&得分(行2) + 参考区间(行3) */
     row.innerHTML =
       '<div class="item-name">'+esc(def.name)+'</div>' +
-      '<div class="input-wrap">' + inputHtml + refHtml + '</div>' +
-      scorePill;
+      '<div class="item-input-line">' + inputHtml + scorePill + '</div>' +
+      liveHtml + refHtml;
     /* 输入时实时评分预览 */
     if (def.input === "bmi") {
       var ih = row.querySelector('input[data-in="h"]');
