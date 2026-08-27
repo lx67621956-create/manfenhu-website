@@ -38,6 +38,7 @@
     color: var(--ink);
     min-height: 100vh;
     padding-bottom: 140px;
+    overflow-x: hidden;
   }
 
   /* ───────── 顶部 ───────── */
@@ -58,8 +59,8 @@
     width: 150px; height: 150px; border-radius: 50%;
     background: radial-gradient(circle, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 70%);
   }
-  .head-row { display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1; }
-  .brand { display:flex; align-items:center; gap:10px; }
+  .head-row { display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1; gap:8px; min-width:0; }
+  .brand { display:flex; align-items:center; gap:10px; min-width:0; }
   .brand-logo {
     width: 42px; height: 42px; border-radius: 13px;
     background: rgba(255,255,255,.22);
@@ -157,7 +158,8 @@
   /* ───── 项目输入：固定两列网格 ─────
    * 左列项目名固定宽度；右列输入区固定宽度，内部所有输入框统一等宽 */
   .item {
-    display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: center; flex-wrap: wrap;
+    gap: 8px;
     padding: 9px 0;
     border-bottom: 1px dashed var(--line);
     width: 100%;
@@ -167,6 +169,7 @@
   .item:last-child { border-bottom: none; }
   .item-name {
     flex: 0 0 108px;
+    min-width: 0;
     font-size: 13px; font-weight: 700;
     line-height: 1.3;
     white-space: normal;
@@ -238,6 +241,22 @@
     font-size: 10px; color: var(--ink-3); white-space: nowrap;
     text-align: center;
   }
+  /* BMI 实时计算结果行 */
+  .bmi-live {
+    width: 100%;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--ink-3);
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bmi-live.done { color: var(--green); }
+  .bmi-live.mid { color: #C07C00; }
+  .bmi-live.low { color: var(--red); }
   /* 输入区包裹列：输入框 + 下方参考成绩行 */
   .input-wrap {
     flex: 0 0 auto;
@@ -269,19 +288,26 @@
   .item .score-pill.mid { background: var(--amber-soft); color: #C07C00; }
   .item .score-pill.low { background: var(--red-soft); color: var(--red); }
 
-  /* ───── 移动端响应式：375px 及以下 ───── */
+  /* ───── 移动端响应式 ───── */
   @media (max-width: 400px) {
     .item { gap: 6px; }
-    .item-name { flex: 0 0 96px; font-size: 12.5px; }
-    .input-zone { width: 142px; }
-    .bmi-zone { width: 142px; }
-    .item .score-pill { flex: 0 0 40px; font-size: 11.5px; padding: 5px 2px; }
+    .item-name { flex: 0 0 88px; font-size: 12.5px; }
+    .input-zone { width: 138px; }
+    .bmi-zone { width: 138px; }
+    .item .score-pill { flex: 0 0 38px; font-size: 11.5px; padding: 5px 2px; }
   }
-  @media (max-width: 340px) {
-    .item-name { flex: 0 0 84px; font-size: 12px; }
-    .input-zone { width: 128px; }
-    .bmi-zone { width: 128px; }
-    .item .score-pill { flex: 0 0 36px; font-size: 11px; }
+  @media (max-width: 360px) {
+    .item { gap: 4px; }
+    .item-name { flex: 0 0 74px; font-size: 12px; }
+    .input-zone { width: 122px; }
+    .bmi-zone { width: 122px; }
+    .item .score-pill { flex: 0 0 34px; font-size: 11px; padding: 4px 2px; }
+  }
+  @media (max-width: 320px) {
+    .item-name { flex: 0 0 64px; font-size: 11.5px; }
+    .input-zone { width: 108px; }
+    .bmi-zone { width: 108px; }
+    .item .score-pill { flex: 0 0 30px; font-size: 10.5px; }
   }
 
   /* 类别标题（9年级） */
@@ -934,7 +960,8 @@
       inputHtml = '<div class="bmi-zone">' +
         '<div class="bmi-field"><input type="text" inputmode="decimal" data-in="h" placeholder="身高"><span class="u">cm</span></div>' +
         '<div class="bmi-field"><input type="text" inputmode="decimal" data-in="w" placeholder="体重"><span class="u">kg</span></div>' +
-        '</div>';
+        '</div>' +
+        '<div class="bmi-live" data-bmi-live="1">填写身高体重后自动计算 BMI</div>';
     } else if (def.input === "manual") {
       inputHtml = '<div class="input-zone"><input type="text" inputmode="decimal" data-in="1" placeholder="'+def.ph+'"><span class="u">0-6分</span></div>';
     } else if (def.input === "time") {
@@ -967,16 +994,42 @@
     return row;
   }
 
-  /* BMI 实时预览 */
+  /* BMI 实时预览：显示 BMI 值 + 得分 + 档位 */
   function liveBMI(ih, iw, row){
     var pill = row.querySelector('[data-pill]');
-    if (!pill) return;
+    var live = row.querySelector('[data-bmi-live]');
     var h = num(ih.value), w = num(iw.value);
-    if (h === null || w === null || h <= 0) { pill.textContent = "—"; pill.className = "score-pill"; return; }
+    if (h === null || w === null || h <= 0) {
+      if (pill) { pill.textContent = "—"; pill.className = "score-pill"; }
+      if (live) { live.textContent = "填写身高体重后自动计算 BMI"; live.className = "bmi-live"; }
+      return;
+    }
     var bmi = w / Math.pow(h/100, 2);
     var bsc = scoreBMI(bmi);
-    pill.textContent = bsc + "分";
-    pill.className = "score-pill " + (bsc >= 90 ? "done" : bsc >= 60 ? "mid" : "low");
+    var bmiTxt = bmi.toFixed(1);
+    /* 档位文案：从 BMI 表找所在行的描述（如 正常/较低/较高/肥胖） */
+    var levelTxt = "";
+    try {
+      var g = D.guoti.tables[state.grade].bmi[state.sex];
+      if (g) {
+        for (var i=0;i<g.length;i++){
+          var row2 = g[i], range = row2[2];
+          var hit = false;
+          if (range.indexOf("≤") === 0) { if (bmi <= parseFloat(range.replace("≤",""))) hit = true; }
+          else if (range.indexOf("≥") === 0) { if (bmi >= parseFloat(range.replace("≥",""))) hit = true; }
+          else { var parts = range.split("-"); if (bmi >= parseFloat(parts[0]) && bmi <= parseFloat(parts[1])) hit = true; }
+          if (hit) { levelTxt = (row2[1] === 100 ? "正常" : row2[1] + "分档"); break; }
+        }
+      }
+    } catch (e) {}
+    if (pill) {
+      pill.textContent = bsc + "分";
+      pill.className = "score-pill " + (bsc >= 90 ? "done" : bsc >= 60 ? "mid" : "low");
+    }
+    if (live) {
+      live.textContent = "BMI " + bmiTxt + " → " + bsc + "分" + (levelTxt ? "（" + levelTxt + "）" : "");
+      live.className = "bmi-live " + (bsc >= 90 ? "done" : bsc >= 60 ? "mid" : "low");
+    }
   }
 
   /* 实时评分预览（国体百分制） */
