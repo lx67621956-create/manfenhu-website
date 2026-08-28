@@ -3,7 +3,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 const articles = await getCollection('news');
-articles.sort((a, b) => b.data.date.localeCompare(a.data.date));
+articles.sort((a, b) => b.data.date.localeCompare(a.data.date) || (b.data.order ?? 0) - (a.data.order ?? 0));
 const latestArticles = articles.slice(0, 3);
 ---
 

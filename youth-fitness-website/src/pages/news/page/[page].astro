@@ -5,7 +5,7 @@ import NewsList from '@components/NewsList.astro';
 
 export async function getStaticPaths() {
   const all = await getCollection('news');
-  all.sort((a, b) => b.data.date.localeCompare(a.data.date));
+  all.sort((a, b) => b.data.date.localeCompare(a.data.date) || (b.data.order ?? 0) - (a.data.order ?? 0));
   const PER_PAGE = 12;
   const totalPages = Math.ceil(all.length / PER_PAGE);
 

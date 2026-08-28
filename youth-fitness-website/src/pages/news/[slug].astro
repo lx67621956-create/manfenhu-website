@@ -20,11 +20,11 @@ const all = await getCollection('news');
 const others = all.filter(a => a.id !== article.id);
 const sameCat = others.filter(a => a.data.category === category);
 const related = [...sameCat, ...others.filter(a => a.data.category !== category)]
-  .sort((a, b) => b.data.date.localeCompare(a.data.date))
+  .sort((a, b) => b.data.date.localeCompare(a.data.date) || (b.data.order ?? 0) - (a.data.order ?? 0))
   .slice(0, 3);
 
 // 上一篇/下一篇：按日期排序
-const sorted = [...all].sort((a, b) => b.data.date.localeCompare(a.data.date));
+const sorted = [...all].sort((a, b) => b.data.date.localeCompare(a.data.date) || (b.data.order ?? 0) - (a.data.order ?? 0));
 const idx = sorted.findIndex(a => a.id === article.id);
 const prev = idx > 0 ? sorted[idx - 1] : null;
 const next = idx < sorted.length - 1 ? sorted[idx + 1] : null;
