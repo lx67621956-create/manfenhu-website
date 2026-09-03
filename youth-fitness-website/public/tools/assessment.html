@@ -496,7 +496,8 @@
     
     <div style="margin-bottom: 16px;">
       <div style="font-size:12px;font-weight:700;color:var(--ink-2);margin-bottom:6px;">选择学员</div>
-      <select id="studentSelect" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:var(--r-md);font-size:14px;background:#fff;">
+      <input type="text" id="studentSearch" placeholder="🔍 输入姓名快速筛选" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-md);font-size:13.5px;margin-bottom:8px;outline:none;" autocomplete="off">
+      <select id="studentSelect" size="1" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:var(--r-md);font-size:14px;background:#fff;">
         <option value="">-- 请选择学员 --</option>
         <option value="__new__">➕ 新建学员档案</option>
       </select>
@@ -651,12 +652,16 @@
     }
   }
 
-  // 渲染学员下拉选项
+  // 渲染学员下拉选项（按搜索框过滤）
   function renderStudentOptions() {
     const select = $('studentSelect');
     const currentVal = select.value;
+    const kw = (($('studentSearch') || {}).value || '').trim().toLowerCase();
     select.innerHTML = '<option value="">-- 请选择学员 --</option><option value="__new__">➕ 新建学员档案</option>';
-    studentsList.forEach(s => {
+    const list = kw
+      ? studentsList.filter(s => s.name.toLowerCase().includes(kw))
+      : studentsList;
+    list.forEach(s => {
       const opt = document.createElement('option');
       opt.value = s.studentId;
       opt.textContent = `${s.name} (${s.gender === 'M' ? '男' : '女'}, ${s.currentGrade}年级)`;
@@ -664,6 +669,11 @@
     });
     if (currentVal) select.value = currentVal;
   }
+
+  // 搜索框输入 → 过滤学员下拉
+  $('studentSearch').addEventListener('input', function() {
+    renderStudentOptions();
+  });
 
   // 学员选择变化
   $('studentSelect').addEventListener('change', async function() {
@@ -806,6 +816,15 @@
     t.classList.add("show");
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2200);
+  }
+  /* 保存成功 toast + "查看档案"跳转 */
+  function toastSaved(name, sid){
+    var t = $("toast");
+    t.innerHTML = esc('✅ 已保存到 ' + name + ' 的档案') +
+      ' <a href="/student-detail.html?id=' + encodeURIComponent(sid) + '" style="color:#FFD9C4;text-decoration:underline;font-weight:800;margin-left:6px;">查看档案 →</a>';
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 4200);
   }
   function esc(s){
     return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
@@ -1281,7 +1300,7 @@
     if (currentStudent) {
       saveToStudentArchive(results).then(function(success) {
         if (success) {
-          toast('✅ 已保存到学员档案');
+          toastSaved(currentStudent.name, currentStudent.studentId);
           // 更新记录数
           currentStudent.records = currentStudent.records || [];
           currentStudent.records.push({});

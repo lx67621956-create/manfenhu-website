@@ -580,6 +580,13 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
     });
     resultEl.classList.remove('hidden');
     resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    saveHist({
+      time: new Date().toLocaleString('zh-CN', {hour12:false}),
+      tags: [state.period === 'morning' ? '🌅早安' : state.period === 'noon' ? '☀️午间' : '🌙晚安',
+             ...(state.festival ? ['🎉' + state.festival] : []),
+             ...(state.jieqi ? ['🎋' + state.jieqi] : [])].join(' '),
+      short: r.short, full: r.full
+    });
   }
 
   const genBtn = document.getElementById('generateBtn');
@@ -774,13 +781,39 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
       noon: 'bright noon sunlight',
       night: 'starry night sky with crescent moon'
     };
-    const styles = [
-      'flat cartoon illustration', 'cute kawaii style', 'soft watercolor style',
-      'vibrant comic style', 'minimalist modern illustration', 'warm chalk drawing style'
+        const styles = [
+      'flat cartoon illustration with clean bold outlines', 'cute kawaii style with rounded chibi characters',
+      'soft watercolor style with gentle paper texture', 'vibrant comic style with dynamic energy',
+      'minimalist modern illustration with generous white space', 'warm hand-drawn chalk style'
     ];
     const palettes = [
-      'warm orange and cream tones', 'sunny yellow and peach tones',
-      'soft pastel tones', 'fresh green with orange accents', 'cozy sunset tones'
+      'warm orange and cream color palette', 'sunny yellow and peach color palette',
+      'soft pastel color palette', 'fresh green with orange accents palette', 'cozy sunset gradient palette'
+    ];
+    const compositions = [
+      'wide angle composition with layered foreground and background',
+      'low angle view making characters look lively and dynamic',
+      'top-down bird eye view composition',
+      'cozy close-up composition with soft bokeh background',
+      'diagonal dynamic composition full of movement'
+    ];
+    const lightings = [
+      'soft diffused lighting, gentle glow',
+      'warm golden hour lighting with long soft shadows',
+      'bright airy lighting with crisp highlights',
+      'dreamy backlight with lens flare sparkles'
+    ];
+    const motions = [
+      'kids mid-jump with flying hair and clothes, full of energy',
+      'kids running joyfully with motion lines',
+      'kids laughing with arms raised high',
+      'kids playing together in dynamic poses'
+    ];
+    const extras = [
+      'small floating particles like petals or sparkles',
+      'fluffy clouds and flying birds in the sky',
+      'scattered leaves or confetti in the air',
+      'soft gradient sky with warm glow'
     ];
     let scene;
     if (state.festival && festScenes[state.festival]) {
@@ -791,11 +824,16 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
       scene = weatherScenes[(state.weather && state.weather[0]) || 'clear'];
     }
     const parts = [
-      scene + ', cute cartoon illustration for kids fitness poster background',
+      scene,
+      pickR(motions),
+      'cute cartoon illustration for kids fitness poster background',
       periodLight[state.period] || '',
-      'happy children, soft rounded shapes, cheerful atmosphere',
+      pickR(lightings),
+      pickR(compositions),
+      'happy children with expressive faces, soft rounded shapes, cheerful joyful atmosphere, rich details',
       pickR(styles) + ', ' + pickR(palettes),
-      'no text, no words, no letters, no watermark'
+      pickR(extras),
+      'high quality, no text, no words, no letters, no watermark'
     ].filter(Boolean);
     return parts.join(', ');
   }
@@ -1050,6 +1088,75 @@ const LOGO_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAY
   }
 
   renderToday();
+
+  // ── 历史记录（localStorage 最近10次生成） ──
+  const GHIST_KEY = 'group_history';
+  function loadHist(){
+    try { return JSON.parse(localStorage.getItem(GHIST_KEY) || '[]'); } catch(e){ return []; }
+  }
+  function saveHist(entry){
+    try {
+      const arr = loadHist();
+      arr.unshift(entry);
+      localStorage.setItem(GHIST_KEY, JSON.stringify(arr.slice(0, 10)));
+    } catch(e){}
+  }
+  (function initHist(){
+    const btn = document.createElement('button');
+    btn.textContent = '🕘 历史记录';
+    btn.style.cssText = 'position:fixed;left:14px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:60;background:#fff;border:1px solid var(--line);color:var(--ink-2);font-size:12.5px;font-weight:700;padding:9px 14px;border-radius:999px;box-shadow:var(--shadow-card);cursor:pointer;font-family:inherit;';
+    btn.onclick = () => {
+      renderHist();
+      document.getElementById('ghistOverlay').classList.remove('hidden');
+    };
+    document.body.appendChild(btn);
+    const ov = document.createElement('div');
+    ov.id = 'ghistOverlay';
+    ov.className = 'hidden';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(43,39,36,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center;';
+    ov.innerHTML = '<div style="background:#fff;width:100%;max-width:520px;max-height:75vh;border-radius:18px 18px 0 0;overflow:hidden;display:flex;flex-direction:column;">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #EDE3D9;">'
+      + '<b style="font-size:15px;color:#2B2724;">🕘 历史记录（最近10次）</b>'
+      + '<button id="ghistClose" style="background:none;border:none;font-size:18px;color:#A49A90;cursor:pointer;padding:4px 8px;">✕</button></div>'
+      + '<div id="ghistBody" style="overflow-y:auto;flex:1;"></div></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click', e => { if (e.target === ov) ov.classList.add('hidden'); });
+    document.getElementById('ghistClose').onclick = () => ov.classList.add('hidden');
+  })();
+  function renderHist(){
+    const list = loadHist();
+    const body = document.getElementById('ghistBody');
+    if (!list.length) { body.innerHTML = '<div style="padding:24px;text-align:center;color:#A49A90;font-size:13px;">暂无历史记录</div>'; return; }
+    body.innerHTML = '';
+    list.forEach((h, i) => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:12px 14px;border-bottom:1px solid #EDE3D9;';
+      const head = document.createElement('div');
+      head.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px;';
+      head.innerHTML = '<span style="font-size:12px;font-weight:700;color:#6E655D;">' + h.time + '</span>'
+        + '<span style="font-size:11px;color:#FF6B35;background:#FFF1E8;padding:2px 8px;border-radius:999px;white-space:nowrap;">' + (h.tags || '') + '</span>';
+      const btns = document.createElement('div');
+      btns.style.cssText = 'display:flex;gap:6px;';
+      const copyAll = document.createElement('button');
+      copyAll.textContent = '📋 复制完整版';
+      copyAll.style.cssText = 'background:#FFF1E8;border:none;color:#F04E23;font-size:12px;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:8px;';
+      copyAll.onclick = () => { navigator.clipboard.writeText(h.full); copyAll.textContent = '✅ 已复制'; setTimeout(()=>copyAll.textContent='📋 复制完整版',1500); };
+      const del = document.createElement('button');
+      del.textContent = '删除';
+      del.style.cssText = 'background:none;border:none;color:#A49A90;font-size:12px;cursor:pointer;padding:2px 6px;';
+      del.onclick = () => { const a = loadHist(); a.splice(i, 1); localStorage.setItem(GHIST_KEY, JSON.stringify(a)); renderHist(); };
+      btns.appendChild(copyAll);
+      btns.appendChild(del);
+      head.appendChild(btns);
+      const pre = document.createElement('div');
+      pre.style.cssText = 'font-size:12.5px;color:#6E655D;line-height:1.7;white-space:pre-wrap;max-height:120px;overflow:hidden;';
+      pre.textContent = h.full;
+      item.appendChild(head);
+      item.appendChild(pre);
+      body.appendChild(item);
+    });
+  }
+
 })();
 </script>
 </body>
