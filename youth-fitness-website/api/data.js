@@ -263,6 +263,30 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
+    // Delete single record from a student
+    if (req.method === 'POST' && action === 'deleteRecord') {
+      const { studentId, recordId } = body;
+      if (!studentId || !recordId || !store.students.records[studentId]) {
+        return res.status(400).json({ ok: false, error: 'Invalid request' });
+      }
+      const student = store.students.records[studentId];
+      const before = student.records.length;
+      student.records = student.records.filter(r => r.recordId !== recordId);
+      if (student.records.length === before) {
+        return res.status(404).json({ ok: false, error: 'Record not found' });
+      }
+      // 同步索引统计
+      const idx = store.students.index.findIndex(s => s.studentId === studentId);
+      if (idx >= 0) {
+        store.students.index[idx].recordCount = student.records.length;
+        const dates = student.records.map(r => r.date).filter(Boolean).sort();
+        store.students.index[idx].lastRecordDate = dates.length ? dates[dates.length - 1] : null;
+      }
+      const saved = await saveStore(store);
+      if (!saved) return res.status(500).json({ ok: false, error: 'save failed' });
+      return res.status(200).json({ ok: true });
+    }
+
     // Export current state (for manual backup)
     if (req.method === 'GET' && action === 'export') {
       res.setHeader('Content-Type', 'application/json');

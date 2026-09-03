@@ -183,6 +183,47 @@
       padding: 40px;
       color: #999;
     }
+    /* 筛选栏 */
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-search {
+      flex: 1;
+      min-width: 180px;
+      padding: 10px 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .filter-search:focus {
+      border-color: #FF6B35;
+    }
+    .filter-select {
+      padding: 10px 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      background: white;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .filter-select:focus {
+      border-color: #FF6B35;
+    }
+    .filter-count {
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 16px;
+      min-height: 18px;
+    }
     /* 移动端优化 */
     @media (max-width: 768px) {
       body {
@@ -212,11 +253,38 @@
   <div class="container">
     <div class="header">
       <h1>学员档案管理</h1>
-      <div style="display: flex; gap: 12px;">
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <a href="/tools/" style="color: #FF6B35; text-decoration: none; font-size: 14px; font-weight: 600;">🏠 工具箱</a>
         <button class="btn-primary" onclick="exportAllStudents()" style="background: #2FA25B;">批量导出</button>
         <button class="btn-primary" onclick="openCreateModal()">+ 新增学员</button>
       </div>
     </div>
+
+    <div class="filter-bar">
+      <input type="text" id="searchInput" class="filter-search" placeholder="🔍 搜索姓名" oninput="applyFilters()">
+      <select id="filterGrade" class="filter-select" onchange="applyFilters()">
+        <option value="">全部年级</option>
+        <option value="4">四年级</option>
+        <option value="5">五年级</option>
+        <option value="6">六年级</option>
+        <option value="7">七年级</option>
+        <option value="8">八年级</option>
+        <option value="9">九年级</option>
+      </select>
+      <select id="filterGender" class="filter-select" onchange="applyFilters()">
+        <option value="">全部性别</option>
+        <option value="M">男</option>
+        <option value="F">女</option>
+      </select>
+      <select id="sortBy" class="filter-select" onchange="applyFilters()">
+        <option value="recent">最近测评优先</option>
+        <option value="grade">按年级</option>
+        <option value="name">按姓名</option>
+        <option value="records">按记录数</option>
+      </select>
+    </div>
+
+    <div id="filterCount" class="filter-count"></div>
 
     <div id="studentList" class="student-grid">
       <div class="loading">加载中...</div>
@@ -270,24 +338,64 @@
         const res = await fetch(API + '?students=list');
         const data = await res.json();
         studentsList = data.students || [];
-        renderStudents(studentsList);
+        applyFilters();
       } catch (e) {
         document.getElementById('studentList').innerHTML = '<div class="empty-state">加载失败，请刷新重试</div>';
       }
+    }
+
+    // 筛选 + 排序 + 渲染
+    function applyFilters() {
+      const keyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+      const grade = document.getElementById('filterGrade').value;
+      const gender = document.getElementById('filterGender').value;
+      const sortBy = document.getElementById('sortBy').value;
+
+      let list = studentsList.filter(s => {
+        if (keyword && !s.name.toLowerCase().includes(keyword)) return false;
+        if (grade && String(s.currentGrade) !== grade) return false;
+        if (gender && s.gender !== gender) return false;
+        return true;
+      });
+
+      if (sortBy === 'recent') {
+        list.sort((a, b) => (b.lastRecordDate || '').localeCompare(a.lastRecordDate || ''));
+      } else if (sortBy === 'grade') {
+        list.sort((a, b) => (a.currentGrade || 0) - (b.currentGrade || 0) || a.name.localeCompare(b.name, 'zh'));
+      } else if (sortBy === 'name') {
+        list.sort((a, b) => a.name.localeCompare(b.name, 'zh'));
+      } else if (sortBy === 'records') {
+        list.sort((a, b) => (b.recordCount || 0) - (a.recordCount || 0));
+      }
+
+      // 计数提示
+      const countEl = document.getElementById('filterCount');
+      const total = studentsList.length;
+      if (keyword || grade || gender) {
+        countEl.textContent = `筛选出 ${list.length} / ${total} 名学员`;
+      } else {
+        countEl.textContent = total > 0 ? `共 ${total} 名学员` : '';
+      }
+
+      renderStudents(list);
     }
 
     // 渲染学员列表
     function renderStudents(students) {
       const container = document.getElementById('studentList');
       if (students.length === 0) {
+        const keyword = (document.getElementById('searchInput').value || '').trim();
+        const grade = document.getElementById('filterGrade').value;
+        const gender = document.getElementById('filterGender').value;
+        const isFiltered = keyword || grade || gender;
         container.innerHTML = `
           <div class="empty-state">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
-            <p>暂无学员档案</p>
-            <p style="font-size: 12px; margin-top: 8px;">点击右上角「新增学员」开始创建</p>
+            <p>${isFiltered ? '没有符合条件的学员' : '暂无学员档案'}</p>
+            <p style="font-size: 12px; margin-top: 8px;">${isFiltered ? '试试调整筛选条件' : '点击右上角「新增学员」开始创建'}</p>
           </div>
         `;
         return;

@@ -132,6 +132,21 @@
       border-color: #FF6B35;
       background: #FFFAF8;
     }
+    .record-delete-btn {
+      background: transparent;
+      border: none;
+      color: #ccc;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 6px;
+      line-height: 1;
+      transition: all 0.2s;
+    }
+    .record-delete-btn:hover {
+      color: #E0533D;
+      background: #FBE9E4;
+    }
     .record-header {
       display: flex;
       justify-content: space-between;
@@ -374,9 +389,12 @@
                 <span class="record-date">${r.date}</span>
                 ${r.level ? `<span class="record-level ${levelClass}">${r.level}</span>` : ''}
               </div>
-              <div>
-                <span class="record-score">${r.total || '-'}</span>
-                ${r.max ? `<span style="color: #999; font-size: 14px;">/${r.max}</span>` : ''}
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div>
+                  <span class="record-score">${r.total || '-'}</span>
+                  ${r.max ? `<span style="color: #999; font-size: 14px;">/${r.max}</span>` : ''}
+                </div>
+                <button class="record-delete-btn" onclick="deleteRecord('${r.recordId}', '${r.date}')" title="删除这条记录">✕</button>
               </div>
             </div>
             <div class="record-details">
@@ -592,6 +610,32 @@
         grade: currentStudent.currentGrade
       });
       window.location.href = '/tools/assessment.html?' + params.toString();
+    }
+
+    // 删除单条测评记录
+    async function deleteRecord(recordId, date) {
+      if (!confirm(`确认删除 ${date} 的测评记录？\n\n删除后无法恢复。`)) {
+        return;
+      }
+
+      try {
+        const res = await fetch(API + '?students=deleteRecord', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentId: studentId, recordId: recordId })
+        });
+        const result = await res.json();
+        if (result.ok) {
+          // 本地同步更新，避免整页重载
+          currentStudent.records = currentStudent.records.filter(r => r.recordId !== recordId);
+          renderRecords(currentStudent.records);
+          renderProfile(currentStudent);
+        } else {
+          alert('删除失败: ' + (result.error || '未知错误'));
+        }
+      } catch (e) {
+        alert('网络错误，请重试');
+      }
     }
 
     // 删除学员
