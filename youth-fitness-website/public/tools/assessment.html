@@ -468,6 +468,20 @@
     background: #F7F2EA; border-radius: var(--r-md);
     padding: 10px 12px; margin-top: 12px;
   }
+
+  /* 加分明细 */
+  .bonus-row { display:flex; justify-content:space-between; align-items:baseline; padding:10px 0 2px; }
+  .bonus-name { font-size:14px; font-weight:800; color:var(--ink); }
+  .bonus-val { font-size:16px; font-weight:900; color:var(--green); }
+  .bonus-ref { font-size:11.5px; color:var(--ink-3); padding-bottom:9px; border-bottom:1px dashed var(--line); }
+  .bonus-ref:last-of-type { border-bottom:none; }
+  .bonus-total {
+    margin-top:10px; font-size:13px; color:var(--ink-2); line-height:1.7;
+    background: var(--brand-softer); padding:10px 12px; border-radius: var(--r-md);
+  }
+  .bonus-total b { color: var(--brand-3); font-size: 15px; }
+  .bonus-hint { font-size:12.5px; color:var(--ink-2); line-height:1.7; margin-bottom:6px; }
+  .bonus-hint-row { font-size:12px; color:var(--ink-3); line-height:1.9; }
 </style>
 </head>
 <body>
@@ -569,6 +583,12 @@
       <div class="rh-score" id="rhScore">0<small> 分</small></div>
       <div class="rh-sub" id="rhSub">—</div>
       <div id="rhTagBox"></div>
+    </div>
+
+    <!-- 加分明细（有加分项时才显示） -->
+    <div class="card hidden" id="bonusCard">
+      <div class="card-title"><span class="ico">🏅</span>加分项明细<span class="sub">超出满分线才有加分</span></div>
+      <div id="bonusList"></div>
     </div>
 
     <div class="card">
@@ -787,6 +807,9 @@
       scores: resultData.scores || {}, // 各项目得分
       items: resultData.items || [], // 项目详情列表
       dimensions: dimensions, // 维度评分（聚合后）
+      stdScore: resultData.stdScore, // 标准分（国体：不含附加分）
+      bonus: resultData.bonus || 0, // 附加分合计
+      bonusDetail: resultData.bonusDetail || [], // 附加分明细
       rawData: resultData // 保存完整原始数据
     };
 
@@ -1369,13 +1392,17 @@
     if (filled === 0) return null; /* 全部缺录：无任何输入 → 保持原有提示 */
     /* 加权总分：Σ(得分×权重)/Σ全权重 → 标准分（百分制，缺录按 0 分） */
     var std = total / totalW;
-    /* 附加分：六年级跳绳 / 八年级力量与耐力（仅已填且达标时生效） */
-    if (grade === "6" && inputs.rope !== undefined) {
-      var ropeFull = D.guoti.ropeBonusFull[state.sex];
-      var extra = Math.floor((inputs.rope - ropeFull) / 2);
-      if (extra > 20) extra = 20;
-      if (extra < 0) extra = 0;
-      bonusTotal += extra;
+    /* 附加分：小学跳绳（4/6年级） / 八年级力量与耐力（仅已填且达标时生效）
+     * bonusDetail 记录每个加分项来源，供报告展示 */
+    var bonusDetail = [];
+    var ropeFulls = D.guoti.ropeBonusFull[grade];
+    if (ropeFulls && inputs.rope !== undefined) {
+      var ropeFull = ropeFulls[state.sex];
+      var ropeB = Math.floor((inputs.rope - ropeFull) / 2);
+      if (ropeB > 20) ropeB = 20;
+      if (ropeB < 0) ropeB = 0;
+      if (ropeB > 0) bonusDetail.push({ name: "1分钟跳绳", bonus: ropeB, ref: "超出" + ropeFull + "次后每2次+1分" });
+      bonusTotal += ropeB;
     }
     if (grade === "8") {
       if (state.sex === "M") {
@@ -1384,6 +1411,7 @@
           var pb = Math.floor(pv - 14);
           if (pb > 10) pb = 10;
           if (pb < 0) pb = 0;
+          if (pb > 0) bonusDetail.push({ name: "引体向上", bonus: pb, ref: "超出14次后每1次+1分" });
           bonusTotal += pb;
         }
         var rv = inputs.run800;
@@ -1393,6 +1421,7 @@
           var rb = 0;
           var btab = D.guoti.bonus.run1000m8.table;
           for (var b=10;b>=1;b--){ if (diff >= btab[b]) { rb = b; break; } }
+          if (rb > 0) bonusDetail.push({ name: "1000米跑", bonus: rb, ref: "比满分线快" + Math.round(diff) + "秒" });
           bonusTotal += rb;
         }
       } else {
@@ -1401,6 +1430,7 @@
           var sbt = D.guoti.bonus.situp8.table;
           var sb = 0;
           for (var b2=10;b2>=1;b2--){ if (sv - 51 >= sbt[b2]) { sb = b2; break; } }
+          if (sb > 0) bonusDetail.push({ name: "仰卧起坐", bonus: sb, ref: "超出51次后加密加分" });
           bonusTotal += sb;
         }
         var rv2 = inputs.run800f;
@@ -1410,12 +1440,13 @@
           var rb2 = 0;
           var btab2 = D.guoti.bonus.run800m8.table;
           for (var b3=10;b3>=1;b3--){ if (diff2 >= btab2[b3]) { rb2 = b3; break; } }
+          if (rb2 > 0) bonusDetail.push({ name: "800米跑", bonus: rb2, ref: "比满分线快" + Math.round(diff2) + "秒" });
           bonusTotal += rb2;
         }
       }
     }
     var finalScore = Math.round((std + bonusTotal) * 10) / 10;
-    return { mode:"guoti", items: items, stdScore: Math.round(std*10)/10, bonus: bonusTotal, total: finalScore, max: 120, missing: missing };
+    return { mode:"guoti", items: items, stdScore: Math.round(std*10)/10, bonus: bonusTotal, bonusDetail: bonusDetail, total: finalScore, max: 120, missing: missing };
   }
 
   /* 现场考试总分计算 */
@@ -1495,7 +1526,51 @@
 
     renderBar(r);
     renderRadar(r);
+    renderBonus(r);
     renderDesc(r);
+  }
+
+  /* 加分明细：有加分显示明细，无加分显示门槛提示（避免误以为漏算） */
+  function renderBonus(r){
+    var card = $("bonusCard"), box = $("bonusList");
+    if (!card || !box) return;
+    if (r.mode === "xc") { card.classList.add("hidden"); return; } /* 现场考试为赋分制，无加减分 */
+    var grade = state.grade, sex = state.sex;
+    var details = r.bonusDetail || [];
+    var html = "";
+
+    if (details.length) {
+      details.forEach(function(d){
+        html += '<div class="bonus-row"><span class="bonus-name">🏅 ' + esc(d.name) + '</span>'
+              + '<span class="bonus-val">+' + d.bonus + ' 分</span></div>'
+              + '<div class="bonus-ref">' + esc(d.ref || '') + '</div>';
+      });
+      html += '<div class="bonus-total">标准分 ' + r.stdScore + ' + 附加分 ' + r.bonus
+            + ' → 总成绩 <b>' + r.total + '</b> 分' + (r.missing ? '（含缺录 ' + r.missing + ' 项按 0 分计）' : '') + '</div>';
+      card.classList.remove("hidden");
+      box.innerHTML = html;
+      return;
+    }
+
+    /* 无加分：列出该年级加分项与门槛 */
+    var hints = [];
+    var ropeFulls = D.guoti.ropeBonusFull[grade];
+    if (ropeFulls) {
+      hints.push("1分钟跳绳：超出 " + ropeFulls[sex] + " 次后，每多 2 次 +1 分（上限 20 分）");
+    }
+    if (grade === "8") {
+      hints.push(sex === "M"
+        ? "引体向上：超出 14 次后，每多 1 次 +1 分（上限 10 分）"
+        : "仰卧起坐：超出 51 次后，按 2/4/6/7/8… 递增加分（上限 10 分）");
+      hints.push(sex === "M"
+        ? "1000米跑：比满分线（3'50\"）每快 4 秒 +1 分（上限 10 分）"
+        : "800米跑：比满分线（3'30\"）每快 5 秒 +1 分（上限 10 分）");
+    }
+    if (!hints.length) { card.classList.add("hidden"); return; }
+    html = '<div class="bonus-hint">本次成绩未超过满分线，暂无加分。本年级可加分项目：</div>';
+    hints.forEach(function(h){ html += '<div class="bonus-hint-row">· ' + esc(h) + '</div>'; });
+    card.classList.remove("hidden");
+    box.innerHTML = html;
   }
 
   /* 柱状图 */
@@ -1803,10 +1878,18 @@
       t.push("测评数据可用于考前针对性评估，帮助合理规划选考项目。");
     } else if (grade === "8") {
       t.push("八年级体质测试结果计入中考过程性考核（满分10分，测试得分80分及以上按满分赋分）。当前测试得分" + Math.round(r.total) + "分" + (r.total>=80 ? "，已满足满分赋分条件。" : "，距满分赋分线80分还有" + Math.round(80 - r.total) + "分差距。"));
-      t.push("附加分来自引体向上（男）/仰卧起坐（女）与1000米/800米的加分项，满分120分。");
+      if (r.bonus > 0) {
+        var bnames8 = (r.bonusDetail || []).map(function(d){ return d.name + " +" + d.bonus; }).join("、");
+        t.push("本次附加分共 +" + r.bonus + " 分（" + bnames8 + "），已计入总分。");
+      } else {
+        t.push("附加分来自引体向上（男）/仰卧起坐（女）与1000米/800米的加分项，需超出满分线方可加分，满分120分。");
+      }
     } else {
-      t.push(grade === "4" ? "四年级测试结果用于记录体质档案，为后续年级考核打基础。" : "六年级测试结果计入中考过程性考核（测试得分80分及以上按满分赋分），且跳绳为唯一加分项（超出满分每2个+1分，上限20分）。");
-      if (grade === "6" && r.bonus > 0) t.push("本次跳绳附加分 +" + r.bonus + " 分，已计入总分。");
+      t.push(grade === "4" ? "四年级测试结果用于记录体质档案，为后续年级考核打基础，跳绳为加分项（超出满分每2个+1分，上限20分）。" : "六年级测试结果计入中考过程性考核（测试得分80分及以上按满分赋分），且跳绳为唯一加分项（超出满分每2个+1分，上限20分）。");
+      if (r.bonus > 0) {
+        var bnames = (r.bonusDetail || []).map(function(d){ return d.name + " +" + d.bonus; }).join("、");
+        t.push("本次附加分共 +" + r.bonus + " 分" + (bnames ? "（" + bnames + "）" : "") + "，已计入总分。");
+      }
     }
     t.push("建议保持规律作息与良好运动习惯，均衡发展各项素质，定期测评跟踪进步。");
     return t.join("");
@@ -1821,7 +1904,12 @@
     lines.push("【满分虎 · 体质测评报告】");
     lines.push("年级：" + ({4:"四年级",6:"六年级",8:"八年级",9:"九年级"})[state.grade] + "　性别：" + (state.sex==="M"?"男":"女"));
     lines.push("综合得分：" + r.total + (r.mode==="xc"?"/"+r.max+"分":"/120分") + "　等级：" + g.name);
-    if (r.mode === "guoti") lines.push("满分 120 · 标准分 " + r.stdScore + " · 附加分 +" + r.bonus);
+    if (r.mode === "guoti") {
+      lines.push("满分 120 = 标准分 " + r.stdScore + " + 附加分 " + r.bonus + " → 总成绩 " + r.total + " 分");
+      (r.bonusDetail || []).forEach(function(d){
+        lines.push("　🏅 " + d.name + " 加分 +" + d.bonus + " 分（" + (d.ref || "") + "）");
+      });
+    }
     lines.push("── 单项成绩 ──");
     r.items.forEach(function(it){
       var disp = it.display;
@@ -2004,7 +2092,17 @@
     if (r.mode === "guoti" && r.stdScore !== undefined){
       ctx.font = "22px 'PingFang SC','Microsoft YaHei',sans-serif";
       ctx.fillStyle = ink2;
-      ctx.fillText("满分 120 · 标准分 " + r.stdScore + " · 附加分 +" + r.bonus, W/2, y+215);
+      var bonusLine = r.bonus > 0
+        ? ("标准分 " + r.stdScore + " + 附加分 " + r.bonus + " = " + r.total + " 分")
+        : ("标准分 " + r.stdScore + " · 满分 120（含附加分上限 20）");
+      ctx.fillText(bonusLine, W/2, y+215);
+      /* 加分项明细（有加分时逐项列出） */
+      if (r.bonus > 0 && (r.bonusDetail || []).length) {
+        ctx.font = "bold 21px 'PingFang SC','Microsoft YaHei',sans-serif";
+        ctx.fillStyle = "#2FA25B";
+        var bstr = (r.bonusDetail || []).map(function(d){ return "🏅 " + d.name + " +" + d.bonus; }).join("　");
+        ctx.fillText(bstr, W/2, y+245);
+      }
     }
 
     /* 单项得分（柱状图 → 简化为行列表） */
