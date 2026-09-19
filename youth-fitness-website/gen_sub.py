@@ -1,5 +1,5 @@
 """
-SUB 中转 gpt-image-2 生图脚本（api.43-161-200-52.sslip.io/v1）
+SUB 中转 gpt-image-2.5-sunburst 生图脚本（api.43-161-200-52.sslip.io/v1）
 用法: py gen_sub.py <prompt> <output_path> [size] [quality]
 """
 import httpx, json, base64, sys, os
@@ -16,7 +16,7 @@ def generate(prompt, output_path, size="1024x1024", quality="high", n=1,
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "gpt-image-2",
+        "model": "gpt-image-2.5-sunburst",
         "prompt": prompt,
         "size": size,
         "quality": quality,

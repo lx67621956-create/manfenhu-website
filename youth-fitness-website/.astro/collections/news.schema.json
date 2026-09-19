@@ -48,6 +48,9 @@
             "type": "string"
           }
         },
+        "order": {
+          "type": "number"
+        },
         "$schema": {
           "type": "string"
         }
