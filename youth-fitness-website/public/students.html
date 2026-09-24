@@ -35,6 +35,22 @@
       font-size: 28px;
       font-weight: 600;
     }
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: nowrap;
+    }
+    .header-tool-link {
+      color: #FF6B35;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .btn-header {
+      white-space: nowrap;
+    }
     .btn-primary {
       background: #FF6B35;
       color: white;
@@ -238,6 +254,26 @@
       .header h1 {
         font-size: 22px;
       }
+      .header-actions {
+        gap: 8px;
+      }
+      .header-tool-link {
+        font-size: 13px;
+      }
+      .btn-header {
+        flex: 1;
+        padding: 10px 4px;
+        font-size: 13px;
+        text-align: center;
+      }
+      .filter-search {
+        flex: 1 1 100%;
+        min-width: 0;
+      }
+      .filter-select {
+        flex: 1 1 calc(50% - 5px);
+        min-width: 0;
+      }
       .student-grid {
         grid-template-columns: 1fr;
         gap: 12px;
@@ -253,10 +289,10 @@
   <div class="container">
     <div class="header">
       <h1>学员档案管理</h1>
-      <div style="display: flex; gap: 12px; align-items: center;">
-        <a href="/tools/" style="color: #FF6B35; text-decoration: none; font-size: 14px; font-weight: 600;">🏠 工具箱</a>
-        <button class="btn-primary" onclick="exportAllStudents()" style="background: #2FA25B;">批量导出</button>
-        <button class="btn-primary" onclick="openCreateModal()">+ 新增学员</button>
+      <div class="header-actions">
+        <a href="/tools/" class="header-tool-link">🏠 工具箱</a>
+        <button class="btn-primary btn-header" onclick="exportAllStudents()" style="background: #2FA25B;">批量导出</button>
+        <button class="btn-primary btn-header" onclick="openCreateModal()">+ 新增学员</button>
       </div>
     </div>
 

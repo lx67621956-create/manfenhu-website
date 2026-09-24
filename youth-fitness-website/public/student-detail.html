@@ -582,7 +582,15 @@
         const levelClass = r.level ? `level-${r.level}` : '';
         const dimensions = r.dimensions || {};
         const items = r.items || [];
-        
+
+        /* 缺项数：新记录直接用 missing 字段；老记录（改版前生成，无该字段）按年级应测项目数推断 */
+        const EXPECT_ITEMS = { '4': 6, '6': 7, '8': 7 };   // 国体模式 4/6/8 年级应测项目数（同权重表）
+        const missingN = (typeof r.missing === 'number')
+          ? r.missing
+          : (EXPECT_ITEMS[String(r.grade)] !== undefined
+              ? Math.max(0, EXPECT_ITEMS[String(r.grade)] - items.length)
+              : 0);
+
         // 单项得分展示
         let itemsHtml = '';
         if (items.length > 0) {
@@ -611,7 +619,7 @@
               <div>
                 <span class="record-date">${r.date}</span>
                 ${r.level ? `<span class="record-level ${levelClass}">${r.level}</span>` : ''}
-                ${r.missing > 0 ? `<span style="display:inline-block;margin-left:6px;padding:2px 8px;border-radius:10px;background:#FFF3E8;color:#C2410C;font-size:11px;font-weight:700;" title="还有 ${r.missing} 个项目未测，可点击补录补齐">⚠ ${r.missing} 项未测</span>` : ''}
+                ${missingN > 0 ? `<span style="display:inline-block;margin-left:6px;padding:2px 8px;border-radius:10px;background:#FFF3E8;color:#C2410C;font-size:11px;font-weight:700;" title="还有 ${missingN} 个项目未测，可点击补录补齐">⚠ ${missingN} 项未测</span>` : ''}
               </div>
               <div style="display: flex; align-items: center; gap: 10px;">
                 <div>

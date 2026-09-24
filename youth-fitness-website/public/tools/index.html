@@ -40,7 +40,7 @@
     }
     
     .subtitle {
-      font-size: 16px;
+      font-size: 15px;
       color: #666;
     }
     
@@ -87,6 +87,7 @@
       font-size: 14px;
       color: #666;
       line-height: 1.5;
+      text-wrap: pretty;   /* 避免末行只剩一两个字（悬尾） */
     }
     
     .tool-badge {
@@ -98,6 +99,7 @@
       color: #FF6B35;
       font-weight: 500;
       align-self: flex-start;
+      margin-top: auto;    /* 贴底：四张卡等高时标签对齐 */
     }
     
     .section-title {
@@ -118,16 +120,39 @@
     }
     
     @media (max-width: 600px) {
+      body {
+        padding: 14px;
+      }
+      
       .tools-grid {
         grid-template-columns: 1fr;
       }
       
       .header {
         padding: 20px 15px;
+        margin-bottom: 28px;
       }
       
       .logo {
         font-size: 24px;
+      }
+      
+      .subtitle {
+        font-size: 13px;
+      }
+      
+      .tool-card {
+        padding: 18px;
+      }
+      
+      .section-title {
+        margin: 28px 0 14px;
+      }
+      
+      .footer {
+        margin-top: 28px;
+        padding: 20px 20px 28px;   /* 底部留白，避免贴屏幕边缘 */
+        font-size: 13px;
       }
     }
   </style>
@@ -145,15 +170,16 @@
         <div class="tool-icon">👥</div>
         <div>
           <div class="tool-title">学员档案</div>
-          <div class="tool-desc">管理学员信息、查看训练记录、追踪成绩进步</div>
+          <div class="tool-desc">学员信息、训练记录、成绩进步一目了然</div>
         </div>
+        <span class="tool-badge">含成长曲线</span>
       </a>
       
       <a href="/tools/assessment.html" class="tool-card">
         <div class="tool-icon">📈</div>
         <div>
           <div class="tool-title">成绩测评</div>
-          <div class="tool-desc">国体测评、现场考试评分、自动生成雷达图</div>
+          <div class="tool-desc">国体测评、现场评分、自动生成雷达图</div>
         </div>
         <span class="tool-badge">含7维度分析</span>
       </a>
@@ -165,7 +191,7 @@
         <div class="tool-icon">📝</div>
         <div>
           <div class="tool-title">课后总结</div>
-          <div class="tool-desc">一键生成个性化课后反馈，28项×10档表现描述</div>
+          <div class="tool-desc">一键生成个性化反馈，28项×10档表现</div>
         </div>
         <span class="tool-badge">智能生成</span>
       </a>
@@ -174,7 +200,7 @@
         <div class="tool-icon">🎨</div>
         <div>
           <div class="tool-title">群话术海报</div>
-          <div class="tool-desc">节气节日问候、天气提醒、品牌句，一键生成海报</div>
+          <div class="tool-desc">节气问候、天气提醒、品牌句，一键生成</div>
         </div>
         <span class="tool-badge">班主任必备</span>
       </a>
