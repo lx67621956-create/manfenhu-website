@@ -541,6 +541,15 @@
       <div style="font-weight:700;margin-bottom:4px;">当前学员：<span id="currentStudentName"></span></div>
       <div style="font-size:12px;color:var(--ink-2);">历史测评：<span id="currentStudentRecords">0</span> 次</div>
     </div>
+
+    <!-- 补录模式提示条 -->
+    <div id="makeupBar" class="hidden" style="background:#FFF3E8;border:1.5px solid var(--brand);padding:14px;border-radius:var(--r-md);margin-top:12px;font-size:13px;color:var(--ink);">
+      <div style="font-weight:800;color:var(--brand-3);margin-bottom:5px;">📝 补录模式</div>
+      <div style="font-size:12.5px;line-height:1.8;color:var(--ink-2);">
+        正在补录 <b id="makeupDate"></b> 的测评记录 —— 请填写<b>本次补测的项目</b>，已测项目会自动带入。保存后<b>日期不变</b>，成长曲线时间轴不受影响。
+      </div>
+      <button onclick="cancelMakeup()" style="margin-top:10px;padding:7px 14px;background:#fff;color:var(--ink-2);border:1px solid var(--line);border-radius:var(--r-md);font-size:12px;font-weight:700;cursor:pointer;">取消补录，改为新建记录</button>
+    </div>
   </div>
 
   <!-- 输入区 -->
@@ -659,6 +668,74 @@
   var API = '/api/data';
   var currentStudent = null;
   var studentsList = [];
+  var makeupRecord = null; /* 补录模式：正在补录的原记录（保存时更新它，日期保持不变） */
+
+  /* ========== 补录模式 ========== */
+  var TIME_KEYS = ['run800', 'run800f', 'run508', 'run1000', 'swim'];
+
+  /* 记录里的合成项目 key → 页面输入项 key（八年级力量/耐力随性别展开） */
+  function itemKeyToInputKey(k){
+    if (k === 'power') return state.sex === 'M' ? 'pullup' : 'situp';
+    if (k === 'run800') return state.sex === 'M' ? 'run800' : 'run800f';
+    return k;
+  }
+
+  function setInputValue(key, v){
+    if (v === undefined || v === null || v === '') return;
+    var row = document.querySelector('#itemList .item[data-key="' + key + '"]');
+    if (!row) return;
+    var inp = row.querySelector('input[data-in]');
+    if (!inp) return;
+    if (TIME_KEYS.indexOf(key) >= 0 && typeof v === 'number') v = secToTime(v);
+    inp.value = v;
+  }
+
+  /* 进入补录模式：回填该记录已有的成绩，保存时更新原记录（日期不变） */
+  function applyMakeupMode(recordId){
+    var recs = (currentStudent && currentStudent.records) || [];
+    var rec = null;
+    for (var i = 0; i < recs.length; i++) { if (recs[i].recordId === recordId) { rec = recs[i]; break; } }
+    if (!rec) { toast('未找到该测评记录'); return; }
+    makeupRecord = rec;
+
+    /* 年级/性别以记录为准（档案信息可能后来改过） */
+    if (rec.grade) state.grade = String(rec.grade);
+    if (rec.gender) state.sex = rec.gender;
+    renderGradeSex();
+
+    /* 回填已测项目（优先原始输入；老记录用 items[].display 兜底） */
+    var vals = rec.inputs || null;
+    if (vals && Object.keys(vals).length) {
+      Object.keys(vals).forEach(function(k){ setInputValue(k, vals[k]); });
+    } else {
+      (rec.items || []).forEach(function(it){
+        setInputValue(itemKeyToInputKey(it.key), it.display);
+      });
+    }
+    /* BMI 身高体重回填 */
+    if (rec.bmiInfo) {
+      var bmiRow = document.querySelector('#itemList .item[data-key="bmi"]');
+      if (bmiRow) {
+        var ih = bmiRow.querySelector('input[data-in="h"]');
+        var iw = bmiRow.querySelector('input[data-in="w"]');
+        if (ih && rec.bmiInfo.height) ih.value = rec.bmiInfo.height;
+        if (iw && rec.bmiInfo.weight) iw.value = rec.bmiInfo.weight;
+      }
+    }
+
+    $('makeupDate').textContent = rec.date || '';
+    $('makeupBar').classList.remove('hidden');
+    $('studentInfo').classList.add('hidden'); /* 避免与补录条重复展示 */
+    toast('已带入 ' + ((rec.items || []).length) + ' 项已测成绩，请补充其余项目');
+  }
+
+  window.cancelMakeup = function(){
+    makeupRecord = null;
+    $('makeupBar').classList.add('hidden');
+    $('studentInfo').classList.remove('hidden');
+    document.querySelectorAll('#itemList input').forEach(function(i){ i.value = ''; });
+    toast('已退出补录模式，本次将作为新记录保存');
+  };
 
   // 加载学员列表
   async function loadStudents() {
@@ -695,9 +772,8 @@
     renderStudentOptions();
   });
 
-  // 学员选择变化
-  $('studentSelect').addEventListener('change', async function() {
-    const val = this.value;
+  // 学员选择变化（提取为函数：供 change 事件与 URL 直达复用）
+  async function onStudentChange(val) {
     $('newStudentForm').classList.toggle('hidden', val !== '__new__');
     $('studentInfo').classList.add('hidden');
     currentStudent = null;
@@ -712,16 +788,22 @@
           $('currentStudentName').textContent = currentStudent.name;
           $('currentStudentRecords').textContent = currentStudent.records.length;
           $('studentInfo').classList.remove('hidden');
-          
+
           // 自动填充年级和性别
           state.grade = currentStudent.currentGrade;
           state.sex = currentStudent.gender;
           renderGradeSex();
+          return true;
         }
       } catch (e) {
         console.error('加载学员详情失败:', e);
       }
     }
+    return false;
+  }
+
+  $('studentSelect').addEventListener('change', function() {
+    onStudentChange(this.value);
   });
 
   // 创建新学员
@@ -790,7 +872,8 @@
     });
 
     const record = {
-      date: new Date().toISOString().split('T')[0],
+      // 补录：沿用原记录日期（测量日不变，成长曲线时间轴不受补录操作影响）
+      date: (makeupRecord && makeupRecord.date) || new Date().toISOString().split('T')[0],
       grade: state.grade,
       gender: state.sex,
       mode: resultData.mode, // 'guoti' or 'xianchang'
@@ -803,17 +886,21 @@
       stdScore: resultData.stdScore, // 标准分（国体：不含附加分）
       bonus: resultData.bonus || 0, // 附加分合计
       bonusDetail: resultData.bonusDetail || [], // 附加分明细
+      inputs: resultData.inputs || {}, // 原始输入（供补录回填）
+      bmiInfo: resultData.bmiInfo || null, // 身高体重（供补录回填）
+      missing: resultData.missing || 0, // 未测项数（>0 表示部分完成）
       rawData: resultData // 保存完整原始数据
     };
 
     try {
-      const res = await fetch(API + '?students=addRecord', {
+      const isMakeup = !!makeupRecord;
+      const url = API + (isMakeup ? '?students=updateRecord' : '?students=addRecord');
+      const payload = { studentId: currentStudent.studentId, record: record };
+      if (isMakeup) payload.recordId = makeupRecord.recordId;
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          studentId: currentStudent.studentId,
-          record: record
-        })
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       return data.ok;
@@ -1307,6 +1394,9 @@
       results = computeGuoti(inputs, bmiInfo);
     }
     if (!results) { toast("请填写成绩后生成"); return; }
+    /* 附带原始输入（供补录回填与档案留存） */
+    results.inputs = inputs;
+    results.bmiInfo = bmiInfo;
     renderResults();
     $("resultArea").classList.remove("hidden");
     $("fixedBar").classList.remove("hidden");
@@ -1314,13 +1404,22 @@
     
     // 保存到学员档案（新增）
     if (currentStudent) {
+      var wasMakeup = !!makeupRecord;
       saveToStudentArchive(results).then(function(success) {
         if (success) {
-          toastSaved(currentStudent.name, currentStudent.studentId);
-          // 更新记录数
-          currentStudent.records = currentStudent.records || [];
-          currentStudent.records.push({});
-          $('currentStudentRecords').textContent = currentStudent.records.length;
+          if (wasMakeup) {
+            /* 补录：更新原记录，不新增，日期与时间轴不变 */
+            toast('✅ 补录已保存 · 记录日期仍为 ' + (makeupRecord ? makeupRecord.date : ''));
+            makeupRecord = null;
+            $('makeupBar').classList.add('hidden');
+            $('studentInfo').classList.remove('hidden');
+          } else {
+            toastSaved(currentStudent.name, currentStudent.studentId);
+            // 更新记录数
+            currentStudent.records = currentStudent.records || [];
+            currentStudent.records.push({});
+            $('currentStudentRecords').textContent = currentStudent.records.length;
+          }
         } else {
           toast('❌ 保存失败：网络错误或服务暂不可用，请稍后重试');
         }
@@ -2238,18 +2337,19 @@
 
   bindEvents();
   renderItems();
-  // 加载学员列表；若 URL 携带 studentId（来自学员详情页「新增测评」跳转），
-  // 列表加载完成后自动预选该学员（复用 select 的 change 处理，联动年级/性别与档案显示）
-  loadStudents().then(function() {
+  // 加载学员列表；URL 参数：
+  //   ?studentId=xx              → 预选该学员（来自学员详情页「新增测评」）
+  //   ?studentId=xx&recordId=yy  → 补录模式：回填该记录已测成绩，保存时更新原记录（日期不变）
+  loadStudents().then(async function() {
     var qs = new URLSearchParams(window.location.search);
     var sid = qs.get('studentId');
-    if (sid) {
-      var opt = $('studentSelect').querySelector('option[value="' + sid + '"]');
-      if (opt) {
-        $('studentSelect').value = sid;
-        $('studentSelect').dispatchEvent(new Event('change'));
-      }
-    }
+    var rid = qs.get('recordId');
+    if (!sid) return;
+    var opt = $('studentSelect').querySelector('option[value="' + sid + '"]');
+    if (!opt) { toast('未找到该学员档案'); return; }
+    $('studentSelect').value = sid;
+    var loaded = await onStudentChange(sid);
+    if (loaded && rid) applyMakeupMode(rid);
   });
 })();
 </script>

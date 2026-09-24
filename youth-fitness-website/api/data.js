@@ -253,6 +253,38 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, recordId });
     }
 
+    // 补录：更新指定记录内容，保留原 recordId 与日期（时间轴不受补录操作影响）
+    if (req.method === 'POST' && action === 'updateRecord') {
+      const { studentId, recordId, record } = body;
+      if (!studentId || !recordId || !record || !store.students.records[studentId]) {
+        return res.status(400).json({ ok: false, error: 'Invalid request' });
+      }
+      if (record.mode === 'guoti' && record.total > 120) {
+        record.total = Math.min(120, Math.round(record.total * 10) / 10);
+        record.max = 120;
+      }
+      const student = store.students.records[studentId];
+      const i = student.records.findIndex(r => r.recordId === recordId);
+      if (i < 0) return res.status(404).json({ ok: false, error: 'Record not found' });
+      const old = student.records[i];
+      student.records[i] = {
+        ...record,
+        recordId: old.recordId,                    // 保留原 ID
+        date: record.date || old.date,             // 日期不动（补录不改变测量日）
+        createdAt: old.createdAt || null,
+        updatedAt: new Date().toISOString()
+      };
+      const idx = store.students.index.findIndex(s => s.studentId === studentId);
+      if (idx >= 0) {
+        store.students.index[idx].recordCount = student.records.length;
+        const dates = student.records.map(r => r.date).filter(Boolean).sort();
+        store.students.index[idx].lastRecordDate = dates.length ? dates[dates.length - 1] : null;
+      }
+      const saved = await saveStore(store);
+      if (!saved) return res.status(500).json({ ok: false, error: 'save failed' });
+      return res.status(200).json({ ok: true, recordId, date: student.records[i].date });
+    }
+
     if (req.method === 'POST' && action === 'delete') {
       const { studentId } = body;
       if (!studentId) return res.status(400).json({ ok: false, error: 'Missing studentId' });

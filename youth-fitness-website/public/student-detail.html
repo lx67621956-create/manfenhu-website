@@ -147,6 +147,23 @@
       color: #E0533D;
       background: #FBE9E4;
     }
+    .record-makeup-btn {
+      background: #FFF3E8;
+      border: 1px solid #FFD9BE;
+      color: #C2410C;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 5px 11px;
+      border-radius: 8px;
+      line-height: 1.4;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .record-makeup-btn:hover {
+      background: #FFE6D2;
+      border-color: #FF6B35;
+    }
     .record-header {
       display: flex;
       justify-content: space-between;
@@ -400,12 +417,14 @@
               <div>
                 <span class="record-date">${r.date}</span>
                 ${r.level ? `<span class="record-level ${levelClass}">${r.level}</span>` : ''}
+                ${r.missing > 0 ? `<span style="display:inline-block;margin-left:6px;padding:2px 8px;border-radius:10px;background:#FFF3E8;color:#C2410C;font-size:11px;font-weight:700;" title="还有 ${r.missing} 个项目未测，可点击补录补齐">⚠ ${r.missing} 项未测</span>` : ''}
               </div>
               <div style="display: flex; align-items: center; gap: 10px;">
                 <div>
                   <span class="record-score">${r.total || '-'}</span>
                   ${r.max ? `<span style="color: #999; font-size: 14px;">/${r.max}</span>` : ''}
                 </div>
+                <button class="record-makeup-btn" onclick="makeupRecord('${r.recordId}', '${r.date}')" title="补录：填写剩余项目，日期不变">✏️ 补录</button>
                 <button class="record-delete-btn" onclick="deleteRecord('${r.recordId}', '${r.date}')" title="删除这条记录">✕</button>
               </div>
             </div>
@@ -649,6 +668,13 @@
       } catch (e) {
         alert('网络错误，请重试');
       }
+    }
+
+    // 补录：跳转到测评工具并带入该记录（日期保持不变，仅补充/修改项目）
+    function makeupRecord(recordId, date) {
+      var url = 'assessment.html?studentId=' + encodeURIComponent(studentId)
+              + '&recordId=' + encodeURIComponent(recordId);
+      window.location.href = url;
     }
 
     // 删除学员
