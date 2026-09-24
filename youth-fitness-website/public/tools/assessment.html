@@ -712,15 +712,24 @@
         setInputValue(itemKeyToInputKey(it.key), it.display);
       });
     }
-    /* BMI 身高体重回填 */
-    if (rec.bmiInfo) {
-      var bmiRow = document.querySelector('#itemList .item[data-key="bmi"]');
-      if (bmiRow) {
-        var ih = bmiRow.querySelector('input[data-in="h"]');
-        var iw = bmiRow.querySelector('input[data-in="w"]');
-        if (ih && rec.bmiInfo.height) ih.value = rec.bmiInfo.height;
-        if (iw && rec.bmiInfo.weight) iw.value = rec.bmiInfo.weight;
+    /* BMI 身高体重回填：
+     * 新记录用 bmiInfo；老记录（只存了 BMI 值）从 items[].sub（"157cm/53.5kg"）解析恢复 */
+    var bmiRow = document.querySelector('#itemList .item[data-key="bmi"]');
+    if (bmiRow) {
+      var ih = bmiRow.querySelector('input[data-in="h"]');
+      var iw = bmiRow.querySelector('input[data-in="w"]');
+      var bh = null, bw = null;
+      if (rec.bmiInfo) {
+        bh = rec.bmiInfo.height; bw = rec.bmiInfo.weight;
+      } else {
+        var bmiItem = (rec.items || []).filter(function(it){ return it.key === 'bmi'; })[0];
+        if (bmiItem && bmiItem.sub) {
+          var mm = String(bmiItem.sub).match(/([\d.]+)\s*cm\s*\/\s*([\d.]+)\s*kg/);
+          if (mm) { bh = mm[1]; bw = mm[2]; }
+        }
       }
+      if (ih && bh) ih.value = bh;
+      if (iw && bw) iw.value = bw;
     }
 
     $('makeupDate').textContent = rec.date || '';
