@@ -56,6 +56,16 @@
     color:#fff; font-size:11px; font-weight:700; text-decoration:none;
     white-space:nowrap;
   }
+  /* 窄屏：标题不折行（头部右侧有徽标+工具箱，需给标题让出宽度） */
+  @media (max-width: 480px) {
+    .brand-logo { width:38px; height:38px; font-size:20px; }
+    .brand { gap:8px; }
+    .brand h1 { font-size:16px; letter-spacing:0; }
+    .brand p { font-size:11px; }
+    .head-actions { gap:6px; }
+    .badge { padding:5px 8px; letter-spacing:.5px; }
+    .head-tool { padding:5px 8px; font-size:10.5px; }
+  }
   .head-sub {
     position:relative; z-index:1; margin-top:16px;
     background: rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.25);

@@ -76,10 +76,29 @@
     background: rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.3);
     padding: 5px 11px; border-radius: 999px; color:#fff;
     backdrop-filter: blur(4px);
+    white-space: nowrap;
   }
   .badge::before {
     content:""; width:6px; height:6px; border-radius:50%;
     background:#7CFC9C; box-shadow: 0 0 6px rgba(124,252,156,.8);
+  }
+  .head-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .head-tool {
+    display:inline-flex; align-items:center; gap:4px;
+    padding: 5px 11px; background: rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.3); border-radius: 999px;
+    color:#fff; font-size: 11px; font-weight:700; text-decoration:none;
+    white-space: nowrap; backdrop-filter: blur(4px);
+  }
+  /* 窄屏：标题不折行、头部右侧按钮不挤压（原先工具箱绝对定位会压住说明条） */
+  @media (max-width: 480px) {
+    .brand-logo { width:38px; height:38px; font-size:20px; }
+    .brand { gap:8px; }
+    .brand h1 { font-size:16px; letter-spacing:0; }
+    .brand p { font-size:11px; }
+    .head-actions { gap:6px; }
+    .badge { padding:5px 8px; letter-spacing:.5px; }
+    .head-tool { padding:5px 8px; font-size:10.5px; }
   }
   .head-sub {
     position: relative; z-index:1;
@@ -231,7 +250,7 @@
     display: flex;
     align-items: center;
     gap: 2px;
-    /* 不设 max-width：两个输入框等分整行，避免右侧留空、与上下元素左右边界对齐 */
+    /* 两个输入框等分 .bmi-zone 可用宽度（右侧留给分数胶囊） */
   }
   .bmi-field input {
     flex: 1 1 0;
@@ -495,12 +514,14 @@
         <p>专业体质测评报告 · 数据源自官方标准</p>
       </div>
     </div>
-    <span class="badge">正式版</span>
+    <div class="head-actions">
+      <span class="badge">正式版</span>
+      <a href="/tools/" class="head-tool">🏠 工具箱</a>
+    </div>
   </div>
   <div class="head-sub">
     依据 <b>《义务教育体育与健康考核评价方案》</b>（京教体艺〔2021〕31号）与国家学生体质健康标准，输入成绩即可生成专业测评报告。
   </div>
-  <a href="/tools/" style="position:absolute; top:64px; right:14px; z-index:5; display:inline-flex; align-items:center; gap:4px; padding:6px 12px; background:rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.35); border-radius:999px; color:#fff; font-size:12px; font-weight:700; text-decoration:none; backdrop-filter:blur(4px);">🏠 工具箱</a>
 </header>
 
 <main>

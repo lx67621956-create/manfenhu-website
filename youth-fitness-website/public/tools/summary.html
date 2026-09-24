@@ -71,6 +71,25 @@
     background: rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.35);
     padding: 5px 10px; border-radius: 999px; color:#fff;
     backdrop-filter: blur(4px);
+    white-space: nowrap;
+  }
+  .head-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .head-tool {
+    display:inline-flex; align-items:center; gap:4px;
+    padding: 5px 10px; background: rgba(255,255,255,.2);
+    border:1px solid rgba(255,255,255,.35); border-radius: 999px;
+    color:#fff; font-size: 11px; font-weight:700; text-decoration:none;
+    white-space: nowrap; backdrop-filter: blur(4px);
+  }
+  /* 窄屏：标题不折行（头部右侧有徽标+工具箱，需给标题让出宽度） */
+  @media (max-width: 480px) {
+    .brand-logo { width:38px; height:38px; font-size:20px; }
+    .brand { gap:8px; }
+    .brand h1 { font-size:16px; letter-spacing:0; }
+    .brand p { font-size:11px; }
+    .head-actions { gap:6px; }
+    .badge { padding:5px 8px; letter-spacing:.5px; }
+    .head-tool { padding:5px 8px; font-size:10.5px; }
   }
   .head-sub {
     position: relative; z-index:1;
@@ -399,12 +418,14 @@
         <p>满分虎 · 教练专属工具</p>
       </div>
     </div>
-    <div class="badge">内部工具</div>
+    <div class="head-actions">
+      <span class="badge">内部工具</span>
+      <a href="/tools/" class="head-tool">🏠 工具箱</a>
+    </div>
   </div>
   <div class="head-sub">
-    选选项 · 出文案 · 复制发家长 —— <b>1 分钟搞定一个孩子的总结</b>
+    选选项 · 出文案 · 复制发家长 —— <b>1 分钟出一个孩子的总结</b>
   </div>
-  <a href="/tools/" style="position:absolute; top:64px; right:14px; z-index:5; display:inline-flex; align-items:center; gap:4px; padding:6px 12px; background:rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.35); border-radius:999px; color:#fff; font-size:12px; font-weight:700; text-decoration:none; backdrop-filter:blur(4px);">🏠 工具箱</a>
 </header>
 
 <div class="count-bar">
