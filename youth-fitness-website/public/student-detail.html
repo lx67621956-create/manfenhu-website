@@ -672,7 +672,7 @@
 
     // 补录：跳转到测评工具并带入该记录（日期保持不变，仅补充/修改项目）
     function makeupRecord(recordId, date) {
-      var url = 'assessment.html?studentId=' + encodeURIComponent(studentId)
+      var url = '/tools/assessment.html?studentId=' + encodeURIComponent(studentId)
               + '&recordId=' + encodeURIComponent(recordId);
       window.location.href = url;
     }
