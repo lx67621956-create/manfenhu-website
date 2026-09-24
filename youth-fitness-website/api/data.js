@@ -201,6 +201,27 @@ export default async function handler(req, res) {
     const action = req.query.students;
     if (!store.students) store.students = { index: [], records: {} };
 
+    /* 身高体重记录：按日期去重（同日覆盖），并同步"最新值"到档案与索引 */
+    const syncBodyRecord = (studentId, date, height, weight, source) => {
+      const student = store.students.records[studentId];
+      if (!student) return null;
+      const h = Number(height), w = Number(weight);
+      if (!(h > 0) || !(w > 0)) return null;
+      const d = date || new Date().toISOString().split('T')[0];
+      if (!Array.isArray(student.bodyRecords)) student.bodyRecords = [];
+      const item = { date: d, height: Math.round(h * 10) / 10, weight: Math.round(w * 10) / 10, source: source || 'manual' };
+      const i = student.bodyRecords.findIndex(b => b.date === d);
+      if (i >= 0) student.bodyRecords[i] = { ...student.bodyRecords[i], ...item };
+      else student.bodyRecords.push(item);
+      student.bodyRecords.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+      const latest = student.bodyRecords[student.bodyRecords.length - 1];
+      student.height = latest.height;
+      student.weight = latest.weight;
+      const idx = store.students.index.findIndex(s => s.studentId === studentId);
+      if (idx >= 0) { store.students.index[idx].height = student.height; store.students.index[idx].weight = student.weight; }
+      return item;
+    };
+
     if (req.method === 'GET' && action === 'list') {
       return res.status(200).json({ ok: true, students: store.students.index });
     }
@@ -214,21 +235,64 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST' && action === 'create') {
-      const { name, gender, currentGrade } = body;
+      const { name, gender, currentGrade, height, weight } = body;
       if (!name || !gender || !currentGrade) {
         return res.status(400).json({ ok: false, error: 'Missing fields' });
       }
       const studentId = 's_' + Date.now();
       store.students.records[studentId] = {
         studentId, name, gender, currentGrade,
+        height: null, weight: null, bodyRecords: [],
         createdAt: new Date().toISOString(), records: []
       };
       store.students.index.push({
-        studentId, name, gender, currentGrade, recordCount: 0, lastRecordDate: null
+        studentId, name, gender, currentGrade, recordCount: 0, lastRecordDate: null,
+        height: null, weight: null
       });
+      /* 建档案时可选填身高体重 */
+      if (Number(height) > 0 && Number(weight) > 0) {
+        syncBodyRecord(studentId, new Date().toISOString().split('T')[0], height, weight, 'manual');
+      }
       const saved = await saveStore(store);
       if (!saved) return res.status(500).json({ ok: false, error: 'save failed' });
       return res.status(200).json({ ok: true, studentId });
+    }
+
+    /* 记录身高体重（手动，不测评也能记录）*/
+    if (req.method === 'POST' && action === 'bodyRecord') {
+      const { studentId, height, weight, date } = body;
+      if (!studentId || !store.students.records[studentId]) {
+        return res.status(400).json({ ok: false, error: 'Student not found' });
+      }
+      if (!(Number(height) > 0) || !(Number(weight) > 0)) {
+        return res.status(400).json({ ok: false, error: '身高体重需大于 0' });
+      }
+      const item = syncBodyRecord(studentId, date, height, weight, 'manual');
+      const saved = await saveStore(store);
+      if (!saved) return res.status(500).json({ ok: false, error: 'save failed' });
+      return res.status(200).json({ ok: true, item, height: item.height, weight: item.weight });
+    }
+
+    /* 删除一条身高体重记录 */
+    if (req.method === 'POST' && action === 'deleteBodyRecord') {
+      const { studentId, date } = body;
+      const student = store.students.records[studentId];
+      if (!student || !Array.isArray(student.bodyRecords)) {
+        return res.status(404).json({ ok: false, error: 'Student not found' });
+      }
+      const before = student.bodyRecords.length;
+      student.bodyRecords = student.bodyRecords.filter(b => b.date !== date);
+      if (student.bodyRecords.length === before) {
+        return res.status(404).json({ ok: false, error: 'Record not found' });
+      }
+      const latest = student.bodyRecords[student.bodyRecords.length - 1];
+      student.height = latest ? latest.height : null;
+      student.weight = latest ? latest.weight : null;
+      const idx = store.students.index.findIndex(s => s.studentId === studentId);
+      if (idx >= 0) { store.students.index[idx].height = student.height; store.students.index[idx].weight = student.weight; }
+      const saved = await saveStore(store);
+      if (!saved) return res.status(500).json({ ok: false, error: 'save failed' });
+      return res.status(200).json({ ok: true, height: student.height, weight: student.weight });
     }
 
     if (req.method === 'POST' && action === 'addRecord') {
@@ -243,6 +307,10 @@ export default async function handler(req, res) {
       const recordId = 'r_' + Date.now();
       const newRecord = { recordId, date: record.date || new Date().toISOString().split('T')[0], ...record };
       store.students.records[studentId].records.push(newRecord);
+      /* 测评里填了身高体重 → 自动记入身高体重档案（同一日期覆盖）*/
+      if (record.bmiInfo && Number(record.bmiInfo.height) > 0 && Number(record.bmiInfo.weight) > 0) {
+        syncBodyRecord(studentId, newRecord.date, record.bmiInfo.height, record.bmiInfo.weight, 'assessment');
+      }
       const idx = store.students.index.findIndex(s => s.studentId === studentId);
       if (idx >= 0) {
         store.students.index[idx].recordCount = store.students.records[studentId].records.length;
@@ -274,6 +342,11 @@ export default async function handler(req, res) {
         createdAt: old.createdAt || null,
         updatedAt: new Date().toISOString()
       };
+      /* 补录改动了身高体重 → 同步更新身高体重档案 */
+      const savedRec = student.records[i];
+      if (savedRec.bmiInfo && Number(savedRec.bmiInfo.height) > 0 && Number(savedRec.bmiInfo.weight) > 0) {
+        syncBodyRecord(studentId, savedRec.date, savedRec.bmiInfo.height, savedRec.bmiInfo.weight, 'assessment');
+      }
       const idx = store.students.index.findIndex(s => s.studentId === studentId);
       if (idx >= 0) {
         store.students.index[idx].recordCount = student.records.length;

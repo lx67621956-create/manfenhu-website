@@ -320,6 +320,16 @@
             <option value="9">九年级</option>
           </select>
         </div>
+        <div class="form-group" style="display: flex; gap: 12px;">
+          <div style="flex: 1;">
+            <label>身高（cm，选填）</label>
+            <input type="number" step="0.1" min="50" max="250" name="height" placeholder="如 157">
+          </div>
+          <div style="flex: 1;">
+            <label>体重（kg，选填）</label>
+            <input type="number" step="0.1" min="10" max="200" name="weight" placeholder="如 53.5">
+          </div>
+        </div>
         <div class="modal-actions">
           <button type="button" class="btn-secondary" onclick="closeCreateModal()">取消</button>
           <button type="submit" class="btn-primary" style="flex: 1;">确认新增</button>
@@ -407,6 +417,7 @@
           <div class="student-info">
             <span class="tag">${s.gender === 'M' ? '男' : '女'}</span>
             <span class="tag">${s.currentGrade}年级</span>
+            ${(s.height > 0 && s.weight > 0) ? `<span class="tag">${s.height}cm / ${s.weight}kg</span>` : ''}
           </div>
           <div class="student-stats">
             <span>测评记录: ${s.recordCount || 0}次</span>
@@ -436,6 +447,10 @@
         gender: formData.get('gender'),
         currentGrade: formData.get('currentGrade')
       };
+      /* 身高体重选填（用于成长曲线：长高/减重追踪）*/
+      const h = parseFloat(formData.get('height'));
+      const w = parseFloat(formData.get('weight'));
+      if (h > 0 && w > 0) { data.height = h; data.weight = w; }
 
       try {
         const res = await fetch(API + '?students=create', {

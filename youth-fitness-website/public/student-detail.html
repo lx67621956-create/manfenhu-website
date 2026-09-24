@@ -267,6 +267,37 @@
 
     <div id="profileSection" class="loading">加载中...</div>
 
+    <!-- 身高体重 -->
+    <div class="section" id="bodySection" style="display: none;">
+      <div class="section-header">
+        <h2 class="section-title">身高体重</h2>
+        <button class="btn btn-primary" onclick="openBodyModal()">+ 记录身高体重</button>
+      </div>
+      <div id="bodySummary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 16px;"></div>
+      <div id="bodyChartWrap" style="display: none; background: linear-gradient(160deg, #FFF7F1 0%, #FFEDE0 100%); padding: 20px 20px 14px; border-radius: 16px; box-shadow: 0 6px 18px rgba(240, 78, 35, 0.08); border: 1px solid #FBE3D0;">
+        <canvas id="bodyChart" style="max-height: 260px;"></canvas>
+      </div>
+      <div id="bodyHistory" style="margin-top: 16px;"></div>
+    </div>
+
+    <!-- 身高体重录入弹窗 -->
+    <div id="bodyModal" style="display: none; position: fixed; inset: 0; background: rgba(43,39,36,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+      <div style="background: #fff; border-radius: 16px; padding: 22px; max-width: 360px; width: 100%; box-shadow: 0 20px 50px rgba(0,0,0,0.25);">
+        <h3 style="margin: 0 0 16px; font-size: 17px; color: #4A3F35;">记录身高体重</h3>
+        <label style="display: block; font-size: 13px; color: #8A7B6E; margin-bottom: 6px;">日期</label>
+        <input type="date" id="bodyDate" style="width: 100%; padding: 10px; border: 1px solid #F0E4D8; border-radius: 10px; font-size: 14px; margin-bottom: 14px; box-sizing: border-box; font-family: inherit;">
+        <label style="display: block; font-size: 13px; color: #8A7B6E; margin-bottom: 6px;">身高（cm）</label>
+        <input type="number" step="0.1" min="50" max="250" id="bodyHeight" placeholder="如 157" style="width: 100%; padding: 10px; border: 1px solid #F0E4D8; border-radius: 10px; font-size: 14px; margin-bottom: 14px; box-sizing: border-box; font-family: inherit;">
+        <label style="display: block; font-size: 13px; color: #8A7B6E; margin-bottom: 6px;">体重（kg）</label>
+        <input type="number" step="0.1" min="10" max="200" id="bodyWeight" placeholder="如 53.5" style="width: 100%; padding: 10px; border: 1px solid #F0E4D8; border-radius: 10px; font-size: 14px; margin-bottom: 14px; box-sizing: border-box; font-family: inherit;">
+        <div id="bodyModalTip" style="font-size: 12px; color: #B0A093; line-height: 1.6; margin-bottom: 4px;">同一天重复记录会覆盖旧值；在测评工具里填了身高体重也会自动记到这里。</div>
+        <div style="display: flex; gap: 10px; margin-top: 14px;">
+          <button class="btn btn-primary" style="flex: 1;" onclick="saveBodyRecord()">保存</button>
+          <button class="btn" style="flex: 1; background: #F5EFE8; color: #8A7B6E;" onclick="closeBodyModal()">取消</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 数据统计 -->
     <div class="section" id="statsSection" style="display: none;">
       <h2 class="section-title">数据统计</h2>
@@ -334,6 +365,7 @@
         }
         currentStudent = data.student;
         renderProfile(currentStudent);
+        renderBodySection(currentStudent);
         renderRecords(currentStudent.records || []);
       } catch (e) {
         document.getElementById('profileSection').innerHTML = '<div class="empty-state">加载失败</div>';
@@ -344,7 +376,12 @@
     function renderProfile(student) {
       const genderText = student.gender === 'M' ? '男' : '女';
       const createdDate = new Date(student.createdAt).toLocaleDateString('zh-CN');
-      
+      const bl = bodyList(student);
+      const latestBody = bl[bl.length - 1];
+      const bodyTags = latestBody
+        ? `<span class="tag">${latestBody.height} cm</span><span class="tag">${latestBody.weight} kg</span>`
+        : '';
+
       document.getElementById('profileSection').innerHTML = `
         <div class="profile-card">
           <div class="profile-header">
@@ -354,6 +391,7 @@
                 <span class="tag">${genderText}</span>
                 <span class="tag">${student.currentGrade}年级</span>
                 <span class="tag">测评 ${student.records.length} 次</span>
+                ${bodyTags}
               </div>
               <div class="profile-meta">
                 学员ID: ${student.studentId} | 创建时间: ${createdDate}
@@ -366,6 +404,162 @@
           </div>
         </div>
       `;
+    }
+
+    /* ========== 身高体重（基础信息 + 独立曲线） ========== */
+    let bodyChartInstance = null;
+
+    function bodyList(student) {
+      const map = {};
+      /* 1) 身高体重档案（手动记录 + 新测评同步） */
+      (student.bodyRecords || []).forEach(b => {
+        if (Number(b.height) > 0 && Number(b.weight) > 0) map[b.date] = { ...b, height: Number(b.height), weight: Number(b.weight) };
+      });
+      /* 2) 历史测评记录里的身高体重（老数据兜底：bmiInfo 或 items[].sub "157cm/53.5kg"） */
+      (student.records || []).forEach(r => {
+        if (!r.date || map[r.date]) return;
+        let h = null, w = null;
+        if (r.bmiInfo && Number(r.bmiInfo.height) > 0 && Number(r.bmiInfo.weight) > 0) {
+          h = Number(r.bmiInfo.height); w = Number(r.bmiInfo.weight);
+        } else {
+          const bmiIt = (r.items || []).filter(it => it.key === 'bmi')[0];
+          if (bmiIt && bmiIt.sub) {
+            const m = String(bmiIt.sub).match(/([\d.]+)\s*cm\s*\/\s*([\d.]+)\s*kg/);
+            if (m) { h = parseFloat(m[1]); w = parseFloat(m[2]); }
+          }
+        }
+        if (h > 0 && w > 0) map[r.date] = { date: r.date, height: h, weight: w, source: 'assessment' };
+      });
+      return Object.values(map).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    }
+
+    function renderBodySection(student) {
+      const section = document.getElementById('bodySection');
+      const summary = document.getElementById('bodySummary');
+      const wrap = document.getElementById('bodyChartWrap');
+      const hist = document.getElementById('bodyHistory');
+      section.style.display = 'block';
+
+      const list = bodyList(student);
+      if (!list.length) {
+        summary.innerHTML = '';
+        wrap.style.display = 'none';
+        hist.innerHTML = '<div class="empty-state"><p>暂无身高体重记录</p>' +
+          '<p style="font-size:12px;margin-top:8px;">点「+ 记录身高体重」开始；测评工具里填了身高体重也会自动记入</p></div>';
+        return;
+      }
+
+      const first = list[0], last = list[list.length - 1];
+      const dH = Math.round((last.height - first.height) * 10) / 10;
+      const dW = Math.round((last.weight - first.weight) * 10) / 10;
+      const bmi = last.weight / Math.pow(last.height / 100, 2);
+      const sig = v => (v > 0 ? '+' : '') + v;
+      const card = (label, value, unit, sub, color) => `
+        <div style="background:#fff;border:1px solid #F0E4D8;border-radius:12px;padding:14px;">
+          <div style="font-size:12px;color:#B0A093;margin-bottom:6px;">${label}</div>
+          <div style="font-size:22px;font-weight:800;color:${color};">${value}<span style="font-size:12px;font-weight:600;color:#B0A093;"> ${unit}</span></div>
+          <div style="font-size:12px;color:#8A7B6E;margin-top:4px;">${sub}</div>
+        </div>`;
+
+      summary.innerHTML =
+        card('当前身高', last.height, 'cm', list.length > 1 ? `较首次 ${sig(dH)} cm` : '首次记录', '#FF6B35') +
+        card('当前体重', last.weight, 'kg', list.length > 1 ? `较首次 ${sig(dW)} kg` : '首次记录', '#2E9E6B') +
+        card('当前 BMI', bmi.toFixed(1), '', '体重(kg) ÷ 身高(m)²', '#5B7FBF') +
+        card('记录次数', list.length + ' 次', '', `${first.date.slice(5)} ~ ${last.date.slice(5)}`, '#8A7B6E');
+
+      /* 曲线：身高(左轴) + 体重(右轴)，>=2 条记录才画 */
+      if (list.length >= 2) {
+        wrap.style.display = 'block';
+        if (bodyChartInstance) bodyChartInstance.destroy();
+        bodyChartInstance = new Chart(document.getElementById('bodyChart'), {
+          type: 'line',
+          data: {
+            labels: list.map(b => b.date.slice(5)),
+            datasets: [
+              { label: '身高(cm)', data: list.map(b => b.height), borderColor: '#FF6B35', backgroundColor: 'rgba(255,107,53,0.12)', borderWidth: 3, tension: 0.35, fill: true, pointRadius: 5, pointHoverRadius: 7, yAxisID: 'y' },
+              { label: '体重(kg)', data: list.map(b => b.weight), borderColor: '#2E9E6B', backgroundColor: 'rgba(46,158,107,0.10)', borderWidth: 3, tension: 0.35, fill: false, pointRadius: 5, pointHoverRadius: 7, yAxisID: 'y1' }
+            ]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { position: 'bottom', labels: { font: { size: 12, family: "'PingFang SC','Microsoft YaHei',sans-serif" }, usePointStyle: true, boxWidth: 8 } },
+              title: { display: true, text: '身高体重变化', font: { size: 15, weight: 'bold', family: "'PingFang SC','Microsoft YaHei',sans-serif" }, color: '#4A3F35', padding: { bottom: 8 } },
+              tooltip: { backgroundColor: 'rgba(43,39,36,0.9)', titleFont: { size: 13 }, bodyFont: { size: 13 }, padding: 10, cornerRadius: 8 }
+            },
+            scales: {
+              y:  { position: 'left',  title: { display: true, text: '身高 (cm)', color: '#FF6B35', font: { size: 12 } }, grid: { color: 'rgba(240,228,216,0.6)' }, ticks: { color: '#B0A093', font: { size: 11 } } },
+              y1: { position: 'right', title: { display: true, text: '体重 (kg)', color: '#2E9E6B', font: { size: 12 } }, grid: { drawOnChartArea: false }, ticks: { color: '#B0A093', font: { size: 11 } } },
+              x:  { grid: { display: false }, ticks: { color: '#B0A093', font: { size: 11 } } }
+            }
+          }
+        });
+      } else {
+        wrap.style.display = 'none';
+      }
+
+      hist.innerHTML = '<div style="font-size:14px;font-weight:700;color:#4A3F35;margin-bottom:10px;">记录明细</div>' +
+        list.slice().reverse().map(b => {
+          const src = b.source === 'assessment' ? '<span style="font-size:11px;color:#B0A093;">（测评同步）</span>' : '';
+          return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid #F0E4D8;border-radius:10px;margin-bottom:8px;background:#fff;">
+            <div style="font-size:13px;color:#4A3F35;"><strong>${b.date}</strong> ${src}</div>
+            <div style="display:flex;align-items:center;gap:14px;">
+              <span style="font-size:13px;color:#FF6B35;font-weight:700;">${b.height} cm</span>
+              <span style="font-size:13px;color:#2E9E6B;font-weight:700;">${b.weight} kg</span>
+              <button onclick="deleteBodyRecord('${b.date}')" style="background:transparent;border:none;color:#ccc;font-size:15px;cursor:pointer;padding:2px 6px;" title="删除">✕</button>
+            </div>
+          </div>`;
+        }).join('');
+    }
+
+    function openBodyModal() {
+      document.getElementById('bodyDate').value = new Date().toISOString().split('T')[0];
+      const list = bodyList(currentStudent);
+      const last = list[list.length - 1];
+      document.getElementById('bodyHeight').value = last ? last.height : '';
+      document.getElementById('bodyWeight').value = last ? last.weight : '';
+      document.getElementById('bodyModal').style.display = 'flex';
+    }
+    function closeBodyModal() {
+      document.getElementById('bodyModal').style.display = 'none';
+    }
+
+    async function saveBodyRecord() {
+      const date = document.getElementById('bodyDate').value;
+      const height = parseFloat(document.getElementById('bodyHeight').value);
+      const weight = parseFloat(document.getElementById('bodyWeight').value);
+      if (!date) { alert('请选择日期'); return; }
+      if (!(height > 0) || !(weight > 0)) { alert('请填写身高和体重'); return; }
+      try {
+        const res = await fetch(API + '?students=bodyRecord', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentId, date, height, weight })
+        });
+        const r = await res.json();
+        if (!r.ok) { alert('保存失败: ' + (r.error || '未知错误')); return; }
+        closeBodyModal();
+        await loadStudent();
+      } catch (e) {
+        alert('网络错误，请重试');
+      }
+    }
+
+    async function deleteBodyRecord(date) {
+      if (!confirm(`确认删除 ${date} 的身高体重记录？`)) return;
+      try {
+        const res = await fetch(API + '?students=deleteBodyRecord', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentId, date })
+        });
+        const r = await res.json();
+        if (!r.ok) { alert('删除失败: ' + (r.error || '未知错误')); return; }
+        await loadStudent();
+      } catch (e) {
+        alert('网络错误，请重试');
+      }
     }
 
     // 渲染测评记录
