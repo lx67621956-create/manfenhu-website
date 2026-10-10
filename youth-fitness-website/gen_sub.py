@@ -2,7 +2,7 @@
 SUB 中转 gpt-image-2.5-sunburst 生图脚本（api.43-161-200-52.sslip.io/v1）
 用法: py gen_sub.py <prompt> <output_path> [size] [quality]
 """
-import httpx, json, base64, sys, os
+import httpx, json, base64, sys, os, time
 from PIL import Image, ImageFilter
 import io
 
@@ -67,6 +67,28 @@ def generate(prompt, output_path, size="1024x1024", quality="high", n=1,
             print(f"[SUB] Saved {img_path} ({size_kb} KB)")
 
     return True
+
+
+def run_jobs(jobs, out_dir, size="1024x1024", quality="high", retries=4, backoff=8):
+    """批量跑 [(slug, prompt), ...]，逐张重试落盘；返回成功张数。
+    端点偶发 503/读超时，所以重试放在这里，批次脚本只留数据。"""
+    ok = 0
+    for slug, prompt in jobs:
+        dst = os.path.join(out_dir, slug + ".jpg")
+        for attempt in range(1, retries + 1):
+            try:
+                print(f"[{slug}] attempt {attempt}", flush=True)
+                if generate(prompt, dst, size=size, quality=quality) \
+                        and os.path.getsize(dst) > 50 * 1024:
+                    print(f"[{slug}] OK {os.path.getsize(dst)//1024} KB", flush=True)
+                    ok += 1
+                    break
+            except Exception as e:
+                print(f"[{slug}] attempt {attempt} failed: {e}", flush=True)
+            time.sleep(backoff)
+        else:
+            print(f"[{slug}] FAILED", flush=True)
+    return ok
 
 
 if __name__ == "__main__":
