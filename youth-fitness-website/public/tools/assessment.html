@@ -63,11 +63,12 @@
   .brand { display:flex; align-items:center; gap:10px; min-width:0; }
   .brand-logo {
     width: 42px; height: 42px; border-radius: 13px;
-    background: rgba(255,255,255,.22);
+    background: #fff;
     display:flex; align-items:center; justify-content:center;
-    font-size: 22px;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(140,50,10,.22);
   }
+  .brand-logo img { width:100%; height:100%; object-fit:contain; padding:3px; box-sizing:border-box; display:block; }
   .brand h1 { font-size: 19px; font-weight: 800; letter-spacing:.5px; line-height:1.2; }
   .brand p { font-size: 11.5px; opacity:.9; margin-top:2px; letter-spacing:.3px; }
   .badge {
@@ -92,7 +93,7 @@
   }
   /* 窄屏：标题不折行、头部右侧按钮不挤压（原先工具箱绝对定位会压住说明条） */
   @media (max-width: 480px) {
-    .brand-logo { width:38px; height:38px; font-size:20px; }
+    .brand-logo { width:38px; height:38px; }
     .brand { gap:8px; }
     .brand h1 { font-size:16px; letter-spacing:0; }
     .brand p { font-size:11px; }
@@ -518,7 +519,7 @@
 <header>
   <div class="head-row">
     <div class="brand">
-      <div class="brand-logo">🐯</div>
+      <div class="brand-logo"><img src="/images/tiger-head.png" alt="满分虎"></div>
       <div>
         <h1>满分虎 · 成绩测评</h1>
         <p>专业体质测评报告 · 数据源自官方标准</p>
@@ -2299,8 +2300,14 @@
     /* LOGO 圆徽 + 标题 */
     ctx.fillStyle = "rgba(255,255,255,.9)";
     ctx.beginPath(); ctx.arc(90, 110, 52, 0, Math.PI*2); ctx.fill();
-    ctx.font = "bold 46px sans-serif"; ctx.fillStyle = b3; ctx.textAlign = "center";
-    ctx.fillText("🐯", 90, 126);
+    if (!window.LOGO_IMG) { window.LOGO_IMG = new Image(); window.LOGO_IMG.src = "/images/tiger-head.png"; }
+    if (LOGO_IMG.complete && LOGO_IMG.naturalWidth) {
+      var _lw = 78, _lh = _lw * (LOGO_IMG.naturalHeight / LOGO_IMG.naturalWidth);
+      ctx.drawImage(LOGO_IMG, 90 - _lw / 2, 110 - _lh / 2, _lw, _lh);
+    } else {
+      ctx.font = "bold 46px sans-serif"; ctx.fillStyle = b3; ctx.textAlign = "center";
+      ctx.fillText("🐯", 90, 126);
+    }
     ctx.textAlign = "left";
     ctx.fillStyle = "#fff"; ctx.font = "bold 46px 'PingFang SC','Microsoft YaHei',sans-serif";
     ctx.fillText("满分虎 · 体质测评报告", 160, 100);
