@@ -1315,9 +1315,10 @@
     if (!grows) return "";
     var gt = pickRefTriple(grows, 50);
     if (!gt) return "";
+    /* 国体表末档固定为 10 分，标清「10分 阈值」；比该阈值更差记 0 分 */
     return "满分 " + fmtRef(def, gt.max) +
            " · 50分 " + fmtRef(def, gt.mid) +
-           " · 最低 " + fmtRef(def, gt.min);
+           " · 10分 " + fmtRef(def, gt.min);
   }
 
   /* ---------- 国体评分 ---------- */
@@ -1347,9 +1348,10 @@
         if (val >= rowVal - 1e-9) return { score: rowScore, standard: rowVal };
       }
     }
-    /* 超过表底：按最后一行 */
+    /* 低于表格最低档：最低档本身仍按该档分数计，比最低档更差则 0 分
+     * （与 9 年级现场考试 scoreXianchang 同一口径：官方表到最低档为止，再往下没有分） */
     var last = rows[rows.length-1];
-    return { score: last[0], standard: last[1] };
+    return { score: 0, standard: last[1] };
   }
 
   function isLow(key, grade){
