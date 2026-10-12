@@ -1354,6 +1354,9 @@
      * 与 9 年级现场考试引体（官方表末档 3分=1次，0 次→0 分）保持同一口径。
      * 注意只对计数项生效：坐位体前屈 0cm 是有效成绩，必须照表给分。 */
     if (COUNT_ITEMS.indexOf(key) >= 0 && val <= 0) return { score: 0, standard: 0 };
+    /* 计时项实测 0 或负数（无效值）→ 0 分。
+     * 低优比较是 val <= rowVal，0/-99 这类无效值会命中满分档被当成 100 分，必须挡掉。 */
+    if (isLow(key, grade) && val <= 0) return { score: 0, standard: 0 };
     var low = isLow(key, grade);
     for (var j=0;j<rows.length;j++){
       var rowScore = rows[j][0], rowVal = rows[j][1];
