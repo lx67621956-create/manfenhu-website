@@ -1307,24 +1307,29 @@
       var half = catMax(def.key) * 0.5; /* 类别满分 8→4分、6→3分 */
       var xt = pickRefTriple(xrows, half);
       if (!xt) return "";
+      /* 现场考试末档分数不固定（引体 3分=1次、1000米 0分），按真实值标注；
+       * 末档仍有分时补写「· 最低 0分」（比末档更差记 0 分）。 */
+      var xLowRow = xrows[xrows.length-1];
       return "满分 " + fmtRef(def, xt.max) +
              " · " + half + "分 " + fmtRef(def, xt.mid) +
-             " · 最低 " + fmtRef(def, xt.min);
+             " · " + xLowRow[0] + "分 " + fmtRef(def, xLowRow[1]) +
+             (xLowRow[0] > 0 ? " · 最低 0分" : "");
     }
     var grows = guotiRefRows(grade, def.key, sex);
     if (!grows) return "";
     var gt = pickRefTriple(grows, 50);
     if (!gt) return "";
-    /* 最低有效档：标该档真实分数。
+    /* 最低有效档：标该档真实分数，并把 0 分下限显式写出（比该档更差记 0 分）。
      * 4/6/8 年级除引体外末档恒为 10 分；
      * 引体末档是「10分 0次」——该行已被「计数项 0 值记 0 分」覆盖，
-     * 故计数项要滤掉数值为 0 的档（按数值滤，不是按分数滤），取到「20分 1次」。 */
+     * 故计数项要滤掉数值为 0 的档（按数值滤，不是按分数滤），取到「20分 1次 · 最低 0分」。 */
     var isCountItem = COUNT_ITEMS.indexOf(def.key) >= 0;
     var posRows = isCountItem ? grows.filter(function(r){ return r[1] > 0; }) : grows;
     var lowRow = posRows.length ? posRows[posRows.length-1] : grows[grows.length-1];
     return "满分 " + fmtRef(def, gt.max) +
            " · 50分 " + fmtRef(def, gt.mid) +
-           " · " + lowRow[0] + "分 " + fmtRef(def, lowRow[1]);
+           " · " + lowRow[0] + "分 " + fmtRef(def, lowRow[1]) +
+           " · 最低 0分";
   }
 
   /* ---------- 国体评分 ---------- */
