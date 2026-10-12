@@ -494,6 +494,16 @@
   .bonus-val { font-size:16px; font-weight:900; color:var(--green); }
   .bonus-ref { font-size:11.5px; color:var(--ink-3); padding-bottom:9px; border-bottom:1px dashed var(--line); }
   .bonus-ref:last-of-type { border-bottom:none; }
+  /* 计入中考分数块 */
+  .zk-big { display:flex; align-items:baseline; gap:6px; padding:2px 0 12px; border-bottom:1px dashed var(--line); margin-bottom:10px; }
+  .zk-big .zk-num { font-size:40px; font-weight:900; color:var(--brand); line-height:1; }
+  .zk-big .zk-unit { font-size:14px; font-weight:700; color:var(--ink-3); }
+  .zk-row { display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:5px 0; font-size:13px; }
+  .zk-k { color:var(--ink-3); font-weight:600; flex:0 0 auto; }
+  .zk-v { color:var(--ink); font-weight:800; text-align:right; }
+  .zk-note { margin-top:10px; padding:9px 11px; border-radius:var(--r-sm); background:var(--brand-softer); border:1px solid #FBE3D0; font-size:12px; line-height:1.7; color:#A05A33; }
+  .zk-note.ok { background:var(--green-soft); border-color:#BFE3CC; color:#1F7A43; }
+  .zk-src { margin-top:10px; font-size:11px; line-height:1.7; color:var(--ink-3); }
   .bonus-total {
     margin-top:10px; font-size:13px; color:var(--ink-2); line-height:1.7;
     background: var(--brand-softer); padding:10px 12px; border-radius: var(--r-md);
@@ -619,6 +629,12 @@
     <div class="card hidden" id="bonusCard">
       <div class="card-title"><span class="ico">🏅</span>加分项明细<span class="sub">超出满分线才有加分</span></div>
       <div id="bonusList"></div>
+    </div>
+
+    <!-- 计入中考（过程性考核赋分 / 现场考试得分） -->
+    <div class="card" id="zkCard">
+      <div class="card-title"><span class="ico">🎯</span>计入中考分数<span class="sub" id="zkSub">过程性考核折算</span></div>
+      <div id="zkBody"></div>
     </div>
 
     <div class="card">
@@ -919,6 +935,7 @@
       inputs: resultData.inputs || {}, // 原始输入（供补录回填）
       bmiInfo: resultData.bmiInfo || null, // 身高体重（供补录回填）
       missing: resultData.missing || 0, // 未测项数（>0 表示部分完成）
+      zk: resultData.zk || null, // 计入中考折算（过程性考核得分，官方六档）
       rawData: resultData // 保存完整原始数据
     };
 
@@ -1568,7 +1585,26 @@
       }
     }
     var finalScore = Math.round((std + bonusTotal) * 10) / 10;
-    return { mode:"guoti", items: items, stdScore: Math.round(std*10)/10, bonus: bonusTotal, bonusDetail: bonusDetail, total: finalScore, max: 120, missing: missing };
+    return { mode:"guoti", items: items, stdScore: Math.round(std*10)/10, bonus: bonusTotal, bonusDetail: bonusDetail, total: finalScore, max: 120, missing: missing, zk: zhongkaoConvert(finalScore, grade) };
+  }
+
+  /* ---------- 中考过程性考核折算（官方六档赋分） ----------
+   * 国体总分（标准分+附加分，满分120）→ 该年级过程性考核得分（满分10）
+   * 官方档位：≥80→10 ｜ 75.0-79.9→8.5 ｜ 70.0-74.9→8 ｜ 65.0-69.9→7.5 ｜ 60.0-64.9→7 ｜ 0-59.9→5.5 */
+  function zhongkaoConvert(total, grade){
+    if (!D.zhongkao || total === null || total === undefined) return null;
+    var bands = D.zhongkao.bands;
+    for (var i = 0; i < bands.length; i++) {
+      if (total >= bands[i].min) {
+        return {
+          score: bands[i].score,
+          label: bands[i].label,
+          bandMin: bands[i].min,
+          bodyMax: D.zhongkao.bodyMax[grade] || 10
+        };
+      }
+    }
+    return null;
   }
 
   /* 现场考试总分计算 */
@@ -1649,7 +1685,54 @@
     renderBar(r);
     renderRadar(r);
     renderBonus(r);
+    renderZhongkao(r);
     renderDesc(r);
+  }
+
+  /* ---------- 计入中考分数（过程性考核折算 / 现场考试得分） ---------- */
+  function renderZhongkao(r){
+    var card = $("zkCard"), box = $("zkBody"), sub = $("zkSub");
+    if (!card || !box) return;
+    var ZK = D.zhongkao || {};
+    var html = "";
+
+    if (r.mode === "xc") {
+      /* 现场考试：本次得分即为中考现场考试分数（满分 30） */
+      sub.textContent = "现场考试得分（直接计入中考）";
+      html += '<div class="zk-big"><span class="zk-num">' + r.total + '</span><span class="zk-unit">/ ' + r.max + ' 分</span></div>';
+      html += '<div class="zk-row"><span class="zk-k">本次得分</span><span class="zk-v">' + r.total + ' 分 / 满分 ' + r.max + ' 分</span></div>';
+      html += '<div class="zk-src">现场考试满分 30 分（素质Ⅰ 8 + 素质Ⅱ 8 + 运动能力Ⅰ 8 + 运动能力Ⅱ 6），九年级 4-5 月市级统考，本次得分直接计入中考体育总分。</div>';
+      box.innerHTML = html;
+      card.classList.remove("hidden");
+      return;
+    }
+
+    var grade = state.grade;
+    var zk = r.zk || zhongkaoConvert(r.total, grade);
+    sub.textContent = grade + "年级 · 过程性考核折算";
+    if (!zk) { card.classList.add("hidden"); return; }
+
+    var max = zk.bodyMax;
+    var isFull = r.total >= 80;
+    var gap = Math.round((80 - r.total) * 10) / 10;
+
+    html += '<div class="zk-big"><span class="zk-num">' + zk.score + '</span><span class="zk-unit">/ ' + max + ' 分</span></div>';
+    html += '<div class="zk-row"><span class="zk-k">国体测试成绩</span><span class="zk-v">' + r.total + ' 分（满分 120）</span></div>';
+    html += '<div class="zk-row"><span class="zk-k">对应赋分档位</span><span class="zk-v">' + zk.label + (isFull ? '（80 分及以上）' : '（' + (zk.bandMin === 0 ? '0-59.9' : zk.bandMin + '-79.9') + ' 分档）') + '</span></div>';
+    html += '<div class="zk-row"><span class="zk-k">计入中考</span><span class="zk-v">' + zk.score + ' 分</span></div>';
+
+    if (isFull) {
+      html += '<div class="zk-note ok">已达满分赋分线（80 分），本年级过程性考核拿满 ' + max + ' 分 ✅</div>';
+    } else {
+      html += '<div class="zk-note">距满分赋分线（80 分）还差 <b>' + gap + ' 分</b>；体测差 0.1 分就掉一档，中考少 1.5 分。</div>';
+    }
+    if (grade === "8") {
+      html += '<div class="zk-note">八年级过程性考核共 <b>20 分</b> ＝ 体测 ' + zk.score + ' 分 ＋ 体育与健康知识机考 10 分（八年级第二学期，各区组织）。</div>';
+    }
+    html += '<div class="zk-src">中考体育总分 70 分 ＝ 过程性考核 40 分（四/六/八年级体测各 10 分＋八年级知识 10 分）＋ 现场考试 30 分。赋分档位依据官方六档标准，以官方统测为准。</div>';
+
+    box.innerHTML = html;
+    card.classList.remove("hidden");
   }
 
   /* 加分明细：有加分显示明细，无加分显示门槛提示（避免误以为漏算） */
@@ -2040,6 +2123,18 @@
       lines.push(it.name + "：" + disp + (it.unit ? " " + it.unit : "") + " → " + (r.mode==="xc"? it.score+"/"+it.max+"分" : it.score+"分"));
     });
     lines.push("── 测评说明 ──");
+    /* 计入中考分数（过程性考核折算 / 现场考试得分） */
+    if (r.mode === "xc") {
+      lines.push("计入中考：现场考试得分 " + r.total + " 分 / 满分 " + r.max + " 分（直接计入中考体育总分）");
+    } else {
+      var _zk = r.zk || zhongkaoConvert(r.total, state.grade);
+      if (_zk) {
+        lines.push("计入中考：" + state.grade + "年级过程性考核 " + _zk.score + " 分 / 满分 " + _zk.bodyMax + " 分");
+        lines.push("　（国体测试 " + r.total + " 分 → " + _zk.label + "档" + (r.total >= 80 ? "，80 分及以上拿满" : "，距 80 分满分线还差 " + (Math.round((80 - r.total)*10)/10) + " 分") + "）");
+        if (state.grade === "8") lines.push("　八年级过程性考核共 20 分 ＝ 体测 " + _zk.score + " 分 ＋ 体育与健康知识机考 10 分");
+      }
+      lines.push("中考体育总分 70 分 ＝ 过程性考核 40 分 ＋ 现场考试 30 分");
+    }
     lines.push("依据《义务教育体育与健康考核评价方案》(京教体艺〔2021〕31号)及国家学生体质健康标准评定。");
     lines.push("测评结果仅供参考，最终成绩以官方统测为准。");
     var text = lines.join("\n");
@@ -2211,6 +2306,7 @@
     ctx.font = "bold 28px 'PingFang SC','Microsoft YaHei',sans-serif";
     ctx.fillStyle = g.cls==="tag-excellent" ? "#2FA25B" : g.cls==="tag-good" ? "#F5A623" : g.cls==="tag-pass" ? "#5B8DEF" : "#E0533D";
     ctx.fillText("等级：" + g.name, W/2, y+190);
+    var zkExtra = 0;
     if (r.mode === "guoti" && r.stdScore !== undefined){
       ctx.font = "22px 'PingFang SC','Microsoft YaHei',sans-serif";
       ctx.fillStyle = ink2;
@@ -2218,17 +2314,28 @@
         ? ("标准分 " + r.stdScore + " + 附加分 " + r.bonus + " = " + r.total + " 分")
         : ("标准分 " + r.stdScore + " · 满分 120（含附加分上限 20）");
       ctx.fillText(bonusLine, W/2, y+215);
+      var zkLineY = y + 215;
       /* 加分项明细（有加分时逐项列出） */
       if (r.bonus > 0 && (r.bonusDetail || []).length) {
+        zkLineY = y + 245;
         ctx.font = "bold 21px 'PingFang SC','Microsoft YaHei',sans-serif";
         ctx.fillStyle = "#2FA25B";
         var bstr = (r.bonusDetail || []).map(function(d){ return "🏅 " + d.name + " +" + d.bonus; }).join("　");
-        ctx.fillText(bstr, W/2, y+245);
+        ctx.fillText(bstr, W/2, zkLineY);
+      }
+      /* 计入中考分数：过程性考核折算（官方六档） */
+      var _zkc = r.zk || zhongkaoConvert(r.total, state.grade);
+      if (_zkc) {
+        zkLineY += 33;
+        ctx.font = "bold 24px 'PingFang SC','Microsoft YaHei',sans-serif";
+        ctx.fillStyle = "#F04E23";
+        ctx.fillText("计入中考：" + state.grade + "年级过程性考核 " + _zkc.score + " / " + _zkc.bodyMax + " 分", W/2, zkLineY);
+        zkExtra = 33;
       }
     }
 
     /* 单项得分（柱状图 → 简化为行列表） */
-    y += 250;
+    y += 250 + zkExtra;
     ctx.textAlign = "left";
     ctx.font = "bold 32px 'PingFang SC','Microsoft YaHei',sans-serif";
     ctx.fillStyle = ink;

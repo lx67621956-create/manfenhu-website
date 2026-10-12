@@ -612,6 +612,31 @@
           });
           bonusHtml += '</div>';
         }
+
+        /* 计入中考分数：过程性考核折算（官方六档）或现场考试得分
+         * 老记录没有 zk 字段 → 就地按同一条官方档位表推算（不依赖后端） */
+        const ZK_BANDS = [[80,10,'良好及以上'],[75,8.5,'及格'],[70,8,'及格'],[65,7.5,'及格'],[60,7,'及格'],[0,5.5,'不及格']];
+        let zk = r.zk || null;
+        if (!zk && r.mode !== 'xc' && r.mode !== 'xianchang' && typeof r.total === 'number' && [4,6,8].indexOf(Number(r.grade)) >= 0) {
+          for (let zi = 0; zi < ZK_BANDS.length; zi++) {
+            if (r.total >= ZK_BANDS[zi][0]) { zk = { score: ZK_BANDS[zi][1], label: ZK_BANDS[zi][2], bodyMax: 10 }; break; }
+          }
+        }
+        let zkHtml = '';
+        if (r.mode === 'xc') {
+          zkHtml = '<div style="margin-top: 10px; padding: 10px 12px; background: #FFF4EC; border: 1px solid #FBE3D0; border-radius: 8px;">'
+            + '<div style="font-size: 12.5px; font-weight: 700; color: #C2410C; margin-bottom: 4px;">🎯 计入中考 · 现场考试 ' + (r.total || 0) + ' / ' + (r.max || 30) + ' 分</div>'
+            + '<div style="font-size: 11.5px; color: #A05A33; line-height: 1.6;">九年级现场考试得分直接计入中考体育总分</div></div>';
+        } else if (zk) {
+          const gapTxt = r.total >= 80
+            ? '（80 分及以上，拿满该年级 ' + (zk.bodyMax || 10) + ' 分）'
+            : '（距 80 分满分线还差 ' + (Math.round((80 - r.total) * 10) / 10) + ' 分，差 0.1 分就掉一档、中考少 1.5 分）';
+          zkHtml = '<div style="margin-top: 10px; padding: 10px 12px; background: #FFF4EC; border: 1px solid #FBE3D0; border-radius: 8px;">'
+            + '<div style="font-size: 12.5px; font-weight: 700; color: #C2410C; margin-bottom: 4px;">🎯 计入中考 · ' + r.grade + '年级过程性考核 ' + zk.score + ' / ' + (zk.bodyMax || 10) + ' 分</div>'
+            + '<div style="font-size: 11.5px; color: #A05A33; line-height: 1.6;">国体测试 ' + r.total + ' 分 → ' + zk.label + '档' + gapTxt + '</div>'
+            + (String(r.grade) === '8' ? '<div style="font-size: 11.5px; color: #A05A33; line-height: 1.6;">八年级过程性考核共 20 分 ＝ 体测 ' + zk.score + ' 分 ＋ 体育与健康知识机考 10 分</div>' : '')
+            + '</div>';
+        }
         
         return `
           <div class="record-item">
@@ -640,6 +665,7 @@
             </div>
             ${itemsHtml}
             ${bonusHtml}
+            ${zkHtml}
           </div>
         `;
       }).join('');
