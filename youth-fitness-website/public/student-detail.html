@@ -28,6 +28,8 @@
       color: #FF6B35;
       text-decoration: none;
       margin-bottom: 20px;
+      padding: 6px 0;
+      min-height: 32px;
       font-size: 16px;
       transition: all 0.3s;
     }
@@ -52,9 +54,14 @@
       color: #333;
       margin-bottom: 12px;
     }
+        .profile-info {
+      min-width: 0;
+    }
     .profile-tags {
       display: flex;
       gap: 12px;
+      flex-wrap: wrap;
+      min-width: 0;
       margin-bottom: 8px;
     }
     .tag {
@@ -64,6 +71,8 @@
       color: #FF6B35;
       font-size: 14px;
       font-weight: 500;
+      white-space: nowrap;
+      flex: 0 0 auto;
     }
     .profile-meta {
       font-size: 14px;
@@ -139,6 +148,8 @@
       font-size: 16px;
       cursor: pointer;
       padding: 6px 8px;
+      min-width: 30px;
+      min-height: 30px;
       border-radius: 6px;
       line-height: 1;
       transition: all 0.2s;
@@ -154,7 +165,7 @@
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
-      padding: 5px 11px;
+      padding: 7px 12px;
       border-radius: 8px;
       line-height: 1.4;
       white-space: nowrap;
@@ -168,6 +179,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
       margin-bottom: 12px;
     }
     .record-date {
@@ -234,6 +247,13 @@
       }
       .profile-info h1 {
         font-size: 24px;
+      }
+      .profile-tags {
+        gap: 8px;
+      }
+      .tag {
+        padding: 5px 12px;
+        font-size: 13px;
       }
       .btn-group {
         width: 100%;
@@ -507,7 +527,7 @@
             <div style="display:flex;align-items:center;gap:14px;">
               <span style="font-size:13px;color:#FF6B35;font-weight:700;">${b.height} cm</span>
               <span style="font-size:13px;color:#2E9E6B;font-weight:700;">${b.weight} kg</span>
-              <button onclick="deleteBodyRecord('${b.date}')" style="background:transparent;border:none;color:#ccc;font-size:15px;cursor:pointer;padding:2px 6px;" title="删除">✕</button>
+              <button onclick="deleteBodyRecord('${b.date}')" style="background:transparent;border:none;color:#ccc;font-size:15px;cursor:pointer;padding:6px 10px;" title="删除">✕</button>
             </div>
           </div>`;
         }).join('');
