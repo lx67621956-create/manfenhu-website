@@ -412,6 +412,19 @@
     margin-bottom: 10px;
   }
   .copy-btn:active { transform: scale(.97); background: var(--brand-soft); }
+  .img-mode { display: flex; gap: 8px; margin-bottom: 10px; }
+  .im-opt {
+    flex: 1; text-align: center; padding: 10px 0; border-radius: 13px;
+    font-size: 12.5px; font-weight: 800; color: #A49A90;
+    background: #F6F1E9; border: 1.5px solid #EFE6DA;
+    cursor: pointer; transition: all .15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .im-opt.on {
+    color: #fff; border-color: transparent;
+    background: linear-gradient(135deg, var(--brand-2), var(--brand-3));
+    box-shadow: 0 3px 10px rgba(240,78,35,.24);
+  }
   .img-btn {
     width: 100%; border: none; cursor: pointer;
     font-family: inherit; font-weight: 800; font-size: 14.5px;
@@ -436,6 +449,9 @@
     border-radius: 14px;
     box-shadow: 0 18px 60px rgba(0,0,0,.45);
   }
+  /* 长图：不缩成一小团，铺满宽度、浮层可上下滚动 */
+  .img-overlay.tall { justify-content: flex-start; overflow-y: auto; padding-top: 24px; }
+  .img-overlay.tall img { max-height: none; width: 92%; max-width: 460px; }
   .img-overlay .io-tip {
     color: #fff; font-size: 13px; margin-top: 14px;
     text-align: center; line-height: 1.7;
@@ -666,7 +682,11 @@
     </div>
 
     <button class="copy-btn" id="copyBtn">📋 复制测评报告（发微信）</button>
-    <button class="img-btn" id="imgBtn">🖼️ 保存测评图片（发朋友圈/家长）</button>
+    <div class="img-mode" id="imgMode">
+      <div class="im-opt on" data-mode="long">长图 · 含全部点评</div>
+      <div class="im-opt" data-mode="short">短图 · 发朋友圈</div>
+    </div>
+    <button class="img-btn" id="imgBtn">🖼️ 生成测评图片</button>
 
     <div class="src-note">
       📌 数据来源：《北京市义务教育体育与健康考核评价方案》(京教体艺〔2021〕31号)、《国家学生体质健康标准(2014年修订)》、北京教育考试院《现场考试项目评分标准(试行)》(2023)。测评结果仅供参考，最终成绩以官方统测为准。
@@ -2238,6 +2258,14 @@
     });
     $("copyBtn").addEventListener("click", copyReport);
     $("imgBtn").addEventListener("click", generateImage);
+    [].slice.call(document.querySelectorAll("#imgMode .im-opt")).forEach(function(o){
+      o.addEventListener("click", function(){
+        imgMode = o.getAttribute("data-mode") || "long";
+        [].slice.call(document.querySelectorAll("#imgMode .im-opt")).forEach(function(x){
+          x.classList.toggle("on", x === o);
+        });
+      });
+    });
     $("imgClose").addEventListener("click", function(){
       $("imgOverlay").classList.add("hidden");
     });
@@ -2270,13 +2298,61 @@
     return disp;
   }
 
+  /* 图片样式：long=含全部点评的长图，short=一句话点评的短图（发朋友圈） */
+  var imgMode = "long";
+
+  /* 长图点评：直接取页面上已渲染的 #descArea 文案块 —— 与屏幕文字完全一致（评语是随机变体，重算会打架） */
+  function collectDescBlocks(){
+    var out = [], area = $("descArea");
+    if (!area) return out;
+    [].slice.call(area.querySelectorAll(".desc-block")).forEach(function(b){
+      var lb = b.querySelector(".desc-label"), tx = b.querySelector(".desc-text");
+      if (!lb || !tx) return;
+      var html = tx.innerHTML.replace(/<br\s*\/?>/gi, "\n").replace(/<\/(div|p|li)>/gi, "\n");
+      var tmp = document.createElement("div");
+      tmp.innerHTML = html;
+      var text = (tmp.textContent || "").replace(/[ \t]+/g, " ").replace(/\n{2,}/g, "\n").trim();
+      if (text) out.push({ label: lb.textContent.trim(), text: text });
+    });
+    return out;
+  }
+
+  /* 点评排版：draw=false 只量高度、true 才落笔 —— 量画同源，长图高度不会算错 */
+  function descLayout(ctx, blocks, W, startY, draw){
+    var left = 60, maxW = W - 120, y = startY;
+    ctx.textAlign = "left";
+    blocks.forEach(function(bl){
+      if (!bl.text) return;
+      y += 46;
+      if (draw) {
+        ctx.font = "bold 30px 'PingFang SC','Microsoft YaHei',sans-serif";
+        ctx.fillStyle = "#F04E23";
+        ctx.fillText("▍" + bl.label, left, y);
+      }
+      y += 16;
+      ctx.font = "26px 'PingFang SC','Microsoft YaHei',sans-serif";
+      if (draw) ctx.fillStyle = "#4A443E";
+      bl.text.split("\n").forEach(function(seg){
+        seg = seg.replace(/\s+/g, " ").trim();
+        if (!seg) return;
+        y += wrapText(ctx, seg, left, draw ? y : -9999, maxW, 41, 99) * 41;
+      });
+      y += 22;
+    });
+    return y;
+  }
+
   function generateImage(){
     var r = results;
     if (!r) { toast("请先生成测评报告"); return; }
     var g = gradeOf(r.total, r.mode === "xc" ? r.pct : undefined);
-    /* 高度按单项数动态：顶部220 + 信息96 + 总分210 + 标题 + 单项行*46 + 评语 + 底部300 */
+    var longMode = (imgMode === "long");
+    var descBlocks = longMode ? collectDescBlocks() : [];
+    var _mctx = document.createElement("canvas").getContext("2d");
+    var descH = longMode ? (descLayout(_mctx, descBlocks, 1080, 0, false) + 46) : 0;
+    /* 高度按单项数动态：顶部220 + 信息96 + 总分210 + 标题 + 单项行*46 + 点评 + 底部300 */
     var W = 1080;
-    var H = 220 + 130 + 210 + 60 + r.items.length*46 + 220 + 300 + 80;
+    var H = 220 + 130 + 210 + 60 + r.items.length*46 + 220 + 300 + 80 + descH;
     var canvas = document.createElement("canvas");
     canvas.width = W; canvas.height = H;
     var ctx = canvas.getContext("2d");
@@ -2416,6 +2492,10 @@
     ctx.fillStyle = ink;
     ctx.fillText("▍专业点评", 60, y);
     y += 24;
+    if (longMode){
+      /* 长图：完整点评（综合评语/优势项目/待提升方向/发展建议/单项点评/满分虎建议/数据提示） */
+      y = descLayout(ctx, descBlocks, W, y, true);
+    } else {
     var comment = "";
     var topItems = r.items.slice().sort(function(a,b){
       var sa = r.mode==="xc" ? a.score/a.max : a.score;
@@ -2437,6 +2517,7 @@
     ctx.font = "26px 'PingFang SC','Microsoft YaHei',sans-serif";
     ctx.fillStyle = ink2;
     var linesUsed = wrapText(ctx, comment, 60, y+34, W-120, 40, 3);
+    }
 
     /* 底部品牌 + 二维码 */
     y += linesUsed*40 + 60;
@@ -2478,7 +2559,7 @@
       ctx.fillStyle = ink3;
       ctx.fillText("www.manfenhu.com", 340, H-70);
       /* 完成 → 预览 */
-      showImage(canvas);
+      showImage(canvas, longMode);
     }
   }
 
@@ -2492,10 +2573,12 @@
     ctx.closePath();
   }
 
-  function showImage(canvas){
+  function showImage(canvas, tall){
     var url = canvas.toDataURL("image/png");
     $("imgPreview").src = url;
-    $("imgOverlay").classList.remove("hidden");
+    var ov = $("imgOverlay");
+    ov.classList.toggle("tall", !!tall);
+    ov.classList.remove("hidden");
   }
 
   // 渲染年级性别选择器（用于自动填充）
