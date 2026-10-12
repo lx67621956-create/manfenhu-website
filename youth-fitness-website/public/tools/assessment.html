@@ -1315,10 +1315,16 @@
     if (!grows) return "";
     var gt = pickRefTriple(grows, 50);
     if (!gt) return "";
-    /* 国体表末档固定为 10 分，标清「10分 阈值」；比该阈值更差记 0 分 */
+    /* 最低有效档：标该档真实分数。
+     * 4/6/8 年级除引体外末档恒为 10 分；
+     * 引体末档是「10分 0次」——该行已被「计数项 0 值记 0 分」覆盖，
+     * 故计数项要滤掉数值为 0 的档（按数值滤，不是按分数滤），取到「20分 1次」。 */
+    var isCountItem = COUNT_ITEMS.indexOf(def.key) >= 0;
+    var posRows = isCountItem ? grows.filter(function(r){ return r[1] > 0; }) : grows;
+    var lowRow = posRows.length ? posRows[posRows.length-1] : grows[grows.length-1];
     return "满分 " + fmtRef(def, gt.max) +
            " · 50分 " + fmtRef(def, gt.mid) +
-           " · 10分 " + fmtRef(def, gt.min);
+           " · " + lowRow[0] + "分 " + fmtRef(def, lowRow[1]);
   }
 
   /* ---------- 国体评分 ---------- */
@@ -1338,6 +1344,11 @@
       else return null;
     }
     if (!rows) return null;
+    /* 计数项实测 0（一个都完成不了）→ 0 分。
+     * 官方国标表把「0 次」印在 8 年级引体向上的最低档（10 分），但 0 次意味着该项没有成绩，
+     * 与 9 年级现场考试引体（官方表末档 3分=1次，0 次→0 分）保持同一口径。
+     * 注意只对计数项生效：坐位体前屈 0cm 是有效成绩，必须照表给分。 */
+    if (COUNT_ITEMS.indexOf(key) >= 0 && val <= 0) return { score: 0, standard: 0 };
     var low = isLow(key, grade);
     for (var j=0;j<rows.length;j++){
       var rowScore = rows[j][0], rowVal = rows[j][1];
@@ -1360,6 +1371,10 @@
     if (key === "run800") return true;
     return false;
   }
+
+  /* 计数型项目（次/个/ml/cm，做不了就是 0）：实测 0 记 0 分。
+   * 不含坐位体前屈 —— 它是可正可负的柔韧测量值，0cm 是有效成绩。 */
+  var COUNT_ITEMS = ["vital", "rope", "situp", "pullup", "longjump"];
 
   /* BMI 评分 */
   function scoreBMI(bmiVal){
