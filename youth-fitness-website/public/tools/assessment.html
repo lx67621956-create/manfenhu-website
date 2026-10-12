@@ -1339,6 +1339,10 @@
     var tables = D.guoti.tables[grade];
     var t;
     if (key === "bmi") return null; /* BMI 由 scoreBMI 处理 */
+    /* 键名不统一：8年级女的耐力输入框用 run800f，表存在 run800.F
+     * （国体耐力表按性别分列：M=1000米、F=800米）。缺这行的话
+     * 实时分数(liveScore 直接传 def.key)会查不到表，胶囊永远显示「—」。 */
+    if (key === "run800f") key = "run800";
     t = tables[key];
     if (!t) return null;
     var rows = t[state.sex];
@@ -2065,7 +2069,14 @@
   function itemComments(r){
     var out = [];
     r.items.forEach(function(it){
-      var lib = ITEM_COMMENTS[it.key];
+      /* 评语按「项目名」取词，不按数据键。
+       * 国体 8 年级耐力项两性共用 run800 键（M=1000米、F=800米），
+       * 现场考试又用 run800 表示女 800 米 —— 只看键会把男生 1000 米
+       * 的点评说成「800米跑」，与孩子实际测的项目不符。 */
+      var ck = it.key;
+      if (/^1000米/.test(it.name)) ck = "run1000";
+      else if (/^800米/.test(it.name)) ck = "run800f";
+      var lib = ITEM_COMMENTS[ck];
       if (!lib) return;
       var pct = r.mode === "xc" ? (it.score / it.max * 100) : it.score;
       var band = pct >= 90 ? "ex" : pct >= 80 ? "good" : pct >= 60 ? "pass" : "low";
