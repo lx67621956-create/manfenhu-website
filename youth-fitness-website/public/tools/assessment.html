@@ -242,6 +242,18 @@
   .time-zone { gap: 4px; }
   .time-zone input { flex: 1 1 0; font-size: 15px; }
   .time-zone .u { flex: 0 0 18px; width: 18px; font-size: 11px; color: var(--ink-2, #6E655D); }
+
+  /* AI 辅助：智能录入 + 家长评语 */
+  .ai-toggle { width: 100%; padding: 10px 12px; background: var(--brand-softer, #FFF3E8); color: var(--brand-3, #C2410C); border: 1.5px dashed var(--brand, #FF6B35); border-radius: var(--r-md, 12px); font-size: 13px; font-weight: 700; cursor: pointer; }
+  .ai-panel { margin-top: 8px; }
+  .ai-panel textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--line, #E7DED4); border-radius: var(--r-md, 12px); font-size: 13.5px; line-height: 1.7; font-family: inherit; resize: vertical; }
+  .ai-row { display: flex; gap: 8px; margin-top: 8px; }
+  .ai-row .btn { flex: 1; padding: 10px 0; font-size: 13.5px; }
+  .ai-msg { margin-top: 8px; font-size: 12.5px; line-height: 1.75; color: var(--ink-2, #6E655D); }
+  .ai-msg.err { color: #C2410C; }
+  .ai-box { font-size: 13.5px; line-height: 1.95; color: var(--ink, #2B2521); background: var(--brand-softer, #FFF3E8); border-radius: var(--r-md, 12px); padding: 14px; white-space: pre-wrap; word-break: break-word; }
+  .ai-box:empty { display: none; }
+  .ai-note { margin-top: 9px; font-size: 11.5px; line-height: 1.7; color: #9A8F86; }
   /* BMI 双输入：两个输入框等宽 */
   .bmi-zone {
     display: flex;
@@ -631,6 +643,19 @@
       <span class="ico">💡</span>
       <span>填写各项实际测试成绩，完成后点击下方「生成测评报告」。</span>
     </div>
+    <!-- AI 智能录入：粘贴成绩文字自动填表 -->
+    <div style="margin-top:14px;">
+      <button type="button" class="ai-toggle" id="aiPasteToggle">🪄 粘贴成绩文字，自动填表（AI）</button>
+      <div class="ai-panel hidden" id="aiPastePanel">
+        <textarea id="aiPasteText" rows="3" placeholder="把成绩单文字粘进来，例如：&#10;浩轩 肺活量2600 50米8.7 跳绳120 坐位体前屈12 1000米4分20秒"></textarea>
+        <div class="ai-row">
+          <button type="button" class="btn" id="aiParseBtn">识别并填入</button>
+          <button type="button" class="btn btn-ghost" id="aiPasteClear">清空</button>
+        </div>
+        <div class="ai-msg" id="aiParseMsg">只认上面已经列出的项目；分、秒会自己换算，数字照抄即可。</div>
+      </div>
+    </div>
+
     <div id="itemList"></div>
   </div>
 
@@ -683,6 +708,16 @@
     <div class="card">
       <div class="card-title"><span class="ico">💬</span>专业点评</div>
       <div id="descArea"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="ico">✨</span>AI 家长评语<span class="sub">一键生成，可直接复制发家长</span></div>
+      <div class="ai-box" id="aiCommentBox"></div>
+      <div class="ai-row">
+        <button type="button" class="btn" id="aiCommentBtn">✨ 写一段家长评语</button>
+        <button type="button" class="btn btn-ghost hidden" id="aiCommentCopy">📋 复制这段</button>
+      </div>
+      <div class="ai-note" id="aiCommentNote">内容由 AI（DeepSeek V4.1 Flash）依据本次成绩和档案里的上次成绩生成。发出去之前看一眼，按孩子实际情况改两笔，更像你本人写的。</div>
     </div>
 
     <button class="copy-btn" id="copyBtn">📋 复制测评报告（发微信）</button>
@@ -2261,6 +2296,209 @@
     document.body.removeChild(ta);
   }
 
+  /* ========== AI 辅助（服务端 /api/ai，模型锁定 DeepSeek V4.1 Flash） ==========
+   * ① 把教练粘贴的成绩文字识别成数值填进表 ② 依据成绩写一段可直接发家长的评语
+   * 两个都由点击触发，不做任何自动调用（按次计费，不重复花钱）。 */
+  function aiSetBusy(btn, busy, busyText){
+    if (!btn) return;
+    if (busy) { btn.dataset.t = btn.textContent; btn.textContent = busyText; btn.disabled = true; }
+    else { if (btn.dataset.t) btn.textContent = btn.dataset.t; btn.disabled = false; }
+  }
+
+  async function aiPost(payload){
+    var res = await fetch("/api/ai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    return await res.json();
+  }
+
+  /* 字段清单取自页面上真实渲染的行，避免 AI 编出不存在的项目 */
+  function aiItemsForPrompt(){
+    var out = [];
+    Array.prototype.forEach.call(document.querySelectorAll("#itemList .item"), function(row){
+      var key = row.dataset.key;
+      if (!key) return;
+      var nameEl = row.querySelector(".item-name");
+      var name = nameEl ? nameEl.textContent.trim() : key;
+      if (key === "bmi") {
+        out.push({ key: "bmi_h", name: "身高", unit: "厘米", hint: "如 157" });
+        out.push({ key: "bmi_w", name: "体重", unit: "公斤", hint: "如 53.5" });
+        return;
+      }
+      var inp = row.querySelector("input[data-in]");
+      if (!inp) return;
+      if (TIME_KEYS.indexOf(key) >= 0) {
+        out.push({ key: key, name: name, unit: "秒", hint: "分秒由系统换算：4分20秒=260，3'50=230" });
+        return;
+      }
+      var uEl = row.querySelector(".input-zone .u");
+      var ph = inp.getAttribute("placeholder") || "";
+      out.push({ key: key, name: name, unit: uEl ? uEl.textContent.trim() : "", hint: ph ? "示例 " + ph : "" });
+    });
+    return out;
+  }
+
+  /* 填表：计时项自动拆 分/秒 两框（走 setInputValue），BMI 填身高体重 */
+  function aiFill(values){
+    var done = [], miss = [], nameOf = {};
+    aiItemsForPrompt().forEach(function(it){ nameOf[it.key] = it.name; });
+    Object.keys(values || {}).forEach(function(k){
+      var v = values[k];
+      if (k === "bmi_h" || k === "bmi_w") {
+        var brow = document.querySelector('#itemList .item[data-key="bmi"]');
+        var bi = brow && brow.querySelector('input[data-in="' + (k === "bmi_h" ? "h" : "w") + '"]');
+        if (!bi) { miss.push(nameOf[k] || k); return; }
+        bi.value = v;
+        bi.dispatchEvent(new Event("input", { bubbles: true }));
+        done.push((nameOf[k] || k) + " " + v);
+        return;
+      }
+      var row = document.querySelector('#itemList .item[data-key="' + k + '"]');
+      if (!row) { miss.push(nameOf[k] || k); return; }
+      setInputValue(k, v);
+      Array.prototype.forEach.call(row.querySelectorAll("input"), function(i){
+        i.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+      var show = TIME_KEYS.indexOf(k) >= 0
+        ? secToTime(typeof v === "number" ? v : timeToSec(v))
+        : v;
+      done.push((nameOf[k] || k) + " " + show);
+    });
+    return { done: done, miss: miss };
+  }
+
+  async function aiParseScores(){
+    var btn = $("aiParseBtn"), msg = $("aiParseMsg");
+    var text = ($("aiPasteText").value || "").trim();
+    if (!text) { msg.className = "ai-msg err"; msg.textContent = "先把成绩文字粘贴到上面的框里。"; return; }
+    var items = aiItemsForPrompt();
+    if (!items.length) { msg.className = "ai-msg err"; msg.textContent = "当前没有可填的项目，请先选择年级。"; return; }
+    aiSetBusy(btn, true, "识别中…");
+    msg.className = "ai-msg";
+    msg.textContent = "正在识别，通常 3-10 秒…";
+    try {
+      var d = await aiPost({ action: "parse_scores", text: text, items: items });
+      if (!d || !d.ok) {
+        msg.className = "ai-msg err";
+        msg.textContent = "识别失败：" + ((d && d.error) || "网络或服务暂不可用");
+        return;
+      }
+      var r = aiFill(d.values);
+      if (!r.done.length) {
+        msg.className = "ai-msg err";
+        msg.textContent = "没能从这段文字里认出成绩，换个写法再试（例如：肺活量2600 50米8.7 1000米4分20秒）。";
+        return;
+      }
+      msg.className = "ai-msg";
+      msg.textContent = "已填入 " + r.done.length + " 项：" + r.done.join("、")
+        + (r.miss.length ? "；没对上：" + r.miss.join("、") : "")
+        + ((d.unmatched && d.unmatched.length) ? "；原文里没认出来的：" + d.unmatched.join(" ") : "")
+        + " —— 核对一遍，再点生成报告。";
+    } catch (e) {
+      msg.className = "ai-msg err";
+      msg.textContent = "网络错误：" + (e && e.message ? e.message : e);
+    } finally {
+      aiSetBusy(btn, false);
+    }
+  }
+
+  /* 档案里的"上一次"成绩（排掉刚生成的这次）＋逐项差值。
+   * 差值在本地算好再给 AI —— 不让模型做减法，避免算错。 */
+  function aiHistory(){
+    var recs = (currentStudent && currentStudent.records) || [];
+    if (!recs.length || !results) return null;
+    var today = new Date().toISOString().split("T")[0];
+    var nowTotal = results.mode === "guoti"
+      ? Math.min(120, Math.round(results.total * 10) / 10)
+      : Math.round(results.total * 10) / 10;
+    var prev = null;
+    for (var i = recs.length - 1; i >= 0; i--) {
+      var rec = recs[i];
+      var isNow = rec && rec.date === today && rec.total != null && Math.abs(rec.total - nowTotal) < 0.05;
+      if (!isNow) { prev = rec; break; }
+    }
+    if (!prev) return null;
+    var lines = ["上次测评：" + (prev.date || "日期未填") + "，总分 " + (prev.total != null ? prev.total : "—")
+      + "，等级 " + (prev.level || "—")];
+    if (prev.total != null) {
+      var dt = Math.round((nowTotal - prev.total) * 10) / 10;
+      lines.push("总分较上次" + (dt > 0 ? "提高 " + dt + " 分" : dt < 0 ? "下降 " + (-dt) + " 分" : "持平"));
+    }
+    var cur = {};
+    ((results && results.items) || []).forEach(function(it){ cur[it.name] = it.score; });
+    var deltas = [];
+    (prev.items || []).forEach(function(it){
+      if (cur[it.name] === undefined || it.score === undefined || it.score === null) return;
+      var diff = Math.round((cur[it.name] - it.score) * 10) / 10;
+      if (diff !== 0) deltas.push(it.name + (diff > 0 ? " 比上次多 " + diff + " 分" : " 比上次少 " + (-diff) + " 分"));
+    });
+    if (deltas.length) lines.push("逐项：" + deltas.join("；"));
+    return lines.join("｜");
+  }
+
+  async function aiParentComment(){
+    var btn = $("aiCommentBtn"), box = $("aiCommentBox"), copyBtn = $("aiCommentCopy");
+    if (!results) { toast("请先生成测评报告"); return; }
+    var r = results;
+    var gi = gradeOf(r.total, r.mode === "xc" ? r.pct : undefined);
+    var rows = (r.items || []).map(function(it){
+      return { name: it.name, raw: fmtDisplay(it), score: it.score, max: r.mode === "xc" ? (it.max || 8) : 100 };
+    });
+    var hist = aiHistory();
+    var info = {
+      grade: state.grade + "年级",
+      sexText: state.sex === "M" ? "男生" : "女生",
+      name: currentStudent ? currentStudent.name : "",
+      total: r.total,
+      maxTotal: r.mode === "xc" ? (r.max || 30) : 120,
+      level: gi.name,
+      bonus: r.bonus ? "附加分 +" + r.bonus : "无",
+      history: hist || ""
+    };
+    aiSetBusy(btn, true, "生成中…");
+    box.textContent = "正在写，通常 5-15 秒…";
+    try {
+      var d = await aiPost({ action: "parent_comment", info: info, rows: rows });
+      if (!d || !d.ok) {
+        box.textContent = "";
+        $("aiCommentNote").textContent = "生成失败：" + ((d && d.error) || "网络或服务暂不可用") + "。过一会儿再点一次就行。";
+        return;
+      }
+      box.textContent = d.text;
+      copyBtn.classList.remove("hidden");
+      $("aiCommentNote").textContent = "由 AI（DeepSeek V4.1 Flash）依据本次成绩" + (hist ? "和档案里的上次成绩" : "")
+        + "生成。发之前看一眼，按孩子实际情况改两笔，更像你本人写的。";
+    } catch (e) {
+      box.textContent = "";
+      $("aiCommentNote").textContent = "网络错误：" + (e && e.message ? e.message : e);
+    } finally {
+      aiSetBusy(btn, false);
+    }
+  }
+
+  function aiCopyComment(){
+    var t = $("aiCommentBox").textContent || "";
+    if (!t) return;
+    var done = function(){ toast("家长评语已复制 ✅"); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).then(done, function(){
+        var ta = document.createElement("textarea");
+        ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch (e) { toast("复制失败，请长按选择复制"); }
+        document.body.removeChild(ta);
+      });
+    } else {
+      var ta2 = document.createElement("textarea");
+      ta2.value = t; ta2.style.position = "fixed"; ta2.style.opacity = "0";
+      document.body.appendChild(ta2); ta2.select();
+      try { document.execCommand("copy"); done(); } catch (e) { toast("复制失败，请长按选择复制"); }
+      document.body.removeChild(ta2);
+    }
+  }
+
   /* ---------- 事件 ---------- */
   function bindEvents(){
     var segs = document.querySelectorAll("#gradeSeg .opt");
@@ -2308,6 +2546,17 @@
     });
     $("copyBtn").addEventListener("click", copyReport);
     $("imgBtn").addEventListener("click", generateImage);
+    $("aiPasteToggle").addEventListener("click", function(){
+      $("aiPastePanel").classList.toggle("hidden");
+    });
+    $("aiParseBtn").addEventListener("click", aiParseScores);
+    $("aiPasteClear").addEventListener("click", function(){
+      $("aiPasteText").value = "";
+      $("aiParseMsg").className = "ai-msg";
+      $("aiParseMsg").textContent = "只认上面已经列出的项目；分、秒会自己换算，数字照抄即可。";
+    });
+    $("aiCommentBtn").addEventListener("click", aiParentComment);
+    $("aiCommentCopy").addEventListener("click", aiCopyComment);
     [].slice.call(document.querySelectorAll("#imgMode .im-opt")).forEach(function(o){
       o.addEventListener("click", function(){
         imgMode = o.getAttribute("data-mode") || "long";

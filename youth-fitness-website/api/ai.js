@@ -10,6 +10,9 @@ export const config = { maxDuration: 60 };
 
 const BASE = 'https://opencode.ai/zen/go/v1';
 const MODEL = 'deepseek-v4.1-flash';
+// OpenCode 中转要求每个请求带 x-opencode-session（缺了直接 400 MissingSessionID），
+// 同值请求会被固定路由到同一后端，提示词缓存命中更稳。固定一个值即可。
+const SESSION = 'manfenhu-tools-v1';
 const KEY = () => process.env.OPENCODE_GO_API_KEY || '';
 
 async function chat(messages, { maxTokens = 900, temperature = 0.5, timeoutMs = 50000 } = {}) {
@@ -23,7 +26,7 @@ async function chat(messages, { maxTokens = 900, temperature = 0.5, timeoutMs = 
     try {
       const r = await fetch(BASE + '/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key },
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key, 'x-opencode-session': SESSION },
         body,
         signal: ctl.signal
       });
@@ -83,7 +86,7 @@ export default async function handler(req, res) {
     if (!key) { res.status(200).json({ ok: false, error: 'OPENCODE_GO_API_KEY 未配置' }); return; }
     try {
       const r = await fetch(BASE + '/models', {
-        headers: { Authorization: 'Bearer ' + key },
+        headers: { Authorization: 'Bearer ' + key, 'x-opencode-session': SESSION },
         signal: AbortSignal.timeout(20000)
       });
       const txt = await r.text();
