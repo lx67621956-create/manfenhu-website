@@ -37,8 +37,15 @@ async function chat(messages, { maxTokens = 900, temperature = 0.5, timeoutMs = 
         continue;
       }
       const d = JSON.parse(txt);
-      const text = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '';
-      if (!text) { lastErr = '上游返回空内容'; continue; }
+      const choice = (d.choices && d.choices[0]) || {};
+      const msg = choice.message || {};
+      const text = msg.content || '';
+      if (!text) {
+        // 空内容多半是 max_tokens 被思考过程吃光（finish_reason=length），把原因带回去便于排查
+        lastErr = '上游返回空内容（finish=' + (choice.finish_reason || '?') +
+          ', reasoning=' + String(msg.reasoning_content || '').length + ' 字符, usage=' + JSON.stringify(d.usage || {}) + '）';
+        continue;
+      }
       return { text, usage: d.usage || null, model: d.model || MODEL };
     } catch (e) {
       lastErr = '调用失败：' + String((e && e.message) || e);
@@ -161,7 +168,7 @@ ${lines}
 【加分项】${info.bonus || '无'}${hist}
 
 ${COMMENT_RULES}` }
-    ], { maxTokens: 700, temperature: 0.7 });
+    ], { maxTokens: 4000, temperature: 0.7 });
     if (r.error) { res.status(200).json({ ok: false, error: r.error }); return; }
     res.status(200).json({ ok: true, text: r.text.trim(), usage: r.usage });
     return;
