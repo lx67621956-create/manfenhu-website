@@ -238,6 +238,10 @@
     font-size: 10px; color: var(--ink-3); white-space: nowrap;
     text-align: center;
   }
+  /* 分:秒 双框（跑步/游泳等计时项目）：两个数字框 + 单位小标签，教练只敲数字，不用打 ' 或 " */
+  .time-zone { gap: 4px; }
+  .time-zone input { flex: 1 1 0; font-size: 15px; }
+  .time-zone .u { flex: 0 0 18px; width: 18px; font-size: 11px; color: var(--ink-2, #6E655D); }
   /* BMI 双输入：两个输入框等宽 */
   .bmi-zone {
     display: flex;
@@ -744,7 +748,17 @@
     if (!row) return;
     var inp = row.querySelector('input[data-in]');
     if (!inp) return;
-    if (TIME_KEYS.indexOf(key) >= 0 && typeof v === 'number') v = secToTime(v);
+    if (TIME_KEYS.indexOf(key) >= 0) {
+      /* 计时项：数字秒回填到 分/秒 两个框 */
+      var secs = typeof v === 'number' ? v : timeToSec(v);
+      var im = row.querySelector('input[data-in="m"]'), isx = row.querySelector('input[data-in="s"]');
+      if (im && isx && typeof secs === 'number' && !isNaN(secs)) {
+        im.value = String(Math.floor(secs / 60));
+        isx.value = ("0" + Math.round(secs % 60)).slice(-2);
+        return;
+      }
+      if (typeof v === 'number') v = secToTime(v);
+    }
     inp.value = v;
   }
 
@@ -1002,9 +1016,13 @@
   }
   /* 时间字符串 -> 秒：支持 "3'50" "3:50" "3.50" "230" */
   function timeToSec(v){
-    v = String(v).trim();
-    var m = v.match(/^(\d+)[':\.](\d{1,2})$/);
-    if (m) return parseInt(m[1],10)*60 + parseInt(m[2],10);
+    v = String(v == null ? "" : v)
+      .replace(/[\u3002\uFF0E\uFF61]/g, ".").replace(/[\uFF0C\u3001\uFF64]/g, ".")
+      .replace(/[\uFF1A]/g, ":").replace(/[\u2019\u2032]/g, "'").replace(/[\u201D\u2033]/g, '"')
+      .trim();
+    /* 分'秒 / 分:秒 / 分.秒，秒允许小数（停表带小数也不会被当成几秒） */
+    var m = v.match(/^(\d+)\s*[':\.]\s*(\d{1,2}(?:\.\d+)?)/);
+    if (m) return parseInt(m[1],10)*60 + parseFloat(m[2]);
     var n = parseFloat(v);
     return isNaN(n) ? null : n;
   }
@@ -1014,7 +1032,9 @@
     return m + "'" + (sec<10?"0":"") + sec;
   }
   function num(v){
-    var n = parseFloat(v);
+    /* 中文输入法会把 . 打成 。、把 , 打成 ，：统一归一化，免得静默算错 */
+    var s = String(v == null ? "" : v).replace(/[\u3002\uFF0E\uFF61]/g, ".").replace(/[\uFF0C\u3001\uFF64]/g, ".").trim();
+    var n = parseFloat(s);
     return isNaN(n) ? null : n;
   }
 
@@ -1129,7 +1149,7 @@
     } else if (state.grade === "8") {
       tip.innerHTML = "<span class='ico'>💡</span><span>八年级国体测试：填写全部项目（力量与耐力按性别显示）。</span>";
     } else if (state.grade === "6") {
-      tip.innerHTML = "<span class='ico'>💡</span><span>填写各项实际测试成绩。50米×8往返跑填分:秒，如 1'45。跳绳超出满分每2个+1分（六年级唯一加分项）。</span>";
+      tip.innerHTML = "<span class='ico'>💡</span><span>填写各项实际测试成绩。50米×8往返跑、1000/800米跑的分和秒分开填（如 1 分 45 秒）。跳绳超出满分每2个+1分（六年级唯一加分项）。</span>";
     } else {
       tip.innerHTML = "<span class='ico'>💡</span><span>填写各项实际测试成绩，身高填厘米、体重填公斤。</span>";
     }
@@ -1150,7 +1170,13 @@
     } else if (def.input === "manual") {
       inputHtml = '<div class="input-zone"><input type="text" inputmode="decimal" data-in="1" placeholder="'+def.ph+'"><span class="u">0-6分</span></div>';
     } else if (def.input === "time") {
-      inputHtml = '<div class="input-zone"><input type="text" inputmode="decimal" data-in="1" placeholder="'+def.ph+'"><span class="u">分:秒</span></div>';
+      /* 分、秒拆成两个数字框：教练只敲数字，免去 ' " 标点（中英文输入法切换麻烦） */
+      inputHtml = '<div class="input-zone time-zone">' +
+        '<input type="text" inputmode="numeric" maxlength="2" data-in="m" placeholder="6">' +
+        '<span class="u">分</span>' +
+        '<input type="text" inputmode="numeric" maxlength="2" data-in="s" placeholder="16">' +
+        '<span class="u">秒</span>' +
+        '</div>';
     } else {
       inputHtml = '<div class="input-zone"><input type="text" inputmode="decimal" data-in="1" placeholder="'+def.ph+'"><span class="u">'+esc(def.unit)+'</span></div>';
     }
@@ -1170,6 +1196,18 @@
       var fn = function(){ liveBMI(ih, iw, row); };
       ih.addEventListener("input", fn); ih.addEventListener("blur", fn);
       iw.addEventListener("input", fn); iw.addEventListener("blur", fn);
+    } else if (def.input === "time") {
+      var im = row.querySelector('input[data-in="m"]');
+      var isx = row.querySelector('input[data-in="s"]');
+      var fnT = function(){ liveScore(def, im, row); };
+      [im, isx].forEach(function(x){
+        if (!x) return;
+        x.addEventListener("input", function(){
+          if (x === im && im.value.length >= 2 && isx) isx.focus();  /* 分钟填满自动跳秒 */
+          fnT();
+        });
+        x.addEventListener("blur", fnT);
+      });
     } else {
       var inp = row.querySelector('input[data-in]');
       if (inp) {
@@ -1219,10 +1257,23 @@
   }
 
   /* 实时评分预览（国体百分制） */
+  /* 取一行原始输入：计时项由 分/秒 两个框拼成 4'05，其余项取单框 */
+  function rowRaw(row){
+    var im = row.querySelector('input[data-in="m"]');
+    if (im) {
+      var isx = row.querySelector('input[data-in="s"]');
+      var mv = String(im.value || "").trim(), sv = String(isx ? isx.value : "").trim();
+      if (mv === "" && sv === "") return "";
+      return (mv === "" ? "0" : mv) + "'" + (sv === "" ? "0" : sv);
+    }
+    var inp = row.querySelector('input[data-in]');
+    return inp ? inp.value : "";
+  }
+
   function liveScore(def, inp, row){
     var pill = row.querySelector('[data-pill]');
     if (!pill) return;
-    var val = readInput(def, inp.value);
+    var val = readInput(def, rowRaw(row));
     if (val === null || val === undefined) { pill.textContent = "—"; pill.className = "score-pill"; return; }
     var r = null;
     if (state.grade === "9") {
@@ -1476,12 +1527,11 @@
         }
         return;
       }
-      var inp = row.querySelector('input[data-in]');
-      if (!inp) return;
-      var raw = inp.value;
       var def = defs.filter(function(d){return d.key===key;})[0];
       if (!def && key === "pullup") def = {input:"num"};
       if (!def && key === "run800") def = {input:"time"};
+      if (!row.querySelector('input[data-in]')) return;
+      var raw = rowRaw(row);
       if (raw) inputs[key] = readInput({input: (key==="run800"||key==="run800f"||key==="run508"||key==="run1000"||key==="swim")?"time": (def && def.input==="manual") ? "manual":"num"}, raw);
     });
 
