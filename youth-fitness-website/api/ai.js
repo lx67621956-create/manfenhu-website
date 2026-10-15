@@ -324,19 +324,22 @@ ${lines.map((l, i) => (i + 1) + '. ' + l).join('\n')}
     const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2B00}-\u{2BFF}]/u;
     const norm = x => String(x).replace(/[\s，。！？；：、"'（）()《》…—~～!?,.:;]/g, '');
     const seen = new Set();
+    // 一一对应：不合规的位置回 null（调用方保留原句），绝不“丢一条就整体错位”
     const out = [], dropped = [];
-    j.lines.forEach(v => {
+    for (let i = 0; i < lines.length; i++) {
+      const v = j.lines[i];
       let t = String(v == null ? '' : v).trim().replace(/^\d+[\.、)]\s*/, '').replace(/^["'“”]+|["'“”]+$/g, '');
-      if (!t) return;
-      if (t.length < 8 || t.length > 48) { dropped.push('长度 ' + t.length); return; }
-      if (EMOJI.test(t)) { dropped.push('含 emoji'); return; }
-      if ((t.match(/[！!]/g) || []).length > 1) { dropped.push('感叹号过多'); return; }
-      if ((t.match(/[呀哦啦呢]/g) || []).length > 2) { dropped.push('语气词过多'); return; }
-      if (seen.has(norm(t))) { dropped.push('重复'); return; }
+      const bad = (why) => { out.push(null); dropped.push({ i: i, why: why }); };
+      if (!t) { bad('空'); continue; }
+      if (t.length < 8 || t.length > 48) { bad('长度 ' + t.length); continue; }
+      if (EMOJI.test(t)) { bad('含 emoji'); continue; }
+      if ((t.match(/[！!]/g) || []).length > 1) { bad('感叹号过多'); continue; }
+      if ((t.match(/[呀哦啦呢]/g) || []).length > 2) { bad('语气词过多'); continue; }
+      if (seen.has(norm(t))) { bad('重复'); continue; }
       seen.add(norm(t));
       out.push(t);
-    });
-    res.status(200).json({ ok: true, category: cat, lines: out.slice(0, lines.length), dropped: dropped.slice(0, 8), usage: r.usage });
+    }
+    res.status(200).json({ ok: true, category: cat, lines: out, dropped: dropped.slice(0, 12), usage: r.usage });
     return;
   }
 
