@@ -747,12 +747,28 @@
     return a || "";
   }
   function levelBand(score) { return score >= 8 ? 'high' : score >= 5 ? 'mid' : 'low'; }
+  // 字符集相似度：笼统句库里同档位的句子结构相近，一个总结里要避免撞车
+  function charSim(a, b) {
+    const A = new Set(a), B = new Set(b);
+    let inter = 0;
+    A.forEach(c => { if (B.has(c)) inter++; });
+    return inter / Math.max(1, A.size + B.size - inter);
+  }
+  let genPicked = [];
   function genericLine(name, score) {
     const g = GENERIC && GENERIC[name] && GENERIC[name][levelBand(score)];
-    return (g && g.length) ? pick(g) : '';
+    if (!g || !g.length) return '';
+    let pool = g.filter(x => !used.has(x) && !genPicked.some(u => charSim(u, x) > 0.6));
+    if (!pool.length) pool = g.filter(x => !used.has(x));
+    if (!pool.length) return '';
+    const s = pool[Math.floor(Math.random() * pool.length)];
+    used.add(s);
+    genPicked.push(s);
+    return s;
   }
   function generate() {
     used.clear();
+    genPicked = [];
     const out = [];
     const total = isClass ? 1 : count;
     for (let i = 0; i < total; i++) {
