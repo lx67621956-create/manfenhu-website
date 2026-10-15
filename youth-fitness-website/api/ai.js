@@ -231,5 +231,51 @@ ${shown}
     return;
   }
 
+  // ── ④ 课后总结·笼统句：把一个项目的详细版句子改写成不编技术细节的笼统版 ──
+  if (action === 'summary_lines') {
+    const proj = String(body.project || '').slice(0, 30);
+    const band = String(body.band || '').slice(0, 10);          // low/mid/high
+    const bandText = String(body.bandText || '').slice(0, 40);
+    const samples = (Array.isArray(body.samples) ? body.samples : []).map(x => String(x).slice(0, 200)).slice(0, 4);
+    const want = Math.min(Math.max(parseInt(body.count, 10) || 2, 1), 4);
+    if (!proj || !band) { res.status(200).json({ ok: false, error: '缺少项目或档位' }); return; }
+    const r = await chat([
+      { role: 'system', content: '你是中考体育培训机构的教练，给孩子写课后训练反馈。话要说得住、不吹不贬，只描述这次课能看出来的东西。' },
+      { role: 'user', content:
+`【项目】${proj}
+【本次完成度档位】${bandText || band}（1-10 分制）
+【该项目的详细版句子（仅供体会语气，不要学它们的技术细节）】
+${samples.map((s, i) => (i + 1) + '. ' + s).join('\n') || '（无）'}
+
+【要求】写 ${want} 条"笼统版"反馈：
+1. 每条 25-45 字，1-2 句，家长一眼能看懂。
+2. 只讲这次课能看出来的：完成得稳不稳、能不能跟上节奏、态度和投入情况。
+3. 不写"中段呼吸急促""后程步频变慢""发力顺序不对"这类只有专门测验才看得出的技术细节。
+4. 不用"建议/应该/务必/一定要"；不安排任何课后作业或练习（不出现"回家练/每天练/每周几次"）；不做成绩承诺。
+5. 不用 emoji，不重复项目名，不写分数或档位。
+只输出 JSON：{"lines":["第一条","第二条"]}` }
+    ], { maxTokens: 3000, temperature: 0.9 });
+    if (r.error) { res.status(200).json({ ok: false, error: r.error }); return; }
+    const j = pickJson(r.text);
+    if (!j || !Array.isArray(j.lines)) { res.status(200).json({ ok: false, error: '模型没给出可解析的 JSON', raw: r.text.slice(0, 200) }); return; }
+    const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2B00}-\u{2BFF}]/u;
+    const BAN = /回家|每天|每周|建议|应该|务必|一定要|训练营|报班/;
+    const norm = s => String(s).replace(/[\s，。！？；：、"'（）()《》…—~～!?,.:;]/g, '');
+    const seen = new Set(samples.map(norm));
+    const out = [], dropped = [];
+    j.lines.forEach(v => {
+      let t = String(v == null ? '' : v).trim().replace(/^\d+[\.、)]\s*/, '').replace(/^["'“”]+|["'“”]+$/g, '');
+      if (!t) return;
+      if (t.length < 12 || t.length > 80) { dropped.push('长度 ' + t.length); return; }
+      if (EMOJI.test(t)) { dropped.push('含 emoji'); return; }
+      if (BAN.test(t)) { dropped.push('含处方/作业词'); return; }
+      if (seen.has(norm(t))) { dropped.push('重复'); return; }
+      seen.add(norm(t));
+      out.push(t);
+    });
+    res.status(200).json({ ok: true, project: proj, band: band, lines: out.slice(0, want), dropped: dropped.slice(0, 6), usage: r.usage });
+    return;
+  }
+
   res.status(200).json({ ok: false, error: '未知 action：' + action });
 }
