@@ -1017,10 +1017,13 @@
       ctx.font = '500 42px "PingFang SC","Microsoft YaHei",sans-serif';
       const lines = wrapText(ctx, text, W - 180, 46);
       const qrTop = H - 370 - 22 - 20; // 二维码白底顶部（留 20px 安全间距）
-      const yStart = logoImg && logoImg.naturalWidth ? 425 : 415;
-      const maxLines = Math.max(3, Math.floor((qrTop - yStart - 10) / 66));
+      // 文字块在「分隔线~二维码」之间垂直居中：短文案不会把空白全堆在二维码上方（头重脚轻）
+      const regionTop = lineY + 44;
+      const regionBottom = qrTop - 20;
+      const maxLines = Math.max(3, Math.floor((regionBottom - regionTop) / 66));
       const shown = lines.slice(0, maxLines);
-      let y = yStart;
+      const blockH = shown.length * 66;
+      let y = Math.round(regionTop + (regionBottom - regionTop - blockH) / 2) + 40;
       shown.forEach(l => {
         ctx.fillText(l, W / 2, y);
         y += 66;
