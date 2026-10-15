@@ -133,6 +133,29 @@
   }
 
   /* 性别选择 */
+  /* ── 模式切换 / 说法切换 / 课后练习开关（新增） ── */
+  .mode-bar { display:flex; gap:8px; padding: 14px 18px 0; }
+  .mode-bar .m-opt {
+    flex:1; text-align:center; padding: 10px 8px; border-radius: var(--r-md);
+    border:1.5px solid var(--line); background: var(--card);
+    font-size:14px; font-weight:700; color: var(--ink-2); cursor:pointer; transition: all .15s;
+  }
+  .mode-bar .m-opt.sel { border-color: var(--brand); background: var(--brand-soft); color: var(--brand-3); }
+  .opt-bar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding: 12px 18px 0; }
+  .opt-bar .o-label { font-size:13px; font-weight:700; color: var(--ink-2); }
+  .seg-opts { display:flex; gap:6px; }
+  .seg-opt {
+    padding: 6px 14px; border-radius:999px; border:1.5px solid var(--line); background: var(--card);
+    font-size:12.5px; font-weight:700; color: var(--ink-2); cursor:pointer; transition: all .15s;
+  }
+  .seg-opt.sel { border-color: var(--brand); background: var(--brand-soft); color: var(--brand-3); }
+  .opt-bar .o-hint { font-size:11.5px; color: var(--ink-3); flex:1 1 100%; line-height:1.5; }
+  .chk-row { display:flex; align-items:center; gap:7px; font-size:13px; font-weight:700; color: var(--ink-2); cursor:pointer; }
+  .chk-row input { width:16px; height:16px; accent-color: var(--brand); }
+  .class-count { display:flex; align-items:center; gap:10px; padding: 12px 18px 0;
+    font-size:15px; font-weight:700; }
+  .class-count small { display:block; font-size:11px; color:var(--ink-3); font-weight:400; margin-top:3px; }
+  body.mode-class .count-bar, body.mode-class .gender-bar, body.mode-class .tabs { display:none; }
   .gender-bar {
     display:flex; align-items:center; justify-content:space-between;
     padding: 12px 18px 0;
@@ -429,6 +452,21 @@
   </div>
 </header>
 
+<div class="mode-bar">
+  <div class="m-opt sel" id="modePersonal">👤 个人总结</div>
+  <div class="m-opt" id="modeClass">👥 班级整体总结</div>
+</div>
+
+<div class="opt-bar">
+  <span class="o-label">总结说法</span>
+  <div class="seg-opts">
+    <div class="seg-opt" id="styleDetail">详细版</div>
+    <div class="seg-opt sel" id="styleGeneric">笼统版</div>
+  </div>
+  <label class="chk-row"><input type="checkbox" id="adviceOn">带课后练习建议</label>
+  <span class="o-hint" id="styleHint">笼统版只说这次课完成得怎么样，不编技术细节，也不留课后作业</span>
+</div>
+
 <div class="count-bar">
   <div class="label">本次要写几个孩子？
     <small>每人一个页签，选完统一生成</small>
@@ -445,6 +483,15 @@
   <div class="g-opts">
     <div class="g-opt sel" id="genderMale">👦 男生</div>
     <div class="g-opt" id="genderFemale">👧 女生</div>
+  </div>
+</div>
+
+<div class="class-count hidden" id="classCountBar">
+  <div>本次课人数<small>只影响班级总结开头那句</small></div>
+  <div class="stepper">
+    <button id="classDec" aria-label="减少">−</button>
+    <span class="num" id="classNum">8</span>
+    <button id="classInc" aria-label="增加">＋</button>
   </div>
 </div>
 
@@ -471,6 +518,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="data.js"></script>
+<script src="summary_data_generic.js"></script>
 <script>
 (function () {
   "use strict";
@@ -490,6 +538,14 @@
 
   let count = 1;
   let state = [blank()];
+  // 新增：班级整体总结用独立一份状态，个人/班级互不干扰
+  const classState = blank();
+  let isClass = false;
+  let classCount = 8;
+  let style = 'generic';       // 'generic' 笼统版（默认） / 'detail' 详细版
+  let adviceOn = false;        // 课后练习建议默认关闭
+  const getState = i => (isClass ? classState : state[i]);
+  const GENERIC = window.SUMMARY_GENERIC || null;
   function blank() { return { attitude: null, projects: {} }; }
 
   // 性别相关项目映射：男/女各自显示的专属项目
@@ -557,16 +613,17 @@
   }
   function renderPanels() {
     panelsEl.innerHTML = "";
-    for (let i = 0; i < count; i++) {
+    const n = isClass ? 1 : count;
+    for (let i = 0; i < n; i++) {
       const p = buildPanel(i);
-      p.classList.toggle('active', i === activeTab);
+      p.classList.add('active');
       panelsEl.appendChild(p);
     }
-    switchTab(activeTab);
+    if (!isClass) switchTab(activeTab);
   }
 
   function buildPanel(i) {
-    const s = state[i];
+    const s = getState(i);
     const panel = document.createElement('div');
     panel.className = 'panel';
 
@@ -598,7 +655,7 @@
     // 项目（按分类分组）
     const cardP = document.createElement('div');
     cardP.className = 'card';
-    cardP.innerHTML = '<h3>🏅 今日训练项目 <span class="tag">多选 · 选完滑完成度</span></h3>';
+    cardP.innerHTML = '<h3>🏅 今日训练项目 <span class="tag">只点今天真练过的 · 选完滑完成度</span></h3>';
     Object.keys(DATA.categories).forEach(cat => {
       const catWrap = document.createElement('div');
       catWrap.className = 'proj-cat';
@@ -689,32 +746,45 @@
     if (Array.isArray(a)) return pick(a);
     return a || "";
   }
+  function levelBand(score) { return score >= 8 ? 'high' : score >= 5 ? 'mid' : 'low'; }
+  function genericLine(name, score) {
+    const g = GENERIC && GENERIC[name] && GENERIC[name][levelBand(score)];
+    return (g && g.length) ? pick(g) : '';
+  }
   function generate() {
     used.clear();
     const out = [];
-    for (let i = 0; i < count; i++) {
-      const s = state[i];
+    const total = isClass ? 1 : count;
+    for (let i = 0; i < total; i++) {
+      const s = getState(i);
       const parts = [];
+      const names = PROJ_NAMES.filter(x => s.projects[x] !== undefined);
+      if (isClass) {
+        parts.push("本次课" + (classCount ? "有 " + classCount + " 名学员，" : "") +
+          (names.length ? "主要训练了" + names.join("、") + "。" : "按计划完成了训练内容。"));
+      }
       const att = pickAttitude(s.attitude);
       if (att) parts.push(att);
-      const names = Object.keys(s.projects);
       names.forEach(name => {
         const score = s.projects[name];
         const proj = DATA.projects[name];
+        if (style !== 'detail') {
+          const g = genericLine(name, score);
+          if (g) { parts.push(name + "：" + g); return; }
+        }
         if (proj && proj.levels && proj.levels[score]) {
           parts.push(pick(proj.levels[score]));
         }
       });
-      if (names.length) {
+      if (names.length && adviceOn) {
         let worst = names[0], worstScore = s.projects[names[0]];
         names.forEach(n => { if (s.projects[n] < worstScore) { worst = n; worstScore = s.projects[n]; } });
-        const adv = DATA.projects[worst].advice;
-        const a = levelAdvice(adv, worstScore);
+        const a = levelAdvice(DATA.projects[worst].advice, worstScore);
         if (a) parts.push("🏠 " + a);
       }
       const end = pick(DATA.ending);
       if (end) parts.push(end);
-      out.push({ no: i + 1, text: parts.join("\n") });
+      out.push({ no: isClass ? 0 : i + 1, label: isClass ? "班级整体总结" : (i + 1) + "号", text: parts.join("\n") });
     }
     return out;
   }
@@ -723,13 +793,15 @@
   const resultEl = document.getElementById('result');
   const resultBody = document.getElementById('resultBody');
   function showResult(segs) {
+    const tipEl = document.querySelector('#result .result-head .tip');
+    if (tipEl) tipEl.textContent = isClass ? '直接复制发到群里就行' : '复制后把"1号"改成孩子名字';
     resultBody.innerHTML = "";
     segs.forEach(seg => {
       const d = document.createElement('div');
       d.className = 'seg';
       const head = document.createElement('div');
       head.className = 'seg-head';
-      head.innerHTML = '<span class="no">' + seg.no + '号</span>';
+      head.innerHTML = '<span class="no">' + (seg.label || (seg.no + '号')) + '</span>';
       const btn = document.createElement('button');
       btn.className = 'copy-seg';
       btn.textContent = '📋 复制这段';
@@ -752,7 +824,7 @@
     setTimeout(() => {
       const segs = generate();
       if (!segs.some(x => x.text.trim())) {
-        toast('至少给一个孩子选个项目吧 😅');
+        toast(isClass ? '至少选一个今天真练过的项目吧 😅' : '至少给一个孩子选个项目吧 😅');
         genBtn.classList.remove('generating');
         return;
       }
@@ -783,7 +855,12 @@
     }
   }
   document.getElementById('clearAll').onclick = () => {
-    state = Array.from({ length: count }, blank);
+    if (isClass) {
+      classState.attitude = null;
+      Object.keys(classState.projects).forEach(k => delete classState.projects[k]);
+    } else {
+      state = Array.from({ length: count }, blank);
+    }
     used.clear();
     resultEl.classList.add('hidden');
     renderPanels();
@@ -800,6 +877,38 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
   }
+
+  // ── 新增控件：个人/班级 · 详细/笼统 · 课后练习开关 ──
+  function setMode(cls) {
+    isClass = cls;
+    document.body.classList.toggle('mode-class', cls);
+    document.getElementById('modePersonal').classList.toggle('sel', !cls);
+    document.getElementById('modeClass').classList.toggle('sel', cls);
+    document.getElementById('classCountBar').classList.toggle('hidden', !cls);
+    document.getElementById('result').classList.add('hidden');
+    activeTab = 0;
+    used.clear();
+    renderPanels();
+    if (!cls) renderTabs();
+  }
+  const styleHint = document.getElementById('styleHint');
+  function setStyle(v) {
+    style = v;
+    document.getElementById('styleGeneric').classList.toggle('sel', v !== 'detail');
+    document.getElementById('styleDetail').classList.toggle('sel', v === 'detail');
+    styleHint.textContent = (v === 'detail')
+      ? '详细版会点出具体技术问题，适合一对一反馈'
+      : '笼统版只说这次课完成得怎么样，不编技术细节，也不留课后作业';
+  }
+  document.getElementById('styleGeneric').onclick = () => setStyle('generic');
+  document.getElementById('styleDetail').onclick = () => setStyle('detail');
+  document.getElementById('adviceOn').onchange = e => { adviceOn = e.target.checked; };
+  document.getElementById('modePersonal').onclick = () => setMode(false);
+  document.getElementById('modeClass').onclick = () => setMode(true);
+  const classNumEl = document.getElementById('classNum');
+  document.getElementById('classInc').onclick = () => { classCount = Math.min(60, classCount + 1); classNumEl.textContent = classCount; };
+  document.getElementById('classDec').onclick = () => { classCount = Math.max(1, classCount - 1); classNumEl.textContent = classCount; };
+  setStyle('generic');
 
   render();
 
