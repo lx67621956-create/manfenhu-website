@@ -1028,22 +1028,35 @@
 
       // 问候语文案（自动换行；行数动态限制，绝不遮挡下方二维码）
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = '500 42px "PingFang SC","Microsoft YaHei",sans-serif';
-      const lines = wrapText(ctx, text, W - 180, 46);
       const qrTop = H - 370 - 22 - 20; // 二维码白底顶部（留 20px 安全间距）
-      // 文字块在「分隔线~二维码」之间垂直居中：短文案不会把空白全堆在二维码上方（头重脚轻）
+      // 文字块在「分隔线~二维码」之间垂直居中（短文案不头重脚轻），并自适应字号：
+      // 短文案放大到尽量填满版面（≤区域 78%），长文案逐级缩小保证不截断；两端都居中
       const regionTop = lineY + 44;
       const regionBottom = qrTop - 20;
-      const maxLines = Math.max(3, Math.floor((regionBottom - regionTop) / 66));
-      const shown = lines.slice(0, maxLines);
-      const blockH = shown.length * 66;
-      let y = Math.round(regionTop + (regionBottom - regionTop - blockH) / 2) + 40;
+      const regionH = regionBottom - regionTop;
+      const FONT_MAX = 76, FONT_MIN = 38;
+      const measure = fs => {
+        const lh = Math.round(fs * 1.42);
+        const ls = wrapText(ctx, text, W - 180, fs);
+        return { fs, lh, ls, h: ls.length * lh };
+      };
+      let fit = measure(FONT_MIN);
+      for (let fs = FONT_MAX; fs >= FONT_MIN; fs -= 2) {
+        const m = measure(fs);
+        if (m.h <= regionH * 0.78) { fit = m; break; }
+        fit = m;                                   // 都不满足时用最小的那档，配合省略号截断
+      }
+      const maxLines = Math.max(3, Math.floor(regionH / fit.lh));
+      const shown = fit.ls.slice(0, maxLines);
+      const blockH = shown.length * fit.lh;
+      let y = Math.round(regionTop + (regionH - blockH) / 2 + fit.lh * 0.72);
+      ctx.font = '500 ' + fit.fs + 'px "PingFang SC","Microsoft YaHei",sans-serif';
       shown.forEach(l => {
         ctx.fillText(l, W / 2, y);
-        y += 66;
+        y += fit.lh;
       });
-      if (lines.length > maxLines) {
-        ctx.font = '500 34px "PingFang SC","Microsoft YaHei",sans-serif';
+      if (fit.ls.length > maxLines) {
+        ctx.font = '500 ' + Math.round(fit.fs * 0.8) + 'px "PingFang SC","Microsoft YaHei",sans-serif';
         ctx.fillStyle = 'rgba(255,255,255,.75)';
         ctx.fillText('……', W / 2, y);
       }
@@ -1103,21 +1116,36 @@
   }
   function wrapText(ctx, text, maxWidth, fontSize) {
     ctx.font = '500 ' + fontSize + 'px "PingFang SC","Microsoft YaHei",sans-serif';
+    // 中文断行禁则：标点与助词不落行首（"味儿"不许劈成"味/儿"）、开括号不落行尾、数字/英文词不断开
+    const NO_START = '。，、；：？！）】》」』%·…,.;:!?)]}' + '儿们的地得了着过吗呢吧啊呀嘛啦';
+    const NO_END = '（【《「『';
+    const isWordChar = c => /[0-9A-Za-z]/.test(c);
     const lines = [];
-    const paras = text.split('\n');
-    paras.forEach(para => {
+    text.split('\n').forEach(para => {
       if (!para) { lines.push(''); return; }
-      let line = '';
-      for (const ch of para) {
-        const test = line + ch;
-        if (ctx.measureText(test).width > maxWidth && line) {
-          lines.push(line);
-          line = ch;
+      let cur = '';
+      for (let i = 0; i < para.length; i++) {
+        const c = para[i];
+        if (!cur || ctx.measureText(cur + c).width <= maxWidth) { cur += c; continue; }
+        let lineOut, nextCur;
+        if (NO_START.indexOf(c) >= 0 && cur.length > 1) {
+          lineOut = cur + c; nextCur = '';                  // 标点/助词跟回本行（允许略超宽度）
+        } else if (isWordChar(c) && isWordChar(cur.charAt(cur.length - 1))) {
+          let k = cur.length;
+          while (k > 0 && isWordChar(cur.charAt(k - 1))) k--;
+          if (k > 0) { lineOut = cur.slice(0, k); nextCur = cur.slice(k) + c; }
+          else { lineOut = cur; nextCur = c; }             // 整行一个词：只能硬断
         } else {
-          line = test;
+          lineOut = cur; nextCur = c;
         }
+        if (lineOut.length > 1 && NO_END.indexOf(lineOut.charAt(lineOut.length - 1)) >= 0) {
+          nextCur = lineOut.charAt(lineOut.length - 1) + nextCur;
+          lineOut = lineOut.slice(0, -1);
+        }
+        lines.push(lineOut);
+        cur = nextCur;
       }
-      if (line) lines.push(line);
+      if (cur) lines.push(cur);
     });
     return lines;
   }
