@@ -296,5 +296,49 @@ ${spec}` }
     return;
   }
 
+  // ── ⑤ 群话术改写：把"书面/生硬"的句子改写成教练在群里随口说话的口气（只产出候选，不入库）──
+  if (action === 'rewrite_copy') {
+    const cat = String(body.category || '').slice(0, 30);
+    const lines = (Array.isArray(body.lines) ? body.lines : []).map(x => String(x).slice(0, 200)).filter(Boolean).slice(0, 12);
+    if (!cat || !lines.length) { res.status(200).json({ ok: false, error: '缺少类别或原句' }); return; }
+    const r = await chat([
+      { role: 'system', content: '你是青少年体能培训机构的教练，每天在家长群里发一条提醒。说话像真人打字，不用书面腔。' },
+      { role: 'user', content:
+`【类别】${cat}
+【要改写的原句】
+${lines.map((l, i) => (i + 1) + '. ' + l).join('\n')}
+
+【要求】把每一句改写成"教练在家长群里随口说"的口气，逐条一一对应（几条进就几条出）：
+1. 每条 12-40 字，最多两句。宁可短，不要长。
+2. 保留原句的核心信息（时间点、天气影响、要注意的事），允许精简；**不许新增信息、不许编具体数字**（数字只能来自原句）。
+3. 禁排比、禁押韵、禁"让…变得…""不仅…而且…""既能…又能…"这类书面句式；结尾不要来一句金句或口号总结。
+4. 不用 emoji；感叹号最多一个；"呀/哦/啦/呢"整条最多一个。
+5. 可以口语（"记得""别忘了""顺手""别嫌麻烦"），但不要肉麻、不要哄小孩。
+【好的例子】今天风大，给孩子把领口扎紧，回来喝口温水。
+【差的例子】让清晨的阳光洒进房间，孩子揉揉眼睛伸个懒腰，新的一天从舒展开始，心情也跟着亮起来。（太长太文艺）
+只输出 JSON：{"lines":["改写后的第1条","改写后的第2条"]}` }
+    ], { maxTokens: 3000, temperature: 0.85 });
+    if (r.error) { res.status(200).json({ ok: false, error: r.error }); return; }
+    const j = pickJson(r.text);
+    if (!j || !Array.isArray(j.lines)) { res.status(200).json({ ok: false, error: '模型没给出可解析的 JSON', raw: r.text.slice(0, 200) }); return; }
+    const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2B00}-\u{2BFF}]/u;
+    const norm = x => String(x).replace(/[\s，。！？；：、"'（）()《》…—~～!?,.:;]/g, '');
+    const seen = new Set();
+    const out = [], dropped = [];
+    j.lines.forEach(v => {
+      let t = String(v == null ? '' : v).trim().replace(/^\d+[\.、)]\s*/, '').replace(/^["'“”]+|["'“”]+$/g, '');
+      if (!t) return;
+      if (t.length < 8 || t.length > 48) { dropped.push('长度 ' + t.length); return; }
+      if (EMOJI.test(t)) { dropped.push('含 emoji'); return; }
+      if ((t.match(/[！!]/g) || []).length > 1) { dropped.push('感叹号过多'); return; }
+      if ((t.match(/[呀哦啦呢]/g) || []).length > 2) { dropped.push('语气词过多'); return; }
+      if (seen.has(norm(t))) { dropped.push('重复'); return; }
+      seen.add(norm(t));
+      out.push(t);
+    });
+    res.status(200).json({ ok: true, category: cat, lines: out.slice(0, lines.length), dropped: dropped.slice(0, 8), usage: r.usage });
+    return;
+  }
+
   res.status(200).json({ ok: false, error: '未知 action：' + action });
 }
