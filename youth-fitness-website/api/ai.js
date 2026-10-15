@@ -18,9 +18,10 @@ const KEY = () => process.env.OPENCODE_GO_API_KEY || '';
 async function chat(messages, { maxTokens = 900, temperature = 0.5, timeoutMs = 50000 } = {}) {
   const key = KEY();
   if (!key) return { error: 'OPENCODE_GO_API_KEY 未配置' };
-  const body = JSON.stringify({ model: MODEL, messages, max_tokens: maxTokens, temperature });
+  let budget = maxTokens;
   let lastErr = '';
-  for (let attempt = 0; attempt < 2; attempt++) {          // 只在网络/5xx 时重试一次
+  for (let attempt = 0; attempt < 2; attempt++) {          // 只在网络/5xx/预算被吃光时重试一次
+    const body = JSON.stringify({ model: MODEL, messages, max_tokens: budget, temperature });
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), timeoutMs);
     try {
@@ -44,6 +45,7 @@ async function chat(messages, { maxTokens = 900, temperature = 0.5, timeoutMs = 
         // 空内容多半是 max_tokens 被思考过程吃光（finish_reason=length），把原因带回去便于排查
         lastErr = '上游返回空内容（finish=' + (choice.finish_reason || '?') +
           ', reasoning=' + String(msg.reasoning_content || '').length + ' 字符, usage=' + JSON.stringify(d.usage || {}) + '）';
+        if (choice.finish_reason === 'length') budget = Math.max(budget * 4, 8000);   // 加预算再试一次
         continue;
       }
       return { text, usage: d.usage || null, model: d.model || MODEL };
