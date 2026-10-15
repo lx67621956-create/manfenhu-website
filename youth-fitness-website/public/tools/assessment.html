@@ -254,6 +254,11 @@
   .ai-box { font-size: 13.5px; line-height: 1.95; color: var(--ink, #2B2521); background: var(--brand-softer, #FFF3E8); border-radius: var(--r-md, 12px); padding: 14px; white-space: pre-wrap; word-break: break-word; }
   .ai-box:empty { display: none; }
   .ai-note { margin-top: 9px; font-size: 11.5px; line-height: 1.7; color: #9A8F86; }
+  /* 录入自检提示（不拦人，只提示） */
+  .warn-box { margin: 0 0 12px; padding: 12px 14px; background: #FFF8E6; border: 1.5px solid #F0C36B; border-radius: var(--r-md, 12px); font-size: 12.5px; line-height: 1.8; color: #7A5B12; }
+  .warn-box .warn-t { font-weight: 800; margin-bottom: 4px; color: #A16207; }
+  .warn-box .warn-i { word-break: break-word; }
+  .warn-box .warn-f { margin-top: 6px; font-size: 11.5px; color: #A98B4B; }
   /* BMI 双输入：两个输入框等宽 */
   .bmi-zone {
     display: flex;
@@ -658,6 +663,8 @@
 
     <div id="itemList"></div>
   </div>
+
+  <div class="warn-box hidden" id="inputWarn"></div>
 
   <button class="btn" id="genBtn" style="margin-bottom:12px;">生成测评报告</button>
 
@@ -1188,6 +1195,7 @@
     } else {
       tip.innerHTML = "<span class='ico'>💡</span><span>填写各项实际测试成绩，身高填厘米、体重填公斤。</span>";
     }
+    refreshInputWarn();
   }
 
   function makeItemRow(def){
@@ -1546,6 +1554,7 @@
 
   /* ---------- 生成报告 ---------- */
   function generate(){
+    refreshInputWarn();
     var defs = ITEM_DEFS[state.grade];
     var inputs = {};
     var bmiInfo = null;
@@ -2499,6 +2508,106 @@
     }
   }
 
+  /* ---------- 录入自检：数值明显不对时提示（只提示，不拦人、不影响出分） ----------
+   * 判据全部取自官方评分表本身（首行=满分档、末行=最低档），不引入任何外部阈值。 */
+  function isLowBetter(key, grade){
+    if (isLow(key, grade)) return true;              /* 50米 / 50米×8 / 1000米 */
+    if (key === "run800f") return true;              /* 八年级女 800米（isLow 不含这个键） */
+    var xi = (D.xianchang.items || {})[key];
+    return !!(xi && xi.type === "lo");               /* 九年级现场考试的时间类项目 */
+  }
+
+  function inputWarnings(){
+    var out = [];
+    Array.prototype.forEach.call(document.querySelectorAll("#itemList .item"), function(row){
+      var key = row.dataset.key;
+      if (!key) return;
+      var nameEl = row.querySelector(".item-name");
+      var name = nameEl ? nameEl.textContent.trim() : key;
+
+      /* BMI：身高体重填反、漏小数点 → 算出来的 BMI 会离谱 */
+      if (key === "bmi") {
+        var ih = row.querySelector('input[data-in="h"]'), iw = row.querySelector('input[data-in="w"]');
+        var h = num(ih && ih.value), w = num(iw && iw.value);
+        if (h && w && h > 0 && w > 0) {
+          var bmi = w / Math.pow(h / 100, 2);
+          var bt = (D.guoti.tables[state.grade] || {}).bmi;
+          var band = bt ? (bt[state.sex] || bt.M || bt.F) : null;
+          var lo = null, hi = null;
+          (band || []).forEach(function(r){
+            var rg = String(r[2]);
+            if (rg.indexOf("≤") === 0) { var v = parseFloat(rg.replace("≤", "")); if (lo === null || v < lo) lo = v; }
+            else if (rg.indexOf("≥") === 0) { var v2 = parseFloat(rg.replace("≥", "")); if (hi === null || v2 > hi) hi = v2; }
+            else {
+              var p = rg.split("-"), a = parseFloat(p[0]), b = parseFloat(p[1]);
+              if (!isNaN(a) && (lo === null || a < lo)) lo = a;
+              if (!isNaN(b) && (hi === null || b > hi)) hi = b;
+            }
+          });
+          if (lo !== null && hi !== null && (bmi < lo * 0.8 || bmi > hi * 1.4)) {
+            out.push(name + "：按身高 " + h + "、体重 " + w + " 算出来 BMI " + bmi.toFixed(1)
+              + "，超出官方表的正常范围 —— 看看是不是厘米/公斤填反了，或者漏了小数点。");
+          }
+        }
+        return;
+      }
+
+      if (!row.querySelector("input[data-in]")) return;
+      var raw = rowRaw(row);
+      if (!raw) return;
+      var def = (ITEM_DEFS[state.grade] || []).filter(function(d){ return d.key === key; })[0];
+      var inputType = TIME_KEYS.indexOf(key) >= 0 ? "time" : (def && def.input === "manual") ? "manual" : "num";
+      if (inputType === "manual") return;            /* 现场考试手动给分（0-6），无实测表可比 */
+      var val = readInput({ input: inputType }, raw);
+      if (val === undefined || val === null || isNaN(val)) return;
+
+      var refs = state.grade === "9" ? xianchangRefRows(key, state.sex) : guotiRefRows(state.grade, key, state.sex);
+      if (!refs || !refs.length) return;
+      var full = refs[0][1];                          /* 首行 = 满分档 */
+      var lowRow = refs[refs.length - 1];             /* 末行 = 最低档 */
+      var lowVal = lowRow[1];
+      var score = state.grade === "9" ? scoreXianchang(key, val) : scoreGuoti(key, val);
+      var got = (score && typeof score.score === "number") ? score.score : null;
+      var showV = function(v){ return inputType === "time" ? secToTime(v) : v; };
+
+      /* ① 大得离谱 / 快得离谱：离满分线太远，多半是单位或小数点 */
+      if (isLowBetter(key, state.grade)) {
+        if (typeof full === "number" && full > 0 && val > 0 && val < full * 0.6) {
+          out.push(name + "：填了 " + showV(val) + "，满分线是 " + showV(full)
+            + " —— 比满分线还快一大截，时间确认一下。");
+        }
+      } else if (typeof full === "number" && full > 0 && val > full * 2.5) {
+        out.push(name + "：填了 " + showV(val) + "，满分线是 " + showV(full)
+          + " —— 数值大得离谱，单位和括号里的单位对一下。");
+      }
+
+      /* ② 落到 0 分区：会按 0 分写进报告和成长曲线，值得回头看一眼。
+       *    计数项"0 个/0 次"是真实可能的成绩，不提示。 */
+      if (got === 0 && !(COUNT_ITEMS.indexOf(key) >= 0 && val === 0)) {
+        out.push(name + "：实测 " + showV(val) + " 会按 0 分计（官方表最低档 " + showV(lowVal)
+          + "）—— 确认是实测成绩，还是数值填错了。");
+      }
+    });
+    return out;
+  }
+
+  function refreshInputWarn(){
+    var box = $("inputWarn");
+    if (!box) return;
+    var list = inputWarnings();
+    if (!list.length) { box.classList.add("hidden"); box.innerHTML = ""; return; }
+    box.innerHTML = '<div class="warn-t">录入检查 · ' + list.length + ' 处要确认</div>'
+      + list.map(function(t){ return '<div class="warn-i">· ' + esc(t) + '</div>'; }).join("")
+      + '<div class="warn-f">只提示，不影响算法出分；确实是实测成绩就直接生成报告。</div>';
+    box.classList.remove("hidden");
+  }
+
+  var warnTimer = null;
+  function scheduleInputWarn(){
+    if (warnTimer) clearTimeout(warnTimer);
+    warnTimer = setTimeout(refreshInputWarn, 350);
+  }
+
   /* ---------- 事件 ---------- */
   function bindEvents(){
     var segs = document.querySelectorAll("#gradeSeg .opt");
@@ -2546,6 +2655,7 @@
     });
     $("copyBtn").addEventListener("click", copyReport);
     $("imgBtn").addEventListener("click", generateImage);
+    $("itemList").addEventListener("input", scheduleInputWarn);
     $("aiPasteToggle").addEventListener("click", function(){
       $("aiPastePanel").classList.toggle("hidden");
     });
@@ -2613,6 +2723,10 @@
       var text = (tmp.textContent || "").replace(/[ \t]+/g, " ").replace(/\n{2,}/g, "\n").trim();
       if (text) out.push({ label: lb.textContent.trim(), text: text });
     });
+    /* AI 家长评语：教练点过「写一段家长评语」才带进长图（没点就不会出现，也不会多花钱） */
+    var aiBox = $("aiCommentBox");
+    var aiText = aiBox ? (aiBox.textContent || "").trim() : "";
+    if (aiText) out.push({ label: "家长版评语", text: aiText });
     return out;
   }
 
