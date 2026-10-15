@@ -756,7 +756,11 @@
   }
   let genPicked = [];
   function genericLine(name, score) {
-    const g = GENERIC && GENERIC[name] && GENERIC[name][levelBand(score)];
+    const band = levelBand(score);
+    // 默认用"泛泛版"（不分项目、不点具体动作）；没有才回退到项目版笼统句
+    const anyPool = (GENERIC && GENERIC.byBand && GENERIC.byBand[band]) || null;
+    const g = (anyPool && anyPool.length) ? anyPool
+      : ((GENERIC && GENERIC[name] && GENERIC[name][band]) || []);
     if (!g || !g.length) return '';
     let pool = g.filter(x => !used.has(x) && !genPicked.some(u => charSim(u, x) > 0.6));
     if (!pool.length) pool = g.filter(x => !used.has(x));
