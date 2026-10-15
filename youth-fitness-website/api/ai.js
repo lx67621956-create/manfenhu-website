@@ -113,6 +113,16 @@ export default async function handler(req, res) {
   body = body || {};
   const action = String(body.action || '');
 
+  /* 只接受本站页面的调用（防别处拿这个 endpoint 烧额度）；非浏览器调用（本机脚本/服务端）不放 Origin，照常放行 */
+  const origin = String((req.headers && (req.headers.origin || req.headers.referer)) || '');
+  if (origin
+      && !/^https?:\/\/(www\.)?manfenhu\.com(:\d+)?(\/|$)/.test(origin)
+      && !/^https?:\/\/[a-z0-9-]+\.vercel\.app(\/|$)/i.test(origin)
+      && !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/.test(origin)) {
+    res.status(403).json({ ok: false, error: '来源不允许' });
+    return;
+  }
+
   // ── ① 粘贴文本 → 结构化成绩 ─────────────────────────
   if (action === 'parse_scores') {
     const text = String(body.text || '').slice(0, 1500);
@@ -171,6 +181,51 @@ ${COMMENT_RULES}` }
     ], { maxTokens: 4000, temperature: 0.7 });
     if (r.error) { res.status(200).json({ ok: false, error: r.error }); return; }
     res.status(200).json({ ok: true, text: r.text.trim(), usage: r.usage });
+    return;
+  }
+
+  // ── ③ 离线扩写话术库：给类别+现有示例，产出新候选（只产出，不入库；入库由人工审核后手动进行）──
+  if (action === 'expand_copy') {
+    const cat = String(body.category || '').slice(0, 60);
+    const brief = String(body.brief || '').slice(0, 200);
+    const examples = (Array.isArray(body.examples) ? body.examples : []).map(e => String(e).slice(0, 200)).slice(0, 12);
+    const want = Math.min(Math.max(parseInt(body.count, 10) || 8, 1), 30);
+    if (!cat || !examples.length) { res.status(200).json({ ok: false, error: '缺少类别或示例' }); return; }
+    const shown = examples.map((e, i) => (i + 1) + '. ' + e).join('\n');
+    const r = await chat([
+      { role: 'system', content: '你是中考体育培训机构的班主任，在家长群里发日常关怀消息。文字要像真人班主任在手机上打的，不是系统发的。' },
+      { role: 'user', content:
+`【类别】${cat}${brief ? '（' + brief + '）' : ''}
+【现有示例】照这个语气写，但意思不许重复它们：
+${shown}
+
+【写作要求】
+1. 每条 50-75 字，1-3 句，家长群里能直接发出去。
+2. 每条＝一句关怀 + 一个具体能做的动作，带上时间或数量（如"睡前十分钟""两三个""半小时"）。
+3. 不用 emoji，不加标题，不用引号把整句包起来，不用"亲爱的家长朋友们"这类开场模板。
+4. 不写空话（"祝孩子健康成长"这种没用的话）。
+5. 不涉及疾病诊断、用药、医疗建议；不提任何政策文件、评分标准、考试分数。
+6. 不用"建议/应该/务必/一定要"这类说教腔，用"记得/别/多/少"。
+7. 不要"不是X而是Y"这种对偶句，不要金句收尾。
+只输出 JSON：{"lines":["第一条","第二条"]}` }
+    ], { maxTokens: 3000, temperature: 0.95 });
+    if (r.error) { res.status(200).json({ ok: false, error: r.error }); return; }
+    const j = pickJson(r.text);
+    if (!j || !Array.isArray(j.lines)) { res.status(200).json({ ok: false, error: '模型没给出可解析的 JSON', raw: r.text.slice(0, 200) }); return; }
+    const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}]/u;
+    const norm = s => String(s).replace(/[\s，。！？；：、"'（）()《》…—~～!?,.:;]/g, '');
+    const seen = new Set(examples.map(norm));
+    const out = [], dropped = [];
+    j.lines.forEach(v => {
+      let t = String(v == null ? '' : v).trim().replace(/^\d+[\.、)]\s*/, '').replace(/^["'“”]+|["'“”]+$/g, '');
+      if (!t) return;
+      if (t.length < 20 || t.length > 140) { dropped.push('长度 ' + t.length); return; }
+      if (EMOJI.test(t)) { dropped.push('含 emoji'); return; }
+      if (seen.has(norm(t))) { dropped.push('重复'); return; }
+      seen.add(norm(t));
+      out.push(t);
+    });
+    res.status(200).json({ ok: true, category: cat, lines: out.slice(0, want), dropped: dropped.slice(0, 10), usage: r.usage });
     return;
   }
 
