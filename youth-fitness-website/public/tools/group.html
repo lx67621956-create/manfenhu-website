@@ -368,10 +368,24 @@
 
 <script src="qrcode.min.js"></script>
 <script src="group_data.js"></script>
+<script src="group_copy_v2.js"></script>
 <script>
 (function () {
   "use strict";
   const D = window.GROUP_DATA;
+  // 口语化改写版（2026-10）：按类别深合并，新版有的用它，没有的沿用原库；删掉 group_copy_v2.js 即整体回退
+  (function mergeCopyV2() {
+    const V = window.GROUP_COPY_V2;
+    if (!V) return;
+    const put = (dst, src) => {
+      for (const k in src) {
+        const v = src[k];
+        if (Array.isArray(v) && v.length) dst[k] = v;
+        else if (v && typeof v === 'object' && dst[k]) put(dst[k], v);
+      }
+    };
+    put(D, V);
+  })();
 
   // ── 节气/节日日期表（自动判断今日）──
   const jieqiDates = D.jieqiDates || {};
