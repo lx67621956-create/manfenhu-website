@@ -198,17 +198,16 @@ ${COMMENT_RULES}` }
       { role: 'system', content: '你是中考体育培训机构的班主任，在家长群里发日常关怀消息。文字要像真人班主任在手机上打的，不是系统发的。' },
       { role: 'user', content:
 `【类别】${cat}${brief ? '（' + brief + '）' : ''}
-【现有示例】照这个语气写，但意思不许重复它们：
+【现有示例】照这个口气写新的，但意思不许和它们重复：
 ${shown}
 
 【写作要求】
-1. 每条 50-75 字，1-3 句，家长群里能直接发出去。
-2. 每条＝一句关怀 + 一个具体能做的动作，带上时间或数量（如"睡前十分钟""两三个""半小时"）。
-3. 不用 emoji，不加标题，不用引号把整句包起来，不用"亲爱的家长朋友们"这类开场模板。
-4. 不写空话（"祝孩子健康成长"这种没用的话）。
-5. 不涉及疾病诊断、用药、医疗建议；不提任何政策文件、评分标准、考试分数。
-6. 不用"建议/应该/务必/一定要"这类说教腔，用"记得/别/多/少"。
-7. 不要"不是X而是Y"这种对偶句，不要金句收尾。
+1. 每条 15-40 字，最多两句，口语，像教练在家长群里随手打的。
+2. 说的是同一类事情（同一时段／同一类天气／同一个节气节日／同一类关怀），换一个说法或换一个关注点。
+3. 不许编造具体日期、成绩、政策、医疗内容；可以带常见的生活细节（"薄外套""四十分钟""两三个"），但不能凭空虚造数字去凑。
+4. 不用 emoji，不加标题，不用引号包整句，不用"亲爱的家长朋友们"这类模板开场。
+5. 不说教：不用"建议/应该/务必/一定要"，用"记得/别/多/少"。
+6. 不要"不是X而是Y"对偶句，不要金句收尾，不排比。
 只输出 JSON：{"lines":["第一条","第二条"]}` }
     ], { maxTokens: 3000, temperature: 0.95 });
     if (r.error) { res.status(200).json({ ok: false, error: r.error }); return; }
@@ -221,8 +220,11 @@ ${shown}
     j.lines.forEach(v => {
       let t = String(v == null ? '' : v).trim().replace(/^\d+[\.、)]\s*/, '').replace(/^["'“”]+|["'“”]+$/g, '');
       if (!t) return;
-      if (t.length < 20 || t.length > 140) { dropped.push('长度 ' + t.length); return; }
+      if (t.length < 10 || t.length > 45) { dropped.push('长度 ' + t.length); return; }
       if (EMOJI.test(t)) { dropped.push('含 emoji'); return; }
+      if (/医院|吃药|用药|治疗|康复|诊断|政策|教育部|评分标准|分数线/.test(t)) { dropped.push('医疗/政策词'); return; }
+      if ((t.match(/[！!]/g) || []).length > 1) { dropped.push('感叹号过多'); return; }
+      if ((t.match(/[呀哦啦呢]/g) || []).length > 2) { dropped.push('语气词过多'); return; }
       if (seen.has(norm(t))) { dropped.push('重复'); return; }
       seen.add(norm(t));
       out.push(t);
