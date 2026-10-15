@@ -2681,22 +2681,44 @@
   }
 
   /* ---------- 图片报告生成 ---------- */
+  /* 文字换行：按宽度断行，但 ——
+   *   ① 不把数字/英文词劈成两半（"1000米跑" 不能断成 "100" + "0米跑"）
+   *   ② 标点不落行首（避头）、开括号不落行尾（避尾）
+   *   ③ \n 视为硬换行
+   * 量高度（y=-9999）与落笔共用同一函数，改这里两边一起生效。 */
   function wrapText(ctx, text, x, y, maxW, lineH, maxLines){
-    var chars = String(text).split("");
-    var line = "", lines = 0, out = [];
-    for (var i=0;i<chars.length;i++){
-      var test = line + chars[i];
-      if (ctx.measureText(test).width > maxW && line){
-        out.push(line);
-        line = chars[i];
-        lines++;
-        if (lines >= maxLines) { out[out.length-1] = out[out.length-1].slice(0,-1) + "…"; break; }
-      } else {
-        line = test;
+    var NO_START = "。，、；：？！）】》」』%·…,.;:!?)]}";
+    var NO_END = "（【《「『";
+    var isWordChar = function(c){ return /[0-9A-Za-z]/.test(c); };
+    var out = [];
+    String(text).split("\n").forEach(function(seg){
+      if (out.length >= maxLines) return;
+      var chars = seg.split(""), cur = "";
+      for (var i = 0; i < chars.length; i++) {
+        var c = chars[i];
+        if (!cur || ctx.measureText(cur + c).width <= maxW) { cur += c; continue; }
+        var lineOut, nextCur;
+        if (NO_START.indexOf(c) >= 0) {
+          lineOut = cur + c; nextCur = "";                 /* 标点跟回本行 */
+        } else if (isWordChar(c) && isWordChar(cur.charAt(cur.length - 1))) {
+          var k = cur.length;
+          while (k > 0 && isWordChar(cur.charAt(k - 1))) k--;
+          if (k > 0) { lineOut = cur.slice(0, k); nextCur = cur.slice(k) + c; }
+          else { lineOut = cur; nextCur = c; }             /* 整行就是一个词：只能硬断 */
+        } else {
+          lineOut = cur; nextCur = c;
+        }
+        if (lineOut.length > 1 && NO_END.indexOf(lineOut.charAt(lineOut.length - 1)) >= 0) {
+          nextCur = lineOut.charAt(lineOut.length - 1) + nextCur;   /* 开括号挪到下一行 */
+          lineOut = lineOut.slice(0, -1);
+        }
+        out.push(lineOut);
+        if (out.length >= maxLines) { out[out.length - 1] = out[out.length - 1].slice(0, -1) + "…"; break; }
+        cur = nextCur;
       }
-    }
-    if (line && lines < maxLines) out.push(line);
-    out.forEach(function(l, idx){ ctx.fillText(l, x, y + idx*lineH); });
+      if (cur && out.length < maxLines) out.push(cur);
+    });
+    out.forEach(function(l, idx){ ctx.fillText(l, x, y + idx * lineH); });
     return out.length;
   }
 
