@@ -231,14 +231,31 @@ ${shown}
     return;
   }
 
-  // ── ④ 课后总结·笼统句：把一个项目的详细版句子改写成不编技术细节的笼统版 ──
+  // ── ④ 课后总结·句子：把详细版句子改写成"笼统版"（mode=any 时进一步泛化：不点动作/部位/技术名词）──
   if (action === 'summary_lines') {
     const proj = String(body.project || '').slice(0, 30);
     const band = String(body.band || '').slice(0, 10);          // low/mid/high
     const bandText = String(body.bandText || '').slice(0, 40);
+    const anyMode = body.mode === 'any';
+    const extraBanned = (Array.isArray(body.banned) ? body.banned : []).map(x => String(x).slice(0, 12)).filter(Boolean).slice(0, 60);
     const samples = (Array.isArray(body.samples) ? body.samples : []).map(x => String(x).slice(0, 200)).slice(0, 4);
-    const want = Math.min(Math.max(parseInt(body.count, 10) || 2, 1), 4);
+    const want = Math.min(Math.max(parseInt(body.count, 10) || 2, 1), 8);
     if (!proj || !band) { res.status(200).json({ ok: false, error: '缺少项目或档位' }); return; }
+    const spec = anyMode
+      ? `【要求】写 ${want} 条"泛泛版"课后反馈（用在哪里都可能，所以什么都不能编）：
+1. 每条 15-32 字，一句话，口语，像教练在群里随口说的。
+2. 只讲这次课能直接看出来的：完成得稳不稳、跟不跟得上、投入不投入、有没有坚持下来、跟同伴配合怎么样。
+3. **不许出现任何具体动作、身体部位或技术名词**（不写"垫球/运球/摇绳/起跳/摆臂/步伐/蹬地/发力/重心/手型/肘/膝/踝/腰腹/核心/呼吸节奏"这类），**也不要出现任何项目名**——项目名由系统自己加。
+4. 不用"建议/应该/务必/一定要"；不安排课后作业；不做成绩承诺；不用 emoji；不写分数或档位。
+5. 语气自然，别堆形容词、别排比、别押韵、别用"不仅…而且…"这类书面句式。
+只输出 JSON：{"lines":["第一条","第二条"]}`
+      : `【要求】写 ${want} 条"笼统版"反馈：
+1. 每条 25-45 字，1-2 句，家长一眼能看懂。
+2. 只讲这次课能看出来的：完成得稳不稳、能不能跟上节奏、态度和投入情况。
+3. 不写"中段呼吸急促""后程步频变慢""发力顺序不对"这类只有专门测验才看得出的技术细节。
+4. 不用"建议/应该/务必/一定要"；不安排任何课后作业或练习（不出现"回家练/每天练/每周几次"）；不做成绩承诺。
+5. 不用 emoji，不重复项目名，不写分数或档位。
+只输出 JSON：{"lines":["第一条","第二条"]}`;
     const r = await chat([
       { role: 'system', content: '你是中考体育培训机构的教练，给孩子写课后训练反馈。话要说得住、不吹不贬，只描述这次课能看出来的东西。' },
       { role: 'user', content:
@@ -247,33 +264,33 @@ ${shown}
 【该项目的详细版句子（仅供体会语气，不要学它们的技术细节）】
 ${samples.map((s, i) => (i + 1) + '. ' + s).join('\n') || '（无）'}
 
-【要求】写 ${want} 条"笼统版"反馈：
-1. 每条 25-45 字，1-2 句，家长一眼能看懂。
-2. 只讲这次课能看出来的：完成得稳不稳、能不能跟上节奏、态度和投入情况。
-3. 不写"中段呼吸急促""后程步频变慢""发力顺序不对"这类只有专门测验才看得出的技术细节。
-4. 不用"建议/应该/务必/一定要"；不安排任何课后作业或练习（不出现"回家练/每天练/每周几次"）；不做成绩承诺。
-5. 不用 emoji，不重复项目名，不写分数或档位。
-只输出 JSON：{"lines":["第一条","第二条"]}` }
+${spec}` }
     ], { maxTokens: 3000, temperature: 0.9 });
     if (r.error) { res.status(200).json({ ok: false, error: r.error }); return; }
     const j = pickJson(r.text);
     if (!j || !Array.isArray(j.lines)) { res.status(200).json({ ok: false, error: '模型没给出可解析的 JSON', raw: r.text.slice(0, 200) }); return; }
     const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2B00}-\u{2BFF}]/u;
     const BAN = /回家|每天|每周|建议|应该|务必|一定要|训练营|报班/;
+    // 泛泛模式：具体动作 / 身体部位 / 技术名词 一律不许出现（"没练却写了"就是这么出的问题）
+    const ACTION = /垫球|运球|投篮|传球|发球|扣球|摇绳|跳绳|起跳|落地|摆臂|手臂|步幅|步频|步伐|蹬地|发力|重心|手型|手腕|手指|肘|膝|踝|肩|腰腹|核心收紧|呼吸节奏|动作衔接|技术动作|姿势|角度|幅度|节奏感/;
+    const blacklist = extraBanned;
     const norm = s => String(s).replace(/[\s，。！？；：、"'（）()《》…—~～!?,.:;]/g, '');
     const seen = new Set(samples.map(norm));
     const out = [], dropped = [];
     j.lines.forEach(v => {
       let t = String(v == null ? '' : v).trim().replace(/^\d+[\.、)]\s*/, '').replace(/^["'“”]+|["'“”]+$/g, '');
       if (!t) return;
-      if (t.length < 12 || t.length > 80) { dropped.push('长度 ' + t.length); return; }
+      const lo = anyMode ? 10 : 12, hi = anyMode ? 40 : 80;
+      if (t.length < lo || t.length > hi) { dropped.push('长度 ' + t.length); return; }
       if (EMOJI.test(t)) { dropped.push('含 emoji'); return; }
       if (BAN.test(t)) { dropped.push('含处方/作业词'); return; }
+      if (anyMode && ACTION.test(t)) { dropped.push('含具体动作/部位'); return; }
+      if (anyMode && blacklist.some(b => b.length >= 2 && t.includes(b))) { dropped.push('含项目名'); return; }
       if (seen.has(norm(t))) { dropped.push('重复'); return; }
       seen.add(norm(t));
       out.push(t);
     });
-    res.status(200).json({ ok: true, project: proj, band: band, lines: out.slice(0, want), dropped: dropped.slice(0, 6), usage: r.usage });
+    res.status(200).json({ ok: true, project: proj, band: band, mode: anyMode ? 'any' : 'std', lines: out.slice(0, want), dropped: dropped.slice(0, 8), usage: r.usage });
     return;
   }
 

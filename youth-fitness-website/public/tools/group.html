@@ -1016,7 +1016,7 @@
       ctx.fillStyle = '#FFFFFF';
       ctx.font = '500 42px "PingFang SC","Microsoft YaHei",sans-serif';
       const lines = wrapText(ctx, text, W - 180, 46);
-      const qrTop = H - 540 - 24 - 20; // 二维码白底顶部（留 20px 安全间距）
+      const qrTop = H - 370 - 22 - 20; // 二维码白底顶部（留 20px 安全间距）
       const yStart = logoImg && logoImg.naturalWidth ? 425 : 415;
       const maxLines = Math.max(3, Math.floor((qrTop - yStart - 10) / 66));
       const shown = lines.slice(0, maxLines);
@@ -1031,23 +1031,23 @@
         ctx.fillText('……', W / 2, y);
       }
 
-      // 二维码区（白底圆角，缩小版）
-      const qrSize = 280;
+      // 二维码区（白底圆角；2026-10 用户反馈"太大占篇幅、没地方写字/看图画" → 280→196 并下沉贴底）
+      const qrSize = 196;
       const qrX = (W - qrSize) / 2;
-      const qrY = H - 540;
-      roundRect(ctx, qrX - 24, qrY - 24, qrSize + 48, qrSize + 48, 28);
+      const qrY = H - 370;
+      roundRect(ctx, qrX - 22, qrY - 22, qrSize + 44, qrSize + 44, 24);
       ctx.fillStyle = '#FFFFFF';
       ctx.fill();
 
       // 底部文字
       ctx.fillStyle = '#FFFFFF';
       ctx.font = '700 34px "PingFang SC","Microsoft YaHei",sans-serif';
-      ctx.fillText('扫码咨询 · 报名体验', W / 2, H - 118);
+      ctx.fillText('扫码咨询 · 报名体验', W / 2, H - 104);
       ctx.fillStyle = 'rgba(255,255,255,.8)';
       ctx.font = '400 26px "PingFang SC","Microsoft YaHei",sans-serif';
       let host = 'www.manfenhu.com';
       try { host = new URL(link).hostname.replace('www.', ''); } catch (e) {}
-      ctx.fillText(host, W / 2, H - 72);
+      ctx.fillText(host, W / 2, H - 56);
 
       // 二维码（本地库 qrcode-generator）
       if (typeof qrcode === 'undefined') {
@@ -1061,7 +1061,7 @@
         const qr = qrcode(0, 'M');
         qr.addData(link);
         qr.make();
-        const dataUrl = qr.createDataURL(6, 14);
+        const dataUrl = qr.createDataURL(6, 2);
         const img = new Image();
         img.onload = () => {
           ctx.drawImage(img, qrX, qrY, qrSize, qrSize);
