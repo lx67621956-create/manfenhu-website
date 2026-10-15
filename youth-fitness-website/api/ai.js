@@ -248,6 +248,7 @@ ${shown}
 3. **不许出现任何具体动作、身体部位或技术名词**（不写"垫球/运球/摇绳/起跳/摆臂/步伐/蹬地/发力/重心/手型/肘/膝/踝/腰腹/核心/呼吸节奏"这类），**也不要出现任何项目名**——项目名由系统自己加。
 4. 不用"建议/应该/务必/一定要"；不安排课后作业；不做成绩承诺；不用 emoji；不写分数或档位。
 5. 语气自然，别堆形容词、别排比、别押韵、别用"不仅…而且…"这类书面句式。
+6. **不要出现主语**（不写"你/您/孩子/他/她"）——这句话既可能用在个人总结、也可能用在班级总结里，用"今天…/这次课…"开头就行。
 只输出 JSON：{"lines":["第一条","第二条"]}`
       : `【要求】写 ${want} 条"笼统版"反馈：
 1. 每条 25-45 字，1-2 句，家长一眼能看懂。
@@ -285,6 +286,7 @@ ${spec}` }
       if (EMOJI.test(t)) { dropped.push('含 emoji'); return; }
       if (BAN.test(t)) { dropped.push('含处方/作业词'); return; }
       if (anyMode && ACTION.test(t)) { dropped.push('含具体动作/部位'); return; }
+      if (anyMode && /你|您|孩子|他|她/.test(t)) { dropped.push('带了主语(个人/班级都通用的句子不能有主语)'); return; }
       if (anyMode && blacklist.some(b => b.length >= 2 && t.includes(b))) { dropped.push('含项目名'); return; }
       if (seen.has(norm(t))) { dropped.push('重复'); return; }
       seen.add(norm(t));
