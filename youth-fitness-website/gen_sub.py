@@ -11,6 +11,10 @@ URL = "https://api.43-161-200-52.sslip.io/v1/images/generations"
 
 def generate(prompt, output_path, size="1024x1024", quality="high", n=1,
              max_w=1200, blur_radius=1.0, jpeg_q=85):
+    if not API_KEY:
+        raise RuntimeError(
+            "SUBROUTER_API_KEY 未设置：先从 profiles/reviewer/.env 导出（长度应为 51），"
+            "否则会以 'Illegal header value b\\'Bearer \\'' 空跑所有重试。")
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
