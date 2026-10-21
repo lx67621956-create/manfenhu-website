@@ -6,7 +6,23 @@ import httpx, json, base64, sys, os, time
 from PIL import Image, ImageFilter
 import io
 
-API_KEY = os.environ.get("SUBROUTER_API_KEY", "")
+def _load_api_key():
+    """优先环境变量；缺失时回落到 Hermes profile 的 .env（shell 重启会丢导出）。"""
+    key = os.environ.get("SUBROUTER_API_KEY", "").strip()
+    if key:
+        return key
+    env_path = os.path.join(os.path.expanduser("~"), "AppData", "Local", "hermes",
+                            "profiles", "reviewer", ".env")
+    try:
+        with open(env_path, encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("SUBROUTER_API_KEY="):
+                    return line.split("=", 1)[1].strip().strip('"').strip("'")
+    except OSError:
+        pass
+    return ""
+
+API_KEY = _load_api_key()
 URL = "https://api.43-161-200-52.sslip.io/v1/images/generations"
 
 def generate(prompt, output_path, size="1024x1024", quality="high", n=1,
